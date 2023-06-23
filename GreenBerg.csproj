@@ -53,6 +53,7 @@
     <Compile Include="GreenBergSettingsView.xaml.cs">
       <DependentUpon>GreenBergSettingsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\Steam\Steam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

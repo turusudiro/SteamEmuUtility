@@ -2,6 +2,7 @@
 using Playnite.SDK.Events;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
+using GreenBerg.Models.Steam;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,41 @@ namespace GreenBerg
             Properties = new GenericPluginProperties
             {
                 HasSettings = true
+            };
+        }
+
+        public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
+        {
+            yield return new GameMenuItem
+            {
+                Description = "Tes",
+                Action = (a) =>
+                {
+                    foreach (Game game in a.Games)
+                    {
+                        if (Steam.IsGameSteamGame(game))
+                        {
+                            PlayniteApi.Dialogs.ShowMessage("Betol anjay");
+                        }
+                        else
+                        {
+                            PlayniteApi.Dialogs.ShowMessage("Salah Anjay");
+                        }
+                    }
+                }
+            };
+        }
+
+        public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs args)
+        {
+            yield return new MainMenuItem
+            {
+                Description = "GreenBerg",
+                Action = (a) => 
+                {
+                    PlayniteApi.Dialogs.ShowMessage("mawi");
+                    Console.WriteLine("Invoked from main menu item!");
+                }
             };
         }
 
