@@ -7,8 +7,8 @@
     <ProjectGuid>{4FDF1E89-5BC3-4C72-8FDA-0D580E7A5D5F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GreenBerg</RootNamespace>
-    <AssemblyName>GreenBerg</AssemblyName>
+    <RootNamespace>SteamEmuUtility</RootNamespace>
+    <AssemblyName>SteamEmuUtility</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -48,12 +48,14 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GreenBerg.cs" />
-    <Compile Include="GreenBergSettings.cs" />
-    <Compile Include="GreenBergSettingsView.xaml.cs">
-      <DependentUpon>GreenBergSettingsView.xaml</DependentUpon>
+    <Compile Include="Common\GreenLumaCommon.cs" />
+    <Compile Include="Common\SteamCommon.cs" />
+    <Compile Include="Common\PlayniteCommon.cs" />
+    <Compile Include="SteamEmuUtility.cs" />
+    <Compile Include="SteamEmuUtilitySettings.cs" />
+    <Compile Include="SteamEmuUtilitySettingsView.xaml.cs">
+      <DependentUpon>SteamEmuUtilitySettingsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Models\Steam\Steam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -68,11 +70,7 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Page Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="GreenBergSettingsView.xaml">
+    <Page Include="SteamEmuUtilitySettingsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -82,5 +80,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

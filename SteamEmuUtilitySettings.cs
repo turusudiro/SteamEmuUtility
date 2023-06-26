@@ -1,34 +1,32 @@
 ﻿using Playnite.SDK;
 using Playnite.SDK.Data;
+using Playnite.SDK.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SteamEmuUtility.Common;
+using Microsoft.Win32;
 
-namespace GreenBerg
+namespace SteamEmuUtility
 {
-    public class GreenBergSettings : ObservableObject
+    public class SteamEmuUtilitySettings : ObservableObject
     {
-        private string option1 = string.Empty;
-        private bool option2 = false;
-        private bool optionThatWontBeSaved = false;
-
-        public string Option1 { get => option1; set => SetValue(ref option1, value); }
-        public bool Option2 { get => option2; set => SetValue(ref option2, value); }
-        // Playnite serializes settings object to a JSON object and saves it as text file.
-        // If you want to exclude some property from being saved then use `JsonDontSerialize` ignore attribute.
-        [DontSerialize]
-        public bool OptionThatWontBeSaved { get => optionThatWontBeSaved; set => SetValue(ref optionThatWontBeSaved, value); }
+        private string user32loaded = string.Empty;
+        public string User32Loaded { get => user32loaded; set => SetValue(ref user32loaded, value); }
     }
 
-    public class GreenBergSettingsViewModel : ObservableObject, ISettings
+    public class SteamEmuUtilitySettingsViewModel : ObservableObject, ISettings
     {
-        private readonly GreenBerg plugin;
-        private GreenBergSettings editingClone { get; set; }
+        private readonly SteamEmuUtility plugin;
+        private SteamEmuUtilitySettings editingClone { get; set; }
 
-        private GreenBergSettings settings;
-        public GreenBergSettings Settings
+        private SteamEmuUtilitySettings settings;
+        public SteamEmuUtilitySettings Settings
         {
             get => settings;
             set
@@ -38,13 +36,13 @@ namespace GreenBerg
             }
         }
 
-        public GreenBergSettingsViewModel(GreenBerg plugin)
+        public SteamEmuUtilitySettingsViewModel(SteamEmuUtility plugin)
         {
             // Injecting your plugin instance is required for Save/Load method because Playnite saves data to a location based on what plugin requested the operation.
             this.plugin = plugin;
 
             // Load saved settings.
-            var savedSettings = plugin.LoadPluginSettings<GreenBergSettings>();
+            var savedSettings = plugin.LoadPluginSettings<SteamEmuUtilitySettings>();
 
             // LoadPluginSettings returns null if no saved data is available.
             if (savedSettings != null)
@@ -53,10 +51,10 @@ namespace GreenBerg
             }
             else
             {
-                Settings = new GreenBergSettings();
+                Settings = new SteamEmuUtilitySettings();
             }
         }
-
+        
         public void BeginEdit()
         {
             // Code executed when settings view is opened and user starts editing values.
@@ -84,6 +82,26 @@ namespace GreenBerg
             // List of errors is presented to user if verification fails.
             errors = new List<string>();
             return true;
+        }
+
+        public RelayCommand<object> BrowseUser32
+        {
+            get => new RelayCommand<object>((a) =>
+            {
+                var file = plugin.PlayniteApi.Dialogs.SelectFile("");
+                if (file.Contains("User32.dll"))
+                {
+                    try
+                    {
+                        File.Copy(file, Path.Combine(plugin.GetPluginUserDataPath(), "User32.dll"), true);
+                        settings.User32Loaded = "Loaded!";
+                    }
+                    catch (Exception ex)
+                    {
+                        plugin.PlayniteApi.Dialogs.ShowErrorMessage($"Error {ex.GetBaseException().Message}");
+                    }
+                }
+            });
         }
     }
 }

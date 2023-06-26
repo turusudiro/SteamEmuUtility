@@ -12,12 +12,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SteamEmuUtility.Common;
+using Playnite.SDK;
+using System.Diagnostics;
 
-namespace GreenBerg
+namespace SteamEmuUtility
 {
-    public partial class GreenBergSettingsView : UserControl
+    public partial class SteamEmuUtilitySettingsView : UserControl
     {
-        public GreenBergSettingsView()
+        public SteamEmuUtilitySettingsView()
         {
             InitializeComponent();
         }
