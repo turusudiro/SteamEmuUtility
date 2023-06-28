@@ -1,11 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
-using System.Diagnostics;
-using System.Windows;
-using System.CodeDom;
+using Playnite.SDK;
+using Playnite.SDK.Events;
+using Playnite.SDK.Plugins;
 using SteamEmuUtility.Common;
 
 namespace SteamEmuUtility
@@ -35,8 +36,8 @@ namespace SteamEmuUtility
                 MenuSection = "Steam Emu Utility",
                 Action = (a) =>
                 {
-                    var count = PlayniteCommon.PlayniteCommon.AddFeatures(PlayniteApi, args.Games, "Steam Emu Utility : [GL] Enabled");
-                    logger.Info($"Added {count} games GL Features");
+                    var count = PlayniteCommon.AddFeatures(args.Games, GreenLumaCommon.GreenLumaFeature(PlayniteApi));
+                    PlayniteApi.Dialogs.ShowMessage($"Added {count} games GL Features", "Steam Emu Utility");
                 }
             };
             yield return new GameMenuItem
@@ -45,20 +46,20 @@ namespace SteamEmuUtility
                 MenuSection = "Steam Emu Utility",
                 Action = (a) =>
                 {
-                    var count = PlayniteCommon.PlayniteCommon.RemoveFeatures(PlayniteApi, args.Games, "Steam Emu Utility : [GL] Enabled");
-                    logger.Info($"Removed {count} games GL Features");
+                    var count = PlayniteCommon.RemoveFeatures(args.Games, GreenLumaCommon.GreenLumaFeature(PlayniteApi));
+                    PlayniteApi.Dialogs.ShowMessage($"Removed {count} games GL Features", "Steam Emu Utility");
                 }
             };
         }
 
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
-            var feature = PlayniteApi.Database.Features.Add("Steam Emu Utility : [GL] Enabled");
-            if (args.Game.FeatureIds.Contains(feature.Id) && SteamCommon.IsGameSteamGame(args.Game))
+            if (args.Game.FeatureIds.Contains(GreenLumaCommon.GreenLumaFeature(PlayniteApi).Id) && SteamCommon.IsGameSteamGame(args.Game))
             {
-                var task = GreenLumaCommon.InjectUser32(Path.Combine(GetPluginUserDataPath(),"user32.dll"));
+                var task = GreenLumaCommon.InjectUser32(Path.Combine(GetPluginUserDataPath(), "user32.dll"));
                 if (task.IsFaulted == true)
                 {
+                    PlayniteApi.Dialogs.ShowErrorMessage($"Cannot inject {GreenLumaCommon.user32} = {task.Exception.GetBaseException().Message}", "Steam Emu Utility");
                     logger.Error(task.Exception.GetBaseException().Message);
                     args.CancelStartup = true;
                     return;
@@ -70,22 +71,20 @@ namespace SteamEmuUtility
                 {
                     logger.Info("Steam Is Running, Killing...");
                     SteamCommon.KillSteam();
-                    SteamCommon.RunSteam();
+                    SteamCommon.RunSteam(); 
                 }
-            }
-            if (args.CancelStartup == true)
-            {
-                SteamCommon.KillSteam();
-                GreenLumaCommon.DeleteUser32(SteamCommon.GetSteamDir());
-                GreenLumaCommon.DeleteAppList();
             }
         }
 
         public override void OnGameStopped(OnGameStoppedEventArgs args)
         {
-            SteamCommon.KillSteam();
-            GreenLumaCommon.DeleteUser32(SteamCommon.GetSteamDir());
-            GreenLumaCommon.DeleteAppList();
+            if (args.Game.FeatureIds.Contains(GreenLumaCommon.GreenLumaFeature(PlayniteApi).Id) && SteamCommon.IsGameSteamGame(args.Game))
+            {
+                SteamCommon.KillSteam();
+                Task.Delay(100).Wait();
+                GreenLumaCommon.DeleteUser32(SteamCommon.GetSteamDir());
+                GreenLumaCommon.DeleteAppList();
+            }
         }
 
         public override ISettings GetSettings(bool firstRunSettings)
