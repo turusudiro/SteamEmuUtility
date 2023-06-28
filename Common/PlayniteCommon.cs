@@ -1,25 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Playnite.SDK;
 using Playnite.SDK.Models;
-using SteamEmuUtility.Common;
 
-namespace PlayniteCommon
+namespace SteamEmuUtility.Common
 {
     public class PlayniteCommon
     {
-        public static bool HasFeature(IPlayniteAPI PlayniteApi, Game game, GameFeature Feature)
-        {
-            if (game.FeatureIds.Contains(Feature.Id))
-            {
-                return true;
-            }
-            return false;
-        }
-        public static bool AddedFeature(IPlayniteAPI PlayniteApi, Game game, GameFeature Feature)
+        public static bool AddedFeature(Game game, GameFeature Feature)
         {
             if (game.Features == null && SteamCommon.IsGameSteamGame(game))
             {
@@ -33,24 +21,19 @@ namespace PlayniteCommon
             }
             return false;
         }
-        public static int AddFeatures(IPlayniteAPI PlayniteApi, IEnumerable<Game> games, string Feature)
-        {
-            var feature = PlayniteApi.Database.Features.Add(Feature);
-            return AddFeature(PlayniteApi, games, feature);
-        }
-        public static int AddFeature(IPlayniteAPI PlayniteApi, IEnumerable<Game> games, GameFeature Feature)
+        public static int AddFeatures(IEnumerable<Game> games, GameFeature Feature)
         {
             var count = 0;
             foreach (var game in games)
             {
-                if (AddedFeature(PlayniteApi, game, Feature))
+                if (AddedFeature(game, Feature))
                 {
                     count++;
                 }
             }
             return count;
         }
-        public static bool RemovedFeature(IPlayniteAPI PlayniteApi, Game game, GameFeature Feature)
+        public static bool RemovedFeature(Game game, GameFeature Feature)
         {
             if (game.FeatureIds.Contains(Feature.Id) && SteamCommon.IsGameSteamGame(game))
             {
@@ -59,17 +42,12 @@ namespace PlayniteCommon
             }
             return false;
         }
-        public static int RemoveFeatures(IPlayniteAPI PlayniteApi, IEnumerable<Game> games, string Feature)
-        {
-            var feature = PlayniteApi.Database.Features.Add(Feature);
-            return RemoveFeature(PlayniteApi, games, feature);
-        }
-        public static int RemoveFeature(IPlayniteAPI PlayniteApi, IEnumerable<Game> games, GameFeature Feature)
+        public static int RemoveFeatures(IEnumerable<Game> games, GameFeature Feature)
         {
             var count = 0;
             foreach (var game in games)
             {
-                if (RemovedFeature(PlayniteApi, game, Feature))
+                if (RemovedFeature(game, Feature))
                 {
                     count++;
                 }
