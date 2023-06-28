@@ -1,16 +1,8 @@
-﻿using Playnite.SDK;
-using Playnite.SDK.Data;
-using Playnite.SDK.Models;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SteamEmuUtility.Common;
-using Microsoft.Win32;
+using Playnite.SDK;
+using Playnite.SDK.Data;
 
 namespace SteamEmuUtility
 {
@@ -54,7 +46,7 @@ namespace SteamEmuUtility
                 Settings = new SteamEmuUtilitySettings();
             }
         }
-        
+
         public void BeginEdit()
         {
             // Code executed when settings view is opened and user starts editing values.
