@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using Microsoft.Win32;
 using Playnite.SDK;
 using Playnite.SDK.Models;
@@ -66,12 +63,17 @@ namespace SteamEmuUtility.Common
             }
             return false;
         }
-        public static void KillSteam()
+        public static async void KillSteam()
         {
-            foreach (var process in Process.GetProcessesByName("steam"))
+            await Task.Run(() =>
             {
-                process.Kill();
-            }
+                foreach (var process in Process.GetProcessesByName("steam"))
+                {
+                    logger.Info($"Killed Steam process with id={process.Id}");
+                    process.Kill();
+                }
+            });
+
         }
         public static void RunSteam()
         {
