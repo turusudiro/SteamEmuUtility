@@ -6,11 +6,11 @@
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="600">
     <StackPanel Orientation="Vertical">
-        <DockPanel>
+        <DockPanel Margin="10,10,0,0">
             <TextBlock Text="Load User32.dll"/>
             <Separator Width="40" Background="Transparent"/>
-            <TextBlock Text="{Binding Settings.User32Loaded}" Width="400"/>
-            <Button HorizontalAlignment="Right" Width="80" Content="Browse" Command="{Binding BrowseUser32}"/>
+            <TextBlock Text="{Binding Settings.User32Loaded}" Foreground="{Binding Settings.ColorUser32}" Width="400"/>
+            <Button Width="80" Content="Browse" Command="{Binding BrowseUser32}"/>
         </DockPanel>
     </StackPanel>
 </UserControl>

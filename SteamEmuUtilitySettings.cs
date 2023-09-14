@@ -1,15 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Media;
 using Playnite.SDK;
 using Playnite.SDK.Data;
+using SteamEmuUtility.Common;
 
 namespace SteamEmuUtility
 {
     public class SteamEmuUtilitySettings : ObservableObject
     {
-        private string user32loaded = string.Empty;
-        public string User32Loaded { get => user32loaded; set => SetValue(ref user32loaded, value); }
+        private string user32loaded = "Loaded!";
+        private SolidColorBrush coloruser32 { get; set; } = new SolidColorBrush(Brushes.LimeGreen.Color);
+
+        [DontSerialize]
+        public string User32Loaded
+        {
+            get => user32loaded;
+            set
+            {
+                user32loaded = value;
+                OnPropertyChanged();
+            }
+        }
+        [DontSerialize]
+        public SolidColorBrush ColorUser32
+        {
+            get => coloruser32;
+            set
+            {
+                coloruser32 = value;
+                OnPropertyChanged();
+            }
+        }
     }
 
     public class SteamEmuUtilitySettingsViewModel : ObservableObject, ISettings
@@ -50,6 +73,11 @@ namespace SteamEmuUtility
         public void BeginEdit()
         {
             // Code executed when settings view is opened and user starts editing values.
+            if (!File.Exists(Path.Combine(plugin.GetPluginUserDataPath(), GreenLumaCommon.user32)))
+            {
+                settings.User32Loaded = "Not Found!";
+                settings.ColorUser32.Color = Brushes.Red.Color;
+            }
             editingClone = Serialization.GetClone(Settings);
         }
 
@@ -80,18 +108,16 @@ namespace SteamEmuUtility
         {
             get => new RelayCommand<object>((a) =>
             {
-                var file = plugin.PlayniteApi.Dialogs.SelectFile("");
-                if (file.Contains("User32.dll"))
+                var file = plugin.PlayniteApi.Dialogs.SelectFile("User32|User32.dll");
+                try
                 {
-                    try
-                    {
-                        File.Copy(file, Path.Combine(plugin.GetPluginUserDataPath(), "User32.dll"), true);
-                        settings.User32Loaded = "Loaded!";
-                    }
-                    catch (Exception ex)
-                    {
-                        plugin.PlayniteApi.Dialogs.ShowErrorMessage($"Error {ex.GetBaseException().Message}");
-                    }
+                    File.Copy(file, Path.Combine(plugin.GetPluginUserDataPath(), "User32.dll"), true);
+                    settings.User32Loaded = "Loaded!";
+                    settings.ColorUser32.Color = Brushes.LimeGreen.Color;
+                }
+                catch (Exception)
+                {
+                    return;
                 }
             });
         }

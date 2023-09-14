@@ -51,6 +51,8 @@
     <Compile Include="Common\GreenLumaCommon.cs" />
     <Compile Include="Common\SteamCommon.cs" />
     <Compile Include="Common\PlayniteCommon.cs" />
+    <Compile Include="Services\Models\AppDetails.cs" />
+    <Compile Include="Services\SteamService.cs" />
     <Compile Include="SteamEmuUtility.cs" />
     <Compile Include="SteamEmuUtilitySettings.cs" />
     <Compile Include="SteamEmuUtilitySettingsView.xaml.cs">

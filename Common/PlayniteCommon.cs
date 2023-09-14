@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Playnite.SDK;
 using Playnite.SDK.Models;
 
 namespace SteamEmuUtility.Common
