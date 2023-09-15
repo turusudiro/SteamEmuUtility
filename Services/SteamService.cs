@@ -12,7 +12,7 @@ namespace SteamEmuUtility.Services
 {
     public interface ISteamService
     {
-        Task GetDLCStore(Game game, GlobalProgressActionArgs a);
+        Task<bool> GetDLCStore(Game game, GlobalProgressActionArgs a);
     }
     public class SteamService : ISteamService
     {
@@ -26,7 +26,7 @@ namespace SteamEmuUtility.Services
             this.plugin = plugin;
             CommonPath = Path.Combine(plugin.GetPluginUserDataPath(), "Common");
         }
-        public async Task GetDLCStore(Game game, GlobalProgressActionArgs a)
+        public async Task<bool> GetDLCStore(Game game, GlobalProgressActionArgs a)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -39,11 +39,23 @@ namespace SteamEmuUtility.Services
                     appDetails = json[json.Keys.First()];
                     if (appDetails.data.dlc != null)
                     {
-                        logger.Info($"Found {appDetails.data.dlc} DLC");
+                        logger.Info($"Found {appDetails.data.dlc.Count} DLC");
                         string[] dlc = appDetails.data.dlc.Select(i => i.ToString()).ToArray();
+                        if (!Directory.Exists(CommonPath))
+                        {
+                            Directory.CreateDirectory(CommonPath);
+                        }
                         File.WriteAllLines($"{CommonPath}\\{game.GameId}.txt", dlc);
+                        return true;
                     }
-
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
                 }
             }
         }
