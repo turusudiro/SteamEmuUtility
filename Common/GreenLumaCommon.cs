@@ -48,7 +48,15 @@ namespace SteamEmuUtility.Common
                     global.Text = $"Getting DLC Info for {args.Game.Name}";
                     global.CurrentProgressValue++;
                     Thread.Sleep(TimeSpan.FromSeconds(1));
-                    Task.Run(() => Steamservice.GetDLCStore(args.Game, global));
+                    var job = Steamservice.GetDLCStore(args.Game, global);
+                    if (job.GetAwaiter().GetResult() == true)
+                    {
+                        foreach (string line in File.ReadLines(dlcpath))
+                        {
+                            WriteAppList(line, count);
+                            count++;
+                        }
+                    }
                 }, progress);
                 return Task.CompletedTask;
             }
