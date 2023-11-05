@@ -1,35 +1,126 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows;
 using System.Windows.Media;
+using GreenLumaCommon;
+using ICSharpCode.SharpZipLib.Core;
+using ICSharpCode.SharpZipLib.Zip;
 using Playnite.SDK;
 using Playnite.SDK.Data;
-using SteamEmuUtility.Common;
 
 namespace SteamEmuUtility
 {
     public class SteamEmuUtilitySettings : ObservableObject
     {
-        private string user32loaded = "Loaded!";
-        private SolidColorBrush coloruser32 { get; set; } = new SolidColorBrush(Brushes.LimeGreen.Color);
-
-        [DontSerialize]
-        public string User32Loaded
+        private int maxattemptdllinjector = 0;
+        public int MaxAttemptDLLInjector
         {
-            get => user32loaded;
+            get => maxattemptdllinjector;
             set
             {
-                user32loaded = value;
+                maxattemptdllinjector = value;
                 OnPropertyChanged();
             }
         }
-        [DontSerialize]
-        public SolidColorBrush ColorUser32
+
+        private int millisecondstowait = 1000;
+        public int MillisecondsToWait
         {
-            get => coloruser32;
+            get => millisecondstowait;
             set
             {
-                coloruser32 = value;
+                millisecondstowait = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool cleangreenluma = true;
+        public bool CleanGreenLuma
+        {
+            get => cleangreenluma;
+            set
+            {
+                cleangreenluma = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool injectappownership = false;
+        public bool InjectAppOwnership
+        {
+            get => injectappownership;
+            set
+            {
+                injectappownership = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool injectencryptedapp = false;
+        public bool InjectEncryptedApp
+        {
+            get => injectencryptedapp;
+            set
+            {
+                injectencryptedapp = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool skipupdatestealth = false;
+        public bool SkipUpdateStealth
+        {
+            get => skipupdatestealth;
+            set
+            {
+                skipupdatestealth = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool closesteamonexit = true;
+        public bool CloseSteamOnExit
+        {
+            get => closesteamonexit;
+            set
+            {
+                closesteamonexit = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool cleanappcache = false;
+        public bool CleanAppCache
+        {
+            get => cleanappcache;
+            set
+            {
+                cleanappcache = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string greenlumastatus = "Active!";
+        [DontSerialize]
+        public string GreenLumaStatus
+        {
+            get => greenlumastatus;
+            set
+            {
+                greenlumastatus = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private SolidColorBrush colorgreenlumastatus { get; set; } = new SolidColorBrush(Brushes.LimeGreen.Color);
+        [DontSerialize]
+        public SolidColorBrush ColorGreenLumaStatus
+        {
+            get => colorgreenlumastatus;
+            set
+            {
+                colorgreenlumastatus = value;
                 OnPropertyChanged();
             }
         }
@@ -73,10 +164,16 @@ namespace SteamEmuUtility
         public void BeginEdit()
         {
             // Code executed when settings view is opened and user starts editing values.
-            if (!File.Exists(Path.Combine(plugin.GetPluginUserDataPath(), GreenLumaCommon.user32)))
+            Dictionary<string, bool> fileExistenceDictionary = new Dictionary<string, bool>();
+            foreach (var fileName in GreenLuma.GreenLumaNormalModeFiles)
             {
-                settings.User32Loaded = "Not Found!";
-                settings.ColorUser32.Color = Brushes.Red.Color;
+                fileExistenceDictionary[fileName] = File.Exists(Path.Combine(plugin.GetPluginUserDataPath(), "GreenLuma\\NormalMode", fileName));
+            }
+            // check if all GreenLuma files is exists when opening settings
+            if (fileExistenceDictionary.ContainsValue(false))
+            {
+                settings.GreenLumaStatus = "Not Found/Incomplete files!";
+                settings.ColorGreenLumaStatus.Color = Brushes.Red.Color;
             }
             editingClone = Serialization.GetClone(Settings);
         }
@@ -104,20 +201,96 @@ namespace SteamEmuUtility
             return true;
         }
 
-        public RelayCommand<object> BrowseUser32
+        public RelayCommand<object> BrowseGreenLuma
         {
             get => new RelayCommand<object>((a) =>
             {
-                var file = plugin.PlayniteApi.Dialogs.SelectFile("User32|User32.dll");
-                try
-                {
-                    File.Copy(file, Path.Combine(plugin.GetPluginUserDataPath(), "User32.dll"), true);
-                    settings.User32Loaded = "Loaded!";
-                    settings.ColorUser32.Color = Brushes.LimeGreen.Color;
-                }
-                catch (Exception)
+                var path = plugin.PlayniteApi.Dialogs.SelectFile(@"GreenLuma_2023_X.X.X-Steam006.zip Files|*.zip");
+                if (string.IsNullOrEmpty(path))
                 {
                     return;
+                }
+                bool passwordCorrect = false;
+                string password = string.Empty;
+                GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
+                plugin.PlayniteApi.Dialogs.ActivateGlobalProgress((global) =>
+                {
+                    while (!passwordCorrect)
+                    {
+                        try
+                        {
+                            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                            using (ZipFile zf = new ZipFile(fs))
+                            {
+                                // Attempt to extract with the provided password
+                                zf.Password = password; // Set the password
+                                global.ProgressMaxValue = zf.Count;
+                                foreach (ZipEntry zipEntry in zf)
+                                {
+                                    global.Text = $"Extracting {zipEntry.Name}";
+                                    global.CurrentProgressValue = +1;
+                                    if (!zipEntry.IsFile)
+                                    {
+                                        continue;
+                                    }
+                                    string entryFileName = zipEntry.Name;
+                                    byte[] buffer = new byte[4096];
+                                    Stream zipStream = zf.GetInputStream(zipEntry);
+
+                                    string fullZipToPath = Path.Combine(plugin.GetPluginUserDataPath(), "GreenLuma", entryFileName);
+                                    string directoryName = Path.GetDirectoryName(fullZipToPath);
+                                    if (directoryName.Length > 0)
+                                    {
+                                        Directory.CreateDirectory(directoryName);
+                                    }
+
+                                    using (FileStream streamWriter = File.Create(fullZipToPath))
+                                    {
+                                        StreamUtils.Copy(zipStream, streamWriter, buffer);
+                                    }
+                                }
+                                plugin.PlayniteApi.Dialogs.ShowMessage("Extraction Complete", "Steam Emu Utility", MessageBoxButton.OK, MessageBoxImage.Information);
+                                Console.WriteLine("ZIP file extracted successfully.");
+
+                                passwordCorrect = true;
+                            }
+                        }
+                        catch (ZipException ex)
+                        {
+                            if (ex.Message.Contains("Password incorrect") || ex.Message.Contains("Invalid password"))
+                            {
+                                var result = plugin.PlayniteApi.Dialogs.SelectString("File is password-protected, Please enter the password", "Error", "");
+                                if (result.Result)
+                                {
+                                    password = result.SelectedString;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                plugin.PlayniteApi.Dialogs.ShowErrorMessage("ZIP extraction failed with an unknown error: " + ex.Message);
+                                break;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            plugin.PlayniteApi.Dialogs.ShowErrorMessage("An error occurred: " + ex.Message);
+                            break;
+                        }
+                    }
+                }, progress);
+                Dictionary<string, bool> fileExistenceDictionary = new Dictionary<string, bool>();
+                foreach (var fileName in GreenLuma.GreenLumaNormalModeFiles)
+                {
+                    fileExistenceDictionary[fileName] = File.Exists(Path.Combine(plugin.GetPluginUserDataPath(), "GreenLuma\\NormalMode", fileName));
+                }
+                if (fileExistenceDictionary.ContainsValue(true))
+                {
+                    settings.GreenLumaStatus = "Ready!";
+                    settings.ColorGreenLumaStatus.Color = Brushes.LimeGreen.Color;
                 }
             });
         }

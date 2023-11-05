@@ -5,12 +5,34 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="600">
-    <StackPanel Orientation="Vertical">
-        <DockPanel Margin="10,10,0,0">
-            <TextBlock Text="Load User32.dll"/>
-            <Separator Width="40" Background="Transparent"/>
-            <TextBlock Text="{Binding Settings.User32Loaded}" Foreground="{Binding Settings.ColorUser32}" Width="400"/>
-            <Button Width="80" Content="Browse" Command="{Binding BrowseUser32}"/>
-        </DockPanel>
+    <StackPanel Orientation="Vertical" Margin="20,20,20,0">
+        <StackPanel Orientation="Horizontal" Margin="5,10,5,0">
+            <TextBlock Text="GreenLuma Status" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBlock Text="{Binding Settings.GreenLumaStatus}" Foreground="{Binding Settings.ColorGreenLumaStatus}" VerticalAlignment="Center" Margin="10,0,0,0" Width="150"/>
+            <Button MinWidth="80" Content="Browse" Command="{Binding BrowseGreenLuma}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+        </StackPanel>
+        <StackPanel Margin="5,15,5,0">
+            <TextBlock Text="General" Margin="5,0,0,10"/>
+            <CheckBox Content="Clean Steam AppCache on starting game" IsChecked="{Binding Settings.CleanAppCache}" Margin="0,0,0,10"/>
+            <CheckBox Content="Close Steam on game exit" IsChecked="{Binding Settings.CloseSteamOnExit}" Margin="0,0,0,10"/>
+            <CheckBox Content="Clean GreenLuma files on Steam directory after game exit" IsChecked="{Binding Settings.CleanGreenLuma}" Margin="20,0,0,10" IsEnabled="{Binding Settings.CloseSteamOnExit}"/>
+        </StackPanel>
+        <StackPanel Margin="5,10,5,0">
+            <TextBlock Text="Stealth Mode" Margin="5,0,0,10"/>
+            <CheckBox Content="Skip Steam Update on Stealth Mode" IsChecked="{Binding Settings.SkipUpdateStealth}" Margin="0,0,0,10"/>
+        </StackPanel>
+        <StackPanel Margin="5,10,5,0">
+            <TextBlock Text="Normal Mode" Margin="5,0,0,10"/>
+            <CheckBox Content="Inject AppOwnershipTickets if there available" IsChecked="{Binding Settings.InjectAppOwnership}" Margin="0,0,0,10"/>
+            <CheckBox Content="Inject EncryptedAppTickets if there available" IsChecked="{Binding Settings.InjectEncryptedApp}" Margin="0,0,0,10"/>
+            <TextBlock Text="{Binding Settings.MillisecondsToWait, StringFormat='Wait for the DLLInjector/Steam to start/exit, with a delay of {0} milliseconds'}" Margin="0,0,0,10"/>
+            <Slider Value="{Binding Settings.MillisecondsToWait}" Minimum="500" Maximum="3000" IsSnapToTickEnabled="True" TickFrequency="500" Width="140" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+            <TextBlock Text="Attempt to Restart DLLInjector if it fails." Margin="0,0,0,10"/>
+            <ComboBox SelectedIndex="{Binding Settings.MaxAttemptDLLInjector}" Width="150" HorizontalAlignment="Left" Margin="0,0,0,10">
+                <ComboBoxItem Content="Do not Restart"/>
+                <ComboBoxItem Content="Restart once"/>
+                <ComboBoxItem Content="Restart twice"/>
+            </ComboBox>
+        </StackPanel>
     </StackPanel>
 </UserControl>
