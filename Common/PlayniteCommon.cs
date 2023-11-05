@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using Playnite.SDK.Models;
+using SteamCommon;
 
-namespace SteamEmuUtility.Common
+namespace PlayniteCommon
 {
-    public class PlayniteCommon
+    public class PlayniteUtilities
     {
         public static bool AddedFeature(Game game, GameFeature Feature)
         {
-            if (game.Features == null && SteamCommon.IsGameSteamGame(game))
+            if (game.Features == null && SteamUtilities.IsGameSteamGame(game))
             {
                 game.FeatureIds = new List<Guid> { Feature.Id };
                 return true;
             }
-            if (!game.FeatureIds.Contains(Feature.Id) && SteamCommon.IsGameSteamGame(game))
+            if (!game.FeatureIds.Contains(Feature.Id) && SteamUtilities.IsGameSteamGame(game))
             {
                 game.FeatureIds.Add(Feature.Id);
                 return true;
@@ -34,7 +35,7 @@ namespace SteamEmuUtility.Common
         }
         public static bool RemovedFeature(Game game, GameFeature Feature)
         {
-            if (game.FeatureIds.Contains(Feature.Id) && SteamCommon.IsGameSteamGame(game))
+            if (game.FeatureIds.Contains(Feature.Id) && SteamUtilities.IsGameSteamGame(game))
             {
                 game.FeatureIds.Remove(Feature.Id);
                 return true;

@@ -1,38 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Win32;
 using Playnite.SDK;
 using Playnite.SDK.Models;
+using ProcessCommon;
 
-namespace SteamEmuUtility.Common
+namespace SteamCommon
 {
-    public class SteamCommon
+    public class SteamUtilities
     {
         private static ILogger logger = LogManager.GetLogger();
         private static Guid steamPluginId = Guid.Parse("cb91dfc9-b977-43bf-8e70-55f46e410fab");
         private const string defaultexe = @"C:\Program Files (x86)\Steam\steam.exe";
         private const string defaultdir = @"C:\Program Files (x86)\Steam";
-        public static string GetSteamExe()
-        {
-            using (var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Steam"))
-            {
-                if (key?.GetValueNames().Contains("SteamExe") == true)
-                {
-                    return key.GetValue("SteamExe")?.ToString().Replace('/', '\\') ?? defaultexe;
-                }
-            }
-
-            return defaultexe;
-        }
-        public static string SteamExe()
-        {
-            return Path.GetDirectoryName(GetSteamExe());
-        }
-        public static string GetSteamDir()
+        private static string GetSteamDir()
         {
             using (var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Steam"))
             {
@@ -44,40 +27,94 @@ namespace SteamEmuUtility.Common
 
             return defaultdir;
         }
-        public static string SteamDir()
+        private static string GetSteamExe()
         {
-            return Path.GetDirectoryName(GetSteamDir());
+            using (var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Steam"))
+            {
+                if (key?.GetValueNames().Contains("SteamExe") == true)
+                {
+                    return key.GetValue("SteamExe")?.ToString().Replace('/', '\\') ?? defaultexe;
+                }
+            }
+
+            return defaultexe;
         }
+        /// <summary>
+        /// Get Steam executable path.
+        /// </summary>
+        /// <returns> Steam executable path</returns>
+        public static string SteamExecutable
+        {
+            get
+            {
+                return GetSteamExe();
+            }
+        }
+        /// <summary>
+        /// Get Steam directory path.
+        /// </summary>
+        /// <returns> Steam directory path</returns>
+        public static string SteamDirectory
+        {
+            get
+            {
+                return GetSteamDir();
+            }
+        }
+        /// <summary>
+        /// Checks if the game is Steam game.
+        /// </summary>
+        /// <param name="game">The game to check</param>
+        /// <returns>
+        /// <c>true</c> if the game is Steam game; otherwise <c>false</c>
+        /// </returns>
         public static bool IsGameSteamGame(Game game)
         {
             return game.PluginId == steamPluginId;
         }
-        public static bool IsSteamRunning()
+        /// <summary>
+        /// Checks if Steam running.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if Steam running; otherwise <c>false</c>
+        /// </returns>
+        public static bool IsSteamRunning
         {
-            foreach (Process clsProcess in Process.GetProcesses())
+            get
             {
-                if (clsProcess.ProcessName.Contains("steam"))
+                foreach (Process clsProcess in Process.GetProcesses())
+                {
+                    if (clsProcess.ProcessName.Contains("steam"))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+        /// <summary>
+        /// Kill Steam process.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if Steam process successfully kill; otherwise <c>false</c>
+        /// </returns>
+        public static bool KillSteam
+        {
+            get
+            {
+                if (ProcessUtilities.ProcessKill("steam"))
                 {
                     return true;
                 }
-            }
-            return false;
-        }
-        public static async void KillSteam()
-        {
-            await Task.Run(() =>
-            {
-                foreach (var process in Process.GetProcessesByName("steam"))
+                else
                 {
-                    logger.Info($"Killed Steam process with id={process.Id}");
-                    process.Kill();
+                    return false;
                 }
-            });
-
+            }
         }
         public static void RunSteam()
         {
-            Process.Start(GetSteamExe());
+            Process.Start(SteamExecutable);
         }
     }
 }
