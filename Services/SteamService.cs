@@ -79,11 +79,6 @@ namespace ServiceCommon
                 OnDisconnected(callback, progressOptions);
             });
 
-            //manager.Subscribe<SteamApps.PICSProductInfoCallback>(callback =>
-            //{
-            //    PICSProductInfo(callback, listdlc, progressOptions, CommonPath, appids);
-            //});
-
             manager.Subscribe<SteamUser.LoggedOnCallback>(callback =>
             {
                 OnLoggedOn(callback, progressOptions);
@@ -122,25 +117,6 @@ namespace ServiceCommon
                 manager.Subscribe<SteamApps.PICSProductInfoCallback>(callback =>
                 {
                     count = GenerateDLCGreenLuma(callback, progressOptions, appid, CommonPath, listdlc, count);
-                    //if (callback.Apps.ContainsKey(appid))
-                    //{
-                    //    var productInfo = callback.Apps[appid];
-                    //    if (productInfo.KeyValues["extended"]["listofdlc"] == KeyValue.Invalid)
-                    //    {
-                    //        logger.Error("Keyvalue is invalid, no DLC Found!");
-                    //        progressOptions.Text = ("Keyvalue is invalid, no DLC Found!");
-                    //    }
-                    //    else
-                    //    {
-                    //        if (!Directory.Exists(CommonPath))
-                    //        {
-                    //            Directory.CreateDirectory(CommonPath);
-                    //        }
-                    //        var listofdlc = productInfo.KeyValues["extended"]["listofdlc"];
-                    //        listdlc.AddRange(listofdlc.Value.Split(',').Select(s => s.Trim()).ToList());
-                    //        File.WriteAllLines($"{CommonPath}\\{appid}.txt", listdlc);
-                    //    }
-                    //}
                 });
             }
             steamClient.Disconnect();
@@ -181,36 +157,6 @@ namespace ServiceCommon
             }
             return count;
         }
-        //void PICSProductInfo(SteamApps.PICSProductInfoCallback callback, List<string> listdlc, GlobalProgressActionArgs a, string CommonPath, uint appid)
-        //{
-        //    logger.Info("Getting DLC");
-        //    a.Text = "Getting Product Info";
-        //    if (callback.Apps.ContainsKey(appid))
-        //    {
-        //        var productInfo = callback.Apps[appid];
-        //        //var tes = productInfo.KeyValues["extended"].Children;
-        //        //foreach (var line in tes)
-        //        //{
-        //        //    logger.Info(line.ToString());
-        //        //}
-        //        if (productInfo.KeyValues["extended"]["listofdlc"] == KeyValue.Invalid)
-        //        {
-        //            logger.Error("Keyvalue is invalid, no DLC Found!");
-        //            a.Text = ("Keyvalue is invalid, no DLC Found!");
-        //        }
-        //        else
-        //        {
-        //            if (!Directory.Exists(CommonPath))
-        //            {
-        //                Directory.CreateDirectory(CommonPath);
-        //            }
-        //            var listofdlc = productInfo.KeyValues["extended"]["listofdlc"];
-        //            listdlc.AddRange(listofdlc.Value.Split(',').Select(s => s.Trim()).ToList());
-        //            //listdlc.AddRange(filter);
-        //            //logger.Info(filter.Count.ToString());
-        //        }
-        //    }
-        //}
 
         void OnConnected(SteamClient.ConnectedCallback callback, GlobalProgressActionArgs a)
         {
