@@ -1,5 +1,6 @@
 # Steam Emu Utility
 Playnite Extension for using GreenLuma
+![Screenshot](Images/0.png)
 
 ## How to use it
 
