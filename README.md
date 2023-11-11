@@ -3,6 +3,10 @@ Playnite Extension for using GreenLuma
 
 ![Screenshot](Images/0.png)
 
+## USE AT YOUR OWN RISK
+
+Use this plugin at your own risk, i am not responsible for any damage that may occur to your system.
+
 ## How to use it
 
 ### Load GreenLuma zip file (IMPORTANT)
