@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Playnite.SDK;
 using Playnite.SDK.Events;
 using Playnite.SDK.Models;
 using ProcessCommon;
-using ServiceCommon;
 using SteamCommon;
+using SteamEmuUtility;
 
 namespace GreenLumaCommon
 {
@@ -29,9 +31,37 @@ namespace GreenLumaCommon
         private const string stealthfeature = "[SEU] Stealth Mode";
         private const string gamefeature = "[SEU] Game Unlocking";
         private const string dlcfeature = "[SEU] DLC Unlocking";
-        private const string user32 = "User32.dll";
         private const string stealth = "NoQuestion.bin";
         private static readonly ILogger logger = LogManager.GetLogger();
+        private static SteamEmuUtilitySettings settings;
+        public static SteamEmuUtilitySettings GreenLumaSettings
+        {
+            get
+            {
+                return settings;
+            }
+            set
+            {
+                settings = value;
+            }
+        }
+        public static string EncryptedAppTicketsPath { get { return Path.Combine(CommonPath, "EncryptedAppTickets"); } }
+        public static string AppOwnershipTicketsPath { get { return Path.Combine(CommonPath, "AppOwnershipTickets"); } }
+        private static string BackupPath { get { return Path.Combine(CommonPath, "Backup"); } }
+        private static string User32 { get { return Path.Combine(pluginpath, "GreenLuma", "StealthMode", "User32.dll"); } }
+        private static string CommonPath { get { return Path.Combine(pluginpath, "Common", "GreenLuma"); } }
+        private static string pluginpath;
+        public static string PluginPath
+        {
+            get
+            {
+                return pluginpath;
+            }
+            set
+            {
+                pluginpath = value;
+            }
+        }
 
         /// <summary>
         /// Clean GreenLuma Files
@@ -129,38 +159,99 @@ namespace GreenLumaCommon
         /// Copy GreenLuma NormalMode files
         /// <para>Copy GreenLuma NormalMode files into Steam directory, also create NoQuestion.bin</para>
         /// </summary>
-        public static bool NormalMode(SteamEmuUtility.SteamEmuUtility plugin)
+        public static void GreenLumaNormalMode(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi)
         {
+            if (ProcessUtilities.IsProcessRunning("steam") && !ProcessUtilities.IsProcessRunning("dllinjector"))
+            {
+                if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes)
+                {
+                    while (ProcessUtilities.IsProcessRunning("steam"))
+                    {
+                        ProcessUtilities.ProcessKill("steam");
+                        Thread.Sleep(settings.MillisecondsToWait);
+                    }
+                }
+                else
+                {
+                    args.CancelStartup = true;
+                    return;
+                }
+            }
+            if (!File.Exists(Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe")))
+            {
+                GreenLuma.BackupX64Launcher();
+            }
+            if (File.Exists(Path.Combine(AppOwnershipTicketsPath, $"Ticket.{args.Game.GameId}")) && settings.InjectAppOwnership)
+            {
+                logger.Info("Found AppOwnershipTickets, copying...");
+                InjectAppOwnershipTickets(Path.Combine(AppOwnershipTicketsPath, $"Ticket.{args.Game.GameId}"));
+            }
+            if (File.Exists(Path.Combine(EncryptedAppTicketsPath, $"EncryptedTicket.{args.Game.GameId}")) && settings.InjectEncryptedApp)
+            {
+                logger.Info("Found EncryptedAppTickets, copying...");
+                GreenLuma.InjectEncryptedAppTickets(Path.Combine(EncryptedAppTicketsPath, $"EncryptedTicket.{args.Game.GameId}"));
+            }
+            if (settings.CleanAppCache)
+            {
+                GreenLuma.CleanAppCache();
+            }
             try
             {
-                CopyDirectory(Path.Combine(plugin.GetPluginUserDataPath(), "GreenLuma\\NormalMode"), SteamUtilities.SteamDirectory);
+                CopyDirectory(Path.Combine(PluginPath, "GreenLuma\\NormalMode"), SteamUtilities.SteamDirectory);
                 File.WriteAllText(Path.Combine(SteamUtilities.SteamDirectory, stealth), null);
-                return true;
             }
-            catch
+            catch (Exception ex) { PlayniteApi.Dialogs.ShowErrorMessage(ex.Message); args.CancelStartup = true; return; }
+            if (!GreenLuma.StartInjector(args, settings.MaxAttemptDLLInjector, settings.MillisecondsToWait))
             {
-                return false;
+                PlayniteApi.Dialogs.ShowMessage("An Error occured! Cannot run Steam with injector!", "ERROR!", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                args.CancelStartup = true;
+                return;
             }
         }
         /// <summary>
         /// Copy GreenLuma StealthMode files
-        /// <para>Copy User32.dll file into Steam directory, also create NoQuestion.bin in applist folder.</para>
+        /// <para>Copy User32.dll file into Steam directory, also create NoQuestion.bin in applist folder </para>
+        /// and run Steam with -inhibitbootstrap if Skip Steam Update on Stealth Mode is True
         /// </summary>
-        public static Task StealthMode(string dll)
+        public static void GreenLumaStealthMode(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi)
         {
             if (!Directory.Exists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
             {
                 Directory.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
             }
+            if (ProcessUtilities.IsProcessRunning("steam"))
+            {
+                if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes)
+                {
+                    while (ProcessUtilities.IsProcessRunning("steam"))
+                    {
+                        ProcessUtilities.ProcessKill("steam");
+                        Thread.Sleep(settings.MillisecondsToWait);
+                    }
+                }
+                else
+                {
+                    args.CancelStartup = true;
+                    return;
+                }
+            }
+            if (settings.CleanAppCache)
+            {
+                CleanAppCache();
+            }
+            if (settings.SkipUpdateStealth)
+            {
+                ProcessUtilities.TryStartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap -applaunch {args.Game.GameId}", SteamUtilities.SteamDirectory);
+            }
             try
             {
                 File.WriteAllText(Path.Combine(SteamUtilities.SteamDirectory, "applist", stealth), null);
-                File.Copy(dll, Path.Combine(SteamUtilities.SteamDirectory, user32), true);
-                return Task.CompletedTask;
+                File.Copy(User32, Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)), true);
             }
             catch (Exception ex)
             {
-                return Task.FromException(ex);
+                args.CancelStartup = true;
+                PlayniteApi.Dialogs.ShowErrorMessage(ex.Message);
             }
         }
         /// <summary>
@@ -194,48 +285,106 @@ namespace GreenLumaCommon
                 return false;
             }
         }
-        public static bool GenerateDLC(List<string> appids, GlobalProgressActionArgs progressOptions, string CommonPath)
+        public static void GameAndDLCUnlocking(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi)
         {
+            var game = args.Game;
+            var appids = new List<string> { game.GameId };
+            string dlcpath = Path.Combine(CommonPath, $"{game.GameId}.txt");
+            if (!File.Exists(dlcpath))
+            {
+                GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
+                PlayniteApi.Dialogs.ActivateGlobalProgress((progressOptions) =>
+                {
+                    GenerateDLC(appids, progressOptions);
+                }, progress);
+            }
+            appids.AddRange(File.ReadAllLines(dlcpath).ToList());
+            WriteAppList(appids);
+        }
+        public static void DLCUnlocking(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi)
+        {
+            var game = args.Game;
+            var appids = new List<string> { game.GameId };
+            string dlcpath = Path.Combine(CommonPath, $"{game.GameId}.txt");
+            if (!File.Exists(dlcpath))
+            {
+                GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
+                PlayniteApi.Dialogs.ActivateGlobalProgress((progressOptions) =>
+                {
+                    GenerateDLC(appids, progressOptions);
+                }, progress);
+            }
+            appids = File.ReadAllLines(dlcpath).ToList();
+            WriteAppList(appids);
+        }
+        public static bool GenerateDLC(List<string> appids, GlobalProgressActionArgs progressOptions)
+        {
+            progressOptions.CurrentProgressValue = 0;
+            progressOptions.ProgressMaxValue = appids.Count;
+            List<uint> FailedAppids = new List<uint>();
             int count = 0;
             var Steamservice = new SteamService();
-            logger.Info("Getting DLC Info...");
-            Thread.Sleep(TimeSpan.FromSeconds(1));
             foreach (var appid in appids)
             {
-                progressOptions.Text = $"Getting DLC Info for {appid}";
-                var job = Steamservice.GetDLCStore(int.Parse(appid), CommonPath);
-                if (job.GetAwaiter().GetResult() == true)
+                if (progressOptions.CancelToken.IsCancellationRequested)
                 {
+                    return false;
+                }
+                progressOptions.Text = $"Getting DLC Info for {appid}";
+                var job = Steamservice.GetAppDetailsStore(int.Parse(appid));
+                if (job.Result != null)
+                {
+                    try
+                    {
+                        logger.Debug(Path.Combine(CommonPath, $"{appid}.txt"));
+                        File.WriteAllLines(Path.Combine(CommonPath, $"{appid}.txt"), job.Result.data.dlc.Select(x => x.ToString()).ToArray());
+                    }
+                    catch { continue; };
                     progressOptions.CurrentProgressValue++;
                     count++;
                 }
+                else
+                {
+                    FailedAppids.Add(uint.Parse(appid));
+                }
+                Thread.Sleep(TimeSpan.FromSeconds(1));
             }
-            if (count == appids.Count)
+            if (count != appids.Count)
             {
+                count = 0;
+                progressOptions.Text = $"Getting DLC Info for {FailedAppids.Count} appids using SteamKit2";
+                var info = Steamservice.GetAppInfos(FailedAppids, progressOptions);
+                foreach (int appid in FailedAppids)
+                {
+                    if (progressOptions.CancelToken.IsCancellationRequested)
+                    {
+                        return false;
+                    }
+                    try
+                    {
+                        File.WriteAllLines(Path.Combine(CommonPath, $"{appid}.txt"), info.AppId[appid].Extended.listofdlc.Select(x => x.ToString()).ToArray());
+                    }
+                    catch { continue; };
+                    progressOptions.CurrentProgressValue++;
+                    count++;
+                }
+                if (count != FailedAppids.Count)
+                {
+                    return false;
+                }
                 return true;
             }
-            return false;
+            return true;
         }
-        public static bool GenerateDLCSteamKit(List<uint> appids, GlobalProgressActionArgs progressOptions, string CommonPath)
-        {
-            var Steamservice = new SteamService();
-            logger.Info("Getting DLC Info using SteamKit...");
-            Thread.Sleep(TimeSpan.FromSeconds(1));
-            if (Steamservice.GetDLCSteamKit2(appids, progressOptions, CommonPath))
-            {
-                return true;
-            }
-            return false;
-        }
-        public static Task BackupX64Launcher(string backup)
+        public static Task BackupX64Launcher()
         {
             try
             {
-                if (!Directory.Exists(Path.Combine(backup, "backup\\Steam\\bin")))
+                if (!Directory.Exists(Path.Combine(BackupPath, "Steam\\bin")))
                 {
-                    Directory.CreateDirectory(Path.Combine(backup, "backup\\Steam\\bin"));
+                    Directory.CreateDirectory(Path.Combine(BackupPath, "Steam\\bin"));
                 }
-                File.Copy(Path.Combine(SteamUtilities.SteamDirectory, "bin\\x64launcher.exe"), Path.Combine(backup, "backup\\Steam\\bin\\x64launcher.exe"), true);
+                File.Copy(Path.Combine(SteamUtilities.SteamDirectory, "bin\\x64launcher.exe"), Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe"), true);
                 return Task.CompletedTask;
             }
             catch (Exception ex)
@@ -365,7 +514,7 @@ namespace GreenLumaCommon
         {
             try
             {
-                File.Delete(Path.Combine(SteamUtilities.SteamDirectory, user32));
+                File.Delete(Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)));
                 return Task.CompletedTask;
             }
             catch (Exception ex)
@@ -373,6 +522,80 @@ namespace GreenLumaCommon
                 return Task.FromException(ex);
             }
         }
-
+        public static void LoadTicket(IPlayniteAPI PlayniteApi)
+        {
+            var files = PlayniteApi.Dialogs.SelectFiles("Tickets Files|EncryptedTicket.*;Ticket.*");
+            if (files == null)
+            {
+                return;
+            }
+            else if (!files.Any())
+            {
+                return;
+            }
+            List<string> AppOwnershipTickets = files.Where(x => Regex.IsMatch(Path.GetFileName(x), @"^Ticket.*", RegexOptions.IgnoreCase)).ToList();
+            List<string> EncryptedAppTickets = files.Where(x => Regex.IsMatch(Path.GetFileName(x), @"^EncryptedTicket.*")).ToList();
+            bool availableAppOwnership = AppOwnershipTickets.Any();
+            bool availableEncryptedApp = EncryptedAppTickets.Any();
+            logger.Info(availableAppOwnership.ToString());
+            logger.Info(availableEncryptedApp.ToString());
+            if (!Directory.Exists(AppOwnershipTicketsPath) && availableAppOwnership)
+            {
+                Directory.CreateDirectory(AppOwnershipTicketsPath);
+            }
+            if (!Directory.Exists(EncryptedAppTicketsPath) && availableEncryptedApp)
+            {
+                Directory.CreateDirectory(EncryptedAppTicketsPath);
+            }
+            GlobalProgressOptions progressOptions = new GlobalProgressOptions("Steam Emu Utility");
+            PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
+            {
+                progress.ProgressMaxValue = AppOwnershipTickets.Count + EncryptedAppTickets.Count;
+                foreach (string file in AppOwnershipTickets)
+                {
+                    string destinationFile = Path.Combine(AppOwnershipTicketsPath, Path.GetFileName(file));
+                    progress.Text = "Copying " + Path.GetFileName(file) + " to " + destinationFile;
+                    progress.CurrentProgressValue++;
+                    if (File.Exists(destinationFile))
+                    {
+                        if (PlayniteApi.Dialogs.ShowMessage($"The file {Path.GetFileName(file)} already exists. Do you want to overwrite it?", "Steam Emu Utility", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Information) == System.Windows.MessageBoxResult.No)
+                        {
+                            progress.Text = "Skipping " + Path.GetFileName(file);
+                            progress.CurrentProgressValue++;
+                            continue;
+                        }
+                    }
+                    File.Copy(file, destinationFile, true);
+                }
+                foreach (string file in EncryptedAppTickets)
+                {
+                    string destinationFile = Path.Combine(EncryptedAppTicketsPath, Path.GetFileName(file));
+                    progress.Text = "Copying " + Path.GetFileName(file) + " to " + destinationFile;
+                    progress.CurrentProgressValue++;
+                    if (File.Exists(destinationFile))
+                    {
+                        if (PlayniteApi.Dialogs.ShowMessage($"The file {Path.GetFileName(file)} already exists. Do you want to overwrite it?", "Steam Emu Utility", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Information) == System.Windows.MessageBoxResult.No)
+                        {
+                            progress.Text = "Skipping " + Path.GetFileName(file);
+                            progress.CurrentProgressValue++;
+                            continue;
+                        }
+                    }
+                    File.Copy(file, destinationFile, true);
+                }
+            }, progressOptions);
+            if (availableAppOwnership && !availableEncryptedApp)
+            {
+                PlayniteApi.Dialogs.ShowMessage($"Copied {AppOwnershipTickets.Count} AppOwnershipTickets");
+            }
+            else if (availableEncryptedApp && !availableAppOwnership)
+            {
+                PlayniteApi.Dialogs.ShowMessage($"Copied {EncryptedAppTickets.Count} EncryptedAppTickets");
+            }
+            else if (availableEncryptedApp && availableAppOwnership)
+            {
+                PlayniteApi.Dialogs.ShowMessage($"Copied {AppOwnershipTickets.Count} AppOwnershipTickets and {EncryptedAppTickets.Count} EncryptedAppTickets");
+            }
+        }
     }
 }
