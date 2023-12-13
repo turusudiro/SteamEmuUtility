@@ -3,36 +3,139 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:cv="clr-namespace:ConvertersCommon"
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="600">
-    <StackPanel Orientation="Vertical" Margin="20,20,20,0">
-        <StackPanel Orientation="Horizontal" Margin="5,10,5,0">
-            <TextBlock Text="GreenLuma Status" VerticalAlignment="Center" Margin="0,0,10,0"/>
-            <TextBlock Text="{Binding Settings.GreenLumaStatus}" Foreground="{Binding Settings.ColorGreenLumaStatus}" VerticalAlignment="Center" Margin="10,0,0,0" Width="150"/>
-            <Button MinWidth="80" Content="Browse" Command="{Binding BrowseGreenLuma}" VerticalAlignment="Center" Margin="10,0,0,0"/>
-        </StackPanel>
-        <StackPanel Margin="5,15,5,0">
-            <TextBlock Text="General" Margin="5,0,0,10"/>
-            <CheckBox Content="Clean Steam AppCache on starting game" IsChecked="{Binding Settings.CleanAppCache}" Margin="0,0,0,10"/>
-            <CheckBox Content="Close Steam on game exit" IsChecked="{Binding Settings.CloseSteamOnExit}" Margin="0,0,0,10"/>
-            <CheckBox Content="Clean GreenLuma files on Steam directory after game exit" IsChecked="{Binding Settings.CleanGreenLuma}" Margin="20,0,0,10" IsEnabled="{Binding Settings.CloseSteamOnExit}"/>
-        </StackPanel>
-        <StackPanel Margin="5,10,5,0">
-            <TextBlock Text="Stealth Mode" Margin="5,0,0,10"/>
-            <CheckBox Content="Skip Steam Update on Stealth Mode" IsChecked="{Binding Settings.SkipUpdateStealth}" Margin="0,0,0,10"/>
-        </StackPanel>
-        <StackPanel Margin="5,10,5,0">
-            <TextBlock Text="Normal Mode" Margin="5,0,0,10"/>
-            <CheckBox Content="Inject AppOwnershipTickets if there available" IsChecked="{Binding Settings.InjectAppOwnership}" Margin="0,0,0,10"/>
-            <CheckBox Content="Inject EncryptedAppTickets if there available" IsChecked="{Binding Settings.InjectEncryptedApp}" Margin="0,0,0,10"/>
-            <TextBlock Text="{Binding Settings.MillisecondsToWait, StringFormat='Wait for the DLLInjector/Steam to start/exit, with a delay of {0} milliseconds'}" Margin="0,0,0,10"/>
-            <Slider Value="{Binding Settings.MillisecondsToWait}" Minimum="500" Maximum="3000" IsSnapToTickEnabled="True" TickFrequency="500" Width="140" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-            <TextBlock Text="Attempt to Restart DLLInjector if it fails." Margin="0,0,0,10"/>
-            <ComboBox SelectedIndex="{Binding Settings.MaxAttemptDLLInjector}" Width="150" HorizontalAlignment="Left" Margin="0,0,0,10">
-                <ComboBoxItem Content="Do not Restart"/>
-                <ComboBoxItem Content="Restart once"/>
-                <ComboBoxItem Content="Restart twice"/>
-            </ComboBox>
-        </StackPanel>
-    </StackPanel>
+    <TabControl>
+        <TabItem Header="GreenLuma Settings">
+            <ScrollViewer>
+                <StackPanel Orientation="Vertical" Margin="20">
+                    <StackPanel Orientation="Horizontal" Margin="5,5,5,0">
+                        <TextBlock Text="GreenLuma Status" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding Settings.GreenLumaStatus}" Foreground="{Binding Settings.ColorGreenLumaStatus}" VerticalAlignment="Center" Margin="10,0,0,0" Width="150"/>
+                        <Button MinWidth="80" Content="Import" Command="{Binding ImportGreenLuma}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel Visibility="{Binding Settings.GreenLumaNotExists, Converter={cv:BooleanToVisibilityConverter}}" Margin="5,5,5,0">
+                        <TextBlock Text="Missing Files" Foreground="IndianRed" Margin="0,0,10,0"/>
+                        <ItemsControl ItemsSource="{Binding Settings.MissingGreenLumaFiles}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Margin="0,5,10,0" Foreground="IndianRed"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                    <StackPanel Margin="5,15,5,0">
+                        <TextBlock Text="General" Margin="5,0,0,10"/>
+                        <CheckBox Content="Check and clean GreenLuma files on application startup." IsChecked="{Binding Settings.CleanGreenLumaStartup}" Margin="0,0,0,5"/>
+                        <CheckBox Content="Clean GreenLuma files after game exit." IsChecked="{Binding Settings.CleanGreenLuma}" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <ComboBox Visibility="{Binding Settings.CleanGreenLuma, Converter={cv:BooleanToVisibilityConverter}}" SelectedIndex="{Binding Settings.CleanMode}" Margin="0,5,0,5">
+                            <ComboBoxItem>
+                                <StackPanel>
+                                    <TextBlock Text="Immediately" FontWeight="Bold" Margin="5,5,0,5"/>
+                                    <TextBlock Text="Close Steam and clean files as soon as the game close." Margin="5,0,0,5"/>
+                                </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                <StackPanel>
+                                    <TextBlock Text="Manually exit Steam by user" FontWeight="Bold" Margin="5,5,0,5"/>
+                                    <TextBlock Text="Clean files after user exit Steam manually." Margin="5,0,0,5"/>
+                                </StackPanel>
+                            </ComboBoxItem>
+                        </ComboBox>
+                        <CheckBox Content="Run Steam with additional argument" IsChecked="{Binding Settings.EnableSteamArgs}" Margin="0,0,0,10"/>
+                        <TextBox IsEnabled="{Binding Settings.EnableSteamArgs}" Text="{Binding Settings.SteamArgs}" Margin="0,0,0,10"/>
+                        <CheckBox Content="Clean Steam AppCache on starting game" IsChecked="{Binding Settings.CleanAppCache}" Margin="0,0,0,10"/>
+                    </StackPanel>
+                    <StackPanel Margin="5,10,5,0">
+                        <TextBlock Text="Stealth Mode" Margin="5,0,0,10"/>
+                        <CheckBox Content="Skip Steam Update on Stealth Mode" IsChecked="{Binding Settings.SkipUpdateStealth}" Margin="0,0,0,10"/>
+                    </StackPanel>
+                    <StackPanel Margin="5,10,5,0">
+                        <TextBlock Text="Normal Mode" Margin="5,0,0,10"/>
+                        <CheckBox Content="Inject AppOwnershipTickets if there available" IsChecked="{Binding Settings.InjectAppOwnership}" Margin="0,0,0,10"/>
+                        <CheckBox Content="Inject EncryptedAppTickets if there available" IsChecked="{Binding Settings.InjectEncryptedApp}" Margin="0,0,0,10"/>
+                        <TextBlock Text="{Binding Settings.MillisecondsToWait, StringFormat='Wait for the DLLInjector/Steam to start/exit, with a delay of {0} milliseconds'}" Margin="0,0,0,10"/>
+                        <Slider Value="{Binding Settings.MillisecondsToWait}" Minimum="500" Maximum="3000" IsSnapToTickEnabled="True" TickFrequency="500" Width="140" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+                        <TextBlock Text="Attempt to Restart DLLInjector if it fails." Margin="0,0,0,10"/>
+                        <ComboBox SelectedIndex="{Binding Settings.MaxAttemptDLLInjector}" Width="150" HorizontalAlignment="Left" Margin="0,0,0,10">
+                            <ComboBoxItem Content="Do not Restart"/>
+                            <ComboBoxItem Content="Restart once"/>
+                            <ComboBoxItem Content="Restart twice"/>
+                        </ComboBox>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+        <TabItem Header="Goldberg Settings">
+            <StackPanel Orientation="Vertical" Margin="20">
+                <StackPanel Orientation="Horizontal" Margin="5,5,5,0">
+                    <TextBlock Text="Goldberg Status" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding Settings.GoldbergStatus}" Foreground="{Binding Settings.ColorGoldbergStatus}" VerticalAlignment="Center" Margin="10,0,0,0" Width="150"/>
+                    <Button MinWidth="80" Content="Import" Command="{Binding ImportGoldberg}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </StackPanel>
+                <StackPanel Visibility="{Binding Settings.GoldbergNotExists, Converter={cv:BooleanToVisibilityConverter}}" Margin="5,5,5,0">
+                    <TextBlock Text="Missing Files" Foreground="IndianRed" Margin="0,0,10,0"/>
+                    <ItemsControl ItemsSource="{Binding Settings.MissingGoldbergFiles}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Margin="0,5,10,0" Foreground="IndianRed"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5,15,5,0">
+                    <TextBlock Text="Steam Web API Key" Margin="0,0,15,10" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding Settings.SteamWebApi}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Margin="5,5,5,0">
+                    <CheckBox Content="Create symbolic link on Goldberg appdata folder" VerticalAlignment="Center" IsChecked="{Binding Settings.SymbolicLinkAppdata}" Margin="0,0,0,10"/>
+                    <CheckBox Content="Open Steam and unlock with last stopped game after exit." VerticalAlignment="Center" IsChecked="{Binding Settings.OpenSteamAfterExit}" Margin="0,0,0,10"/>
+                    <CheckBox IsEnabled="{Binding Settings.OpenSteamAfterExit}" Content="Also clean GreenLuma files after Steam Exit." VerticalAlignment="Center" IsChecked="{Binding Settings.GoldbergCleanSteam}" Margin="0,0,0,10"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="5,0,0,5">
+                    <TextBlock Text="Goldberg Settings" Margin="5,5,0,10" FontWeight="Bold"/>
+                </StackPanel>
+                <Grid Margin="5,5,5,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Margin="2">
+                        <TextBlock Text="Avatar" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                        <Ellipse Width="125" Height="125" Margin="0,0,0,10">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="{Binding Settings.AvatarImage}" Stretch="UniformToFill"/>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                        <Button Content="Change" Command="{Binding ChangeAvatar}" Width="80" Height="30" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Margin="10,20,0,0" Grid.Column="1">
+                        <StackPanel Orientation="Horizontal" Margin="2">
+                            <TextBlock Text="Account Name" Margin="0,0,15,10" VerticalAlignment="Center" Width="100"/>
+                            <TextBox Text="{Binding Settings.GoldbergAccountName}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="2">
+                            <TextBlock Text="Language" Margin="0,0,15,10" VerticalAlignment="Center" Width="100"/>
+                            <TextBox Text="{Binding Settings.GoldbergLanguage}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="2">
+                            <TextBlock Text="Listen Port" Margin="0,0,15,10" VerticalAlignment="Center" Width="100"/>
+                            <TextBox Text="{Binding Settings.GoldbergListenPort}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="2">
+                            <TextBlock Text="User Steam ID" Margin="0,0,15,10" VerticalAlignment="Center" Width="100"/>
+                            <TextBox Text="{Binding Settings.GoldbergUserSteamID}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </TabItem>
+    </TabControl>
 </UserControl>
