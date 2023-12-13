@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using GoldbergCommon;
 using GreenLumaCommon;
 using Playnite.SDK;
 using Playnite.SDK.Events;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
 using PlayniteCommon;
-using ProcessCommon;
-using ServiceCommon;
 using SteamCommon;
+using SteamEmuUtility.Controller;
+using SteamEmuUtility.ViewModels;
+using SteamEmuUtility.Views;
 
 namespace SteamEmuUtility
 {
@@ -28,109 +28,90 @@ namespace SteamEmuUtility
 
         public SteamEmuUtility(IPlayniteAPI api) : base(api)
         {
+            Goldberg.PluginPath = GetPluginUserDataPath();
+            GreenLuma.PluginPath = GetPluginUserDataPath();
             settings = new SteamEmuUtilitySettingsViewModel(this);
+            GreenLuma.GreenLumaSettings = settings.Settings;
+            Goldberg.GoldbergSettings = settings.Settings;
             Properties = new GenericPluginProperties
             {
                 HasSettings = true
             };
         }
-
+        public override IEnumerable<PlayController> GetPlayActions(GetPlayActionsArgs args)
+        {
+            if (SteamUtilities.IsGameSteamGame(args.Game) && args.Game.Features.Any(x => x.Name.Equals("[SEU] Goldberg")))
+            {
+                args.Game.IncludeLibraryPluginAction = false;
+                yield return new GoldBergController(args.Game, PlayniteApi);
+            }
+        }
         public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs args)
         {
             yield return new MainMenuItem
             {
-                Description = "Load OwnershipTickets or EncryptedAppTickets",
-                MenuSection = "Steam Emu Utility",
+                Description = "God Mode",
+                MenuSection = "@Steam Emu Utility",
                 Action = (a) =>
                 {
-                    var files = PlayniteApi.Dialogs.SelectFiles("Tickets Files|EncryptedTicket.*;Ticket.*");
-                    if (files == null)
-                    {
-                        return;
-                    }
-                    else if (!files.Any())
-                    {
-                        return;
-                    }
-                    List<string> AppOwnershipTickets = files.Where(x => Regex.IsMatch(Path.GetFileName(x), @"^Ticket.*", RegexOptions.IgnoreCase)).ToList();
-                    List<string> EncryptedAppTickets = files.Where(x => Regex.IsMatch(Path.GetFileName(x), @"^EncryptedTicket.*")).ToList();
-                    bool availableAppOwnership = AppOwnershipTickets.Any();
-                    bool availableEncryptedApp = EncryptedAppTickets.Any();
-                    logger.Info(availableAppOwnership.ToString());
-                    logger.Info(availableEncryptedApp.ToString());
-                    if (!Directory.Exists(Path.Combine(GetPluginUserDataPath(), "Common", "AppOwnershipTickets")) && availableAppOwnership)
-                    {
-                        Directory.CreateDirectory((Path.Combine(GetPluginUserDataPath(), "Common", "AppOwnershipTickets")));
-                    }
-                    if (!Directory.Exists(Path.Combine(GetPluginUserDataPath(), "Common", "EncryptedAppTickets")) && availableEncryptedApp)
-                    {
-                        Directory.CreateDirectory((Path.Combine(GetPluginUserDataPath(), "Common", "EncryptedAppTickets")));
-                    }
-                    GlobalProgressOptions progressOptions = new GlobalProgressOptions("Steam Emu Utility");
-                    PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
-                    {
-                        progress.ProgressMaxValue = AppOwnershipTickets.Count + EncryptedAppTickets.Count;
-                        foreach (string file in AppOwnershipTickets)
-                        {
-                            string destinationFile = Path.Combine(GetPluginUserDataPath(), "Common", "AppOwnershipTickets", Path.GetFileName(file));
-                            progress.Text = "Copying " + Path.GetFileName(file) + " to " + destinationFile;
-                            progress.CurrentProgressValue++;
-                            if (File.Exists(destinationFile))
-                            {
-                                if (PlayniteApi.Dialogs.ShowMessage($"The file {Path.GetFileName(file)} already exists. Do you want to overwrite it?", "Steam Emu Utility", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Information) == System.Windows.MessageBoxResult.No)
-                                {
-                                    progress.Text = "Skipping " + Path.GetFileName(file);
-                                    progress.CurrentProgressValue++;
-                                    continue;
-                                }
-                            }
-                            File.Copy(file, destinationFile, true);
-                        }
-                        foreach (string file in EncryptedAppTickets)
-                        {
-                            string destinationFile = Path.Combine(GetPluginUserDataPath(), "Common", "EncryptedAppTickets", Path.GetFileName(file));
-                            progress.Text = "Copying " + Path.GetFileName(file) + " to " + destinationFile;
-                            progress.CurrentProgressValue++;
-                            if (File.Exists(destinationFile))
-                            {
-                                if (PlayniteApi.Dialogs.ShowMessage($"The file {Path.GetFileName(file)} already exists. Do you want to overwrite it?", "Steam Emu Utility", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Information) == System.Windows.MessageBoxResult.No)
-                                {
-                                    progress.Text = "Skipping " + Path.GetFileName(file);
-                                    progress.CurrentProgressValue++;
-                                    continue;
-                                }
-                            }
-                            File.Copy(file, destinationFile, true);
-                        }
-                    }, progressOptions);
-                    if (availableAppOwnership && !availableEncryptedApp)
-                    {
-                        PlayniteApi.Dialogs.ShowMessage($"Copied {AppOwnershipTickets.Count} AppOwnershipTickets");
-                    }
-                    else if (availableEncryptedApp && !availableAppOwnership)
-                    {
-                        PlayniteApi.Dialogs.ShowMessage($"Copied {EncryptedAppTickets.Count} EncryptedAppTickets");
-                    }
-                    else if (availableEncryptedApp && availableAppOwnership)
-                    {
-                        PlayniteApi.Dialogs.ShowMessage($"Copied {AppOwnershipTickets.Count} AppOwnershipTickets and {EncryptedAppTickets.Count} EncryptedAppTickets");
-                    }
+                    GreenLumaGenerator.WriteAppList(PlayniteApi.Database.Games.Where(x => SteamUtilities.IsGameSteamGame(x)).Select(x => x.GameId).ToList());
+                    GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(null, PlayniteApi);
+                }
+            };
+            yield return new MainMenuItem
+            {
+                Description = "Load OwnershipTickets or EncryptedAppTickets",
+                MenuSection = "@Steam Emu Utility",
+                Action = (a) =>
+                {
+                    GreenLumaTasks.LoadTicket(PlayniteApi);
                 }
             };
         }
+        public void ShowGoldbergConfig()
+        {
+            var window = PlayniteApi.Dialogs.CreateWindow(new WindowCreationOptions
+            {
+                ShowMinimizeButton = false
+            });
+
+            window.Height = 700;
+            window.Width = 830;
+            window.Title = "Goldberg Config Generator";
+            window.Content = new GoldbergConfigView();
+            window.DataContext = new GoldbergConfigViewModel(PlayniteApi);
+            window.Owner = PlayniteApi.Dialogs.GetCurrentAppWindow();
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
+            window.ShowDialog();
+        }
         public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
         {
+            var SteamGame = args.Games.Where(SteamUtilities.IsGameSteamGame);
+            yield return new GameMenuItem
+            {
+                Description = "Enable Goldberg",
+                MenuSection = @"Steam Emu Utility",
+                Action = (a) =>
+                {
+                    PlayniteUtilities.AddFeatures(SteamGame, Goldberg.Feature(PlayniteApi));
+                    SteamGame.ForEach(x => x.IncludeLibraryPluginAction = false);
+                    PlayniteApi.Dialogs.ShowMessage($"Added {SteamGame.Count()} games Goldberg Features", "Steam Emu Utility");
+                }
+            };
             yield return new GameMenuItem
             {
                 Description = "[Normal Mode] Game Only",
                 MenuSection = @"Steam Emu Utility|Enable GreenLuma",
                 Action = (a) =>
                 {
+                    PlayniteUtilities.RemoveFeatures(args.Games, Goldberg.Feature(PlayniteApi));
+                    SteamGame.ForEach(x => x.IncludeLibraryPluginAction = true);
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.StealthFeature(PlayniteApi));
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.DLCFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.GameFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.NormalFeature(PlayniteApi));
-                    PlayniteApi.Dialogs.ShowMessage($"Added {args.Games.Where(SteamUtilities.IsGameSteamGame).Count()} games Normal Mode Features", "Steam Emu Utility");
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.GameFeature(PlayniteApi));
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.NormalFeature(PlayniteApi));
+                    PlayniteApi.Dialogs.ShowMessage($"Added {SteamGame.Count()} games Normal Mode Features", "Steam Emu Utility");
                 }
             };
             yield return new GameMenuItem
@@ -139,11 +120,13 @@ namespace SteamEmuUtility
                 MenuSection = @"Steam Emu Utility|Enable GreenLuma",
                 Action = (a) =>
                 {
+                    PlayniteUtilities.RemoveFeatures(args.Games, Goldberg.Feature(PlayniteApi));
+                    SteamGame.ForEach(x => x.IncludeLibraryPluginAction = true);
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.StealthFeature(PlayniteApi));
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.GameFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.DLCFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.NormalFeature(PlayniteApi));
-                    PlayniteApi.Dialogs.ShowMessage($"Added {args.Games.Where(SteamUtilities.IsGameSteamGame).Count()} games Normal Mode Features", "Steam Emu Utility");
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.DLCFeature(PlayniteApi));
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.NormalFeature(PlayniteApi));
+                    PlayniteApi.Dialogs.ShowMessage($"Added {SteamGame.Count()} games Normal Mode Features", "Steam Emu Utility");
                 }
             };
             yield return new GameMenuItem
@@ -152,11 +135,13 @@ namespace SteamEmuUtility
                 MenuSection = @"Steam Emu Utility|Enable GreenLuma",
                 Action = (a) =>
                 {
+                    PlayniteUtilities.RemoveFeatures(args.Games, Goldberg.Feature(PlayniteApi));
+                    SteamGame.ForEach(x => x.IncludeLibraryPluginAction = true);
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.StealthFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.GameFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.DLCFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.NormalFeature(PlayniteApi));
-                    PlayniteApi.Dialogs.ShowMessage($"Added {args.Games.Where(SteamUtilities.IsGameSteamGame).Count()} games Normal Mode Features", "Steam Emu Utility");
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.GameFeature(PlayniteApi));
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.DLCFeature(PlayniteApi));
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.NormalFeature(PlayniteApi));
+                    PlayniteApi.Dialogs.ShowMessage($"Added {SteamGame.Count()} games Normal Mode Features", "Steam Emu Utility");
                 }
             };
             yield return new GameMenuItem
@@ -165,10 +150,12 @@ namespace SteamEmuUtility
                 MenuSection = @"Steam Emu Utility|Enable GreenLuma",
                 Action = (a) =>
                 {
+                    PlayniteUtilities.RemoveFeatures(args.Games, Goldberg.Feature(PlayniteApi));
+                    SteamGame.ForEach(x => x.IncludeLibraryPluginAction = true);
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.NormalFeature(PlayniteApi));
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.DLCFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.GameFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.StealthFeature(PlayniteApi));
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.GameFeature(PlayniteApi));
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.StealthFeature(PlayniteApi));
                     PlayniteApi.Dialogs.ShowMessage($"Added {args.Games.Where(SteamUtilities.IsGameSteamGame).Count()} games Stealth Mode Features", "Steam Emu Utility");
                 }
             };
@@ -178,11 +165,13 @@ namespace SteamEmuUtility
                 MenuSection = @"Steam Emu Utility|Enable GreenLuma",
                 Action = (a) =>
                 {
+                    PlayniteUtilities.RemoveFeatures(args.Games, Goldberg.Feature(PlayniteApi));
+                    SteamGame.ForEach(x => x.IncludeLibraryPluginAction = true);
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.NormalFeature(PlayniteApi));
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.GameFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.DLCFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.StealthFeature(PlayniteApi));
-                    PlayniteApi.Dialogs.ShowMessage($"Added {args.Games.Where(SteamUtilities.IsGameSteamGame).Count()} games Stealth Mode Features", "Steam Emu Utility");
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.DLCFeature(PlayniteApi));
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.StealthFeature(PlayniteApi));
+                    PlayniteApi.Dialogs.ShowMessage($"Added {SteamGame.Count()} games Stealth Mode Features", "Steam Emu Utility");
                 }
             };
             yield return new GameMenuItem
@@ -191,11 +180,24 @@ namespace SteamEmuUtility
                 MenuSection = @"Steam Emu Utility|Enable GreenLuma",
                 Action = (a) =>
                 {
+                    PlayniteUtilities.RemoveFeatures(args.Games, Goldberg.Feature(PlayniteApi));
+                    SteamGame.ForEach(x => x.IncludeLibraryPluginAction = true);
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.NormalFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.GameFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.DLCFeature(PlayniteApi));
-                    PlayniteUtilities.AddFeatures(args.Games, GreenLuma.StealthFeature(PlayniteApi));
-                    PlayniteApi.Dialogs.ShowMessage($"Added {args.Games.Where(SteamUtilities.IsGameSteamGame).Count()} games Stealth Mode Features", "Steam Emu Utility");
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.GameFeature(PlayniteApi));
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.DLCFeature(PlayniteApi));
+                    PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.StealthFeature(PlayniteApi));
+                    PlayniteApi.Dialogs.ShowMessage($"Added {SteamGame.Count()} games Stealth Mode Features", "Steam Emu Utility");
+                }
+            };
+            yield return new GameMenuItem
+            {
+                Description = "Disable Goldberg",
+                MenuSection = "Steam Emu Utility",
+                Action = (a) =>
+                {
+                    args.Games.ForEach(x => x.IncludeLibraryPluginAction = true);
+                    PlayniteUtilities.RemoveFeatures(args.Games, Goldberg.Feature(PlayniteApi));
+                    PlayniteApi.Dialogs.ShowMessage($"Removed {args.Games.Count} games GL Features", "Steam Emu Utility");
                 }
             };
             yield return new GameMenuItem
@@ -207,78 +209,68 @@ namespace SteamEmuUtility
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.DLCFeature(PlayniteApi));
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.GameFeature(PlayniteApi));
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.NormalFeature(PlayniteApi));
-                    PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.StealthFeature(PlayniteApi)); ;
-                    PlayniteApi.Dialogs.ShowMessage($"Removed {args.Games.Where(SteamUtilities.IsGameSteamGame).Count()} games GL Features", "Steam Emu Utility");
+                    PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.StealthFeature(PlayniteApi));
+                    PlayniteApi.Dialogs.ShowMessage($"Removed {args.Games.Count} games GL Features", "Steam Emu Utility");
                 }
             };
             yield return new GameMenuItem
             {
-                Description = $"Generate {args.Games.Where(x => SteamUtilities.IsGameSteamGame(x)).Count()} Games DLC Info for GreenLuma",
-                MenuSection = @"Steam Emu Utility|Generate Info",
+                Description = $"Generate {SteamGame.Count()} Games DLC Info for GreenLuma",
+                MenuSection = @"Steam Emu Utility",
                 Action = (a) =>
                 {
-                    string CommonPath = Path.Combine(GetPluginUserDataPath(), "Common");
                     var Steamservice = new SteamService();
-                    var games = args.Games.Where(x => SteamUtilities.IsGameSteamGame(x));
                     GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
                     progress.Cancelable = true;
                     var b = PlayniteApi.Dialogs.ActivateGlobalProgress((global) =>
                     {
-                        global.IsIndeterminate = false;
-                        global.ProgressMaxValue = games.Count();
-                        global.CurrentProgressValue = 0;
-                        logger.Info("Getting DLC Info...");
-                        foreach (var game in games)
-                        {
-                            if (global.CancelToken.IsCancellationRequested)
-                            {
-                                global.Text = "Cancelling...";
-                                break;
-                            }
-                            Thread.Sleep(TimeSpan.FromSeconds(1));
-                            global.Text = $"Getting DLC Info for {game.Name}";
-                            global.CurrentProgressValue++;
-                            Task.Run(() => Steamservice.GetDLCStore(int.Parse(game.GameId), CommonPath));
-                        }
+                        var appids = SteamGame.Select(x => x.GameId).ToList();
+                        GreenLumaGenerator.GenerateDLC(appids, global);
                     }, progress);
                 }
             };
             yield return new GameMenuItem
             {
-                Description = $"Generate {args.Games.Where(x => SteamUtilities.IsGameSteamGame(x)).Count()} Games DLC Info for GreenLuma using SteamKit2",
-                MenuSection = @"Steam Emu Utility|Generate Info",
+                Description = $"Generate {SteamGame.Count()} Games config for Goldberg",
+                MenuSection = @"Steam Emu Utility",
                 Action = (a) =>
                 {
-                    List<uint> appids = new List<uint>();
-                    var games = args.Games.Where(x => SteamUtilities.IsGameSteamGame(x));
-                    appids.AddRange(games.Select(x => uint.Parse(x.GameId)));
-                    string CommonPath = Path.Combine(GetPluginUserDataPath(), "Common");
-                    var Steamservice = new SteamService();
-                    GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
-                    progress.Cancelable = true;
-                    var b = PlayniteApi.Dialogs.ActivateGlobalProgress((progressOptions) =>
-                    {
-                        progressOptions.IsIndeterminate = false;
-                        progressOptions.ProgressMaxValue = games.Count();
-                        progressOptions.CurrentProgressValue = 0;
-                        logger.Info("Getting DLC Info...");
-                        GreenLuma.GenerateDLCSteamKit(appids, progressOptions, CommonPath);
-                    }, progress);
+                    GoldbergGenerator.GenerateGoldbergConfig(SteamGame, PlayniteApi);
+                }
+            };
+            yield return new GameMenuItem
+            {
+                Description = $"Reset {SteamGame.Count()} Games Achievements for Goldberg and Achievement Watcher",
+                MenuSection = @"Steam Emu Utility",
+                Action = (a) =>
+                {
+                    GoldbergTasks.ResetAchievementFile(SteamGame, PlayniteApi);
+                }
+            };
+            yield return new GameMenuItem
+            {
+                Description = $"Open Goldberg config generator for {SteamGame.Count()} Games",
+                MenuSection = @"Steam Emu Utility",
+                Action = (a) =>
+                {
+                    ShowGoldbergConfig();
                 }
             };
         }
-
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
-            var GreenLumaStealth = args.Game.Features.Any(x => x.Name.Equals("[SEU] Stealth Mode", StringComparison.OrdinalIgnoreCase));
-            var GreenLumaNormal = args.Game.Features.Any(x => x.Name.Equals("[SEU] Normal Mode", StringComparison.OrdinalIgnoreCase));
-            var GreenLumaGameUnlocking = args.Game.Features.Any(x => x.Name.Equals("[SEU] Game Unlocking", StringComparison.OrdinalIgnoreCase));
-            var GreenLumaDLCUnlocking = args.Game.Features.Any(x => x.Name.Equals("[SEU] DLC Unlocking", StringComparison.OrdinalIgnoreCase));
             if (!SteamUtilities.IsGameSteamGame(args.Game))
             {
                 return;
             }
-            List<string> appids = new List<string> { args.Game.GameId };
+            if (args.Game.Features.Any(x => x.Name.Equals("[SEU] Goldberg")))
+            {
+                return;
+            }
+            var GreenLumaStealth = args.Game.Features.Any(x => x.Name.Equals("[SEU] Stealth Mode", StringComparison.OrdinalIgnoreCase));
+            var GreenLumaNormal = args.Game.Features.Any(x => x.Name.Equals("[SEU] Normal Mode", StringComparison.OrdinalIgnoreCase));
+            var GreenLumaGameUnlocking = args.Game.Features.Any(x => x.Name.Equals("[SEU] Game Unlocking", StringComparison.OrdinalIgnoreCase));
+            var GreenLumaDLCUnlocking = args.Game.Features.Any(x => x.Name.Equals("[SEU] DLC Unlocking", StringComparison.OrdinalIgnoreCase));
             string CommonPath = Path.Combine(GetPluginUserDataPath(), "Common");
             if (GreenLumaStealth && GreenLumaNormal)
             {
@@ -292,61 +284,15 @@ namespace SteamEmuUtility
             }
             if (GreenLumaGameUnlocking && !GreenLumaDLCUnlocking)
             {
-                GreenLuma.WriteAppList(appids);
+                GreenLumaGenerator.WriteAppList(new List<string> { args.Game.GameId });
             }
             else if (GreenLumaDLCUnlocking && !GreenLumaGameUnlocking)
             {
-                string dlcpath = $"{GetPluginUserDataPath()}\\Common\\{args.Game.GameId}.txt";
-                if (!File.Exists(dlcpath))
-                {
-                    GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
-                    PlayniteApi.Dialogs.ActivateGlobalProgress((progressOptions) =>
-                    {
-                        progressOptions.ProgressMaxValue = appids.Count;
-                        progressOptions.CurrentProgressValue = 0;
-                        if (!GreenLuma.GenerateDLC(appids, progressOptions, CommonPath))
-                        {
-                            progressOptions.Text = "Failed to get info from store, using SteamKit2 instead";
-                            progressOptions.ProgressMaxValue = appids.Count;
-                            progressOptions.CurrentProgressValue = 0;
-                            if (!GreenLuma.GenerateDLCSteamKit(appids.Select(x => uint.Parse(x)).ToList(), progressOptions, CommonPath))
-                            {
-                                PlayniteApi.Dialogs.ShowErrorMessage($"There is no detected DLC for {args.Game.Name}, ensure that this app has a DLC. Please enable Game only feature for {args.Game.Name}.");
-                                args.CancelStartup = true;
-                                return;
-                            }
-                        }
-                    }, progress);
-                }
-                appids = File.ReadAllLines(dlcpath).ToList();
-                GreenLuma.WriteAppList(appids);
+                GreenLumaGenerator.DLCUnlocking(args, PlayniteApi);
             }
             else if (GreenLumaGameUnlocking && GreenLumaDLCUnlocking)
             {
-                string dlcpath = $"{GetPluginUserDataPath()}\\Common\\{args.Game.GameId}.txt";
-                if (!File.Exists(dlcpath))
-                {
-                    GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
-                    PlayniteApi.Dialogs.ActivateGlobalProgress((progressOptions) =>
-                    {
-                        progressOptions.ProgressMaxValue = appids.Count;
-                        progressOptions.CurrentProgressValue = 0;
-                        if (!GreenLuma.GenerateDLC(appids, progressOptions, CommonPath))
-                        {
-                            progressOptions.Text = "Failed to get info from store, using SteamKit2 instead";
-                            progressOptions.ProgressMaxValue = appids.Count;
-                            progressOptions.CurrentProgressValue = 0;
-                            if (!GreenLuma.GenerateDLCSteamKit(appids.Select(x => uint.Parse(x)).ToList(), progressOptions, CommonPath))
-                            {
-                                PlayniteApi.Dialogs.ShowErrorMessage($"There is no detected DLC for {args.Game.Name}, ensure that this app has a DLC. Please enable Game only feature for {args.Game.Name}.");
-                                args.CancelStartup = true;
-                                return;
-                            }
-                        }
-                    }, progress);
-                }
-                appids.AddRange(File.ReadAllLines(dlcpath).ToList());
-                GreenLuma.WriteAppList(appids);
+                GreenLumaGenerator.GameAndDLCUnlocking(args, PlayniteApi);
             }
             else
             {
@@ -354,93 +300,44 @@ namespace SteamEmuUtility
             }
             if (GreenLumaStealth)
             {
-                if (ProcessUtilities.IsProcessRunning("steam"))
+                if (!GreenLuma.GreenLumaFilesExists(out List<string> _))
                 {
-                    if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes)
-                    {
-                        while (ProcessUtilities.IsProcessRunning("steam"))
-                        {
-                            ProcessUtilities.ProcessKill("steam");
-                            Thread.Sleep(settings.Settings.MillisecondsToWait);
-                        }
-                    }
-                    else
-                    {
-                        args.CancelStartup = true;
-                        return;
-                    }
-                }
-                GreenLuma.StealthMode(Path.Combine(GetPluginUserDataPath(), "GreenLuma\\StealthMode\\User32.dll")).Wait();
-                if (settings.Settings.CleanAppCache)
-                {
-                    GreenLuma.CleanAppCache();
-                }
-                if (settings.Settings.SkipUpdateStealth)
-                {
-                    ProcessUtilities.TryStartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap -applaunch {args.Game.GameId}", SteamUtilities.SteamDirectory);
-                }
-            }
-            else if (GreenLumaNormal)
-            {
-                if (ProcessUtilities.IsProcessRunning("steam") && !ProcessUtilities.IsProcessRunning("dllinjector"))
-                {
-                    if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes)
-                    {
-                        while (ProcessUtilities.IsProcessRunning("steam"))
-                        {
-                            ProcessUtilities.ProcessKill("steam");
-                            Thread.Sleep(settings.Settings.MillisecondsToWait);
-                        }
-                    }
-                    else
-                    {
-                        args.CancelStartup = true;
-                        return;
-                    }
-                }
-                if (!File.Exists(Path.Combine(GetPluginUserDataPath(), "backup\\Steam\\bin\\x64launcher.exe")))
-                {
-                    GreenLuma.BackupX64Launcher(GetPluginUserDataPath());
-                }
-                if (File.Exists(Path.Combine(GetPluginUserDataPath(), "Common\\AppOwnershipTickets", $"Ticket.{args.Game.GameId}")) && settings.Settings.InjectAppOwnership)
-                {
-                    logger.Info("Found AppOwnershipTickets, copying...");
-                    GreenLuma.InjectAppOwnershipTickets(Path.Combine(GetPluginUserDataPath(), "Common\\AppOwnershipTickets", $"Ticket.{args.Game.GameId}"));
-                }
-                if (File.Exists(Path.Combine(GetPluginUserDataPath(), "Common\\EncryptedAppTickets", $"EncryptedTicket.{args.Game.GameId}")) && settings.Settings.InjectEncryptedApp)
-                {
-                    logger.Info("Found EncryptedAppTickets, copying...");
-                    GreenLuma.InjectEncryptedAppTickets(Path.Combine(GetPluginUserDataPath(), "Common\\EncryptedAppTickets", $"EncryptedTicket.{args.Game.GameId}"));
-                }
-                if (settings.Settings.CleanAppCache)
-                {
-                    GreenLuma.CleanAppCache();
-                }
-                if (GreenLuma.NormalMode(this))
-                {
-                    if (!GreenLuma.StartInjector(args, settings.Settings.MaxAttemptDLLInjector, settings.Settings.MillisecondsToWait))
-                    {
-                        PlayniteApi.Dialogs.ShowMessage("An Error occured! Cannot run Steam with injector!", "ERROR!", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-                        args.CancelStartup = true;
-                        return;
-                    }
-                }
-                else
-                {
+                    PlayniteApi.Dialogs.ShowErrorMessage("Required GreenLuma files not found. Check your settings");
                     args.CancelStartup = true;
                     return;
                 }
+                GreenLumaTasks.GreenLumaStealthMode(args, PlayniteApi);
+            }
+            else if (GreenLumaNormal)
+            {
+                if (!GreenLuma.GreenLumaFilesExists(out List<string> _))
+                {
+                    PlayniteApi.Dialogs.ShowErrorMessage("Required GreenLuma files not found. Check your settings");
+                    args.CancelStartup = true;
+                    return;
+                }
+                GreenLumaTasks.GreenLumaNormalMode(args, PlayniteApi);
             }
 
         }
         private void CommonGameShutdownLogic(Game game)
         {
-            if (!SteamUtilities.IsGameSteamGame(game))
-            {
-                return;
-            }
             if (game.Features != null)
             {
+                if (settings.Settings.OpenSteamAfterExit && game.Features.Any(x => x.Name.Equals("[SEU] Goldberg")))
+                {
+                    if (!Goldberg.ColdClientExists(out List<string> _))
+                    {
+                        return;
+                    }
+                    GreenLumaGenerator.WriteAppList(new List<string> { game.GameId });
+                    GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(game, PlayniteApi);
+                    if (settings.Settings.GoldbergCleanSteam)
+                    {
+                        _ = GreenLumaTasks.CleanGreenLuma();
+                    }
+                    return;
+                }
                 var GreenLumaStealth = game.Features.Any(x => x.Name.Equals("[SEU] Stealth Mode", StringComparison.OrdinalIgnoreCase));
                 var GreenLumaNormal = game.Features.Any(x => x.Name.Equals("[SEU] Normal Mode", StringComparison.OrdinalIgnoreCase));
                 var GreenLumaGameUnlocking = game.Features.Any(x => x.Name.Equals("[SEU] Game Unlocking", StringComparison.OrdinalIgnoreCase));
@@ -449,38 +346,23 @@ namespace SteamEmuUtility
                 {
                     return;
                 }
-                else if (GreenLumaStealth)
+                else if (GreenLumaStealth || GreenLumaNormal)
                 {
-                    if (settings.Settings.CloseSteamOnExit)
+                    if (!GreenLuma.GreenLumaFilesExists(out List<string> _))
                     {
-                        while (ProcessUtilities.IsProcessRunning("steam"))
-                        {
-                            ProcessUtilities.ProcessKill("steam");
-                            Thread.Sleep(settings.Settings.MillisecondsToWait);
-                        }
-                        if (settings.Settings.CleanGreenLuma)
-                        {
-                            GreenLuma.CleanGreenLumaStealthMode();
-                        }
+                        return;
                     }
-                }
-                else if (GreenLumaNormal)
-                {
-                    if (settings.Settings.CloseSteamOnExit)
+                    if (settings.Settings.CleanGreenLuma)
                     {
-                        while (ProcessUtilities.IsProcessRunning("steam"))
+                        switch (settings.Settings.CleanMode)
                         {
-                            ProcessUtilities.ProcessKill("steam");
-                            Thread.Sleep(settings.Settings.MillisecondsToWait);
-                        }
-                        while (ProcessUtilities.IsProcessRunning("dllinjector"))
-                        {
-                            ProcessUtilities.ProcessKill("dllinjector");
-                            Thread.Sleep(settings.Settings.MillisecondsToWait);
-                        }
-                        if (settings.Settings.CleanGreenLuma)
-                        {
-                            GreenLuma.CleanGreenLumaNormalMode(GetPluginUserDataPath());
+                            case 0:
+                                _ = SteamUtilities.KillSteam;
+                                _ = GreenLumaTasks.CleanGreenLuma();
+                                break;
+                            case 1:
+                                _ = GreenLumaTasks.CleanGreenLuma();
+                                break;
                         }
                     }
                 }
@@ -488,13 +370,27 @@ namespace SteamEmuUtility
         }
         public override void OnGameStartupCancelled(OnGameStartupCancelledEventArgs args)
         {
+            if (!SteamUtilities.IsGameSteamGame(args.Game))
+            {
+                return;
+            }
             CommonGameShutdownLogic(args.Game);
         }
         public override void OnGameStopped(OnGameStoppedEventArgs args)
         {
+            if (!SteamUtilities.IsGameSteamGame(args.Game))
+            {
+                return;
+            }
             CommonGameShutdownLogic(args.Game);
         }
-
+        public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
+        {
+            if (settings.Settings.CleanGreenLumaStartup)
+            {
+                _ = GreenLumaTasks.CleanGreenLuma();
+            }
+        }
         public override ISettings GetSettings(bool firstRunSettings)
         {
             return settings;
