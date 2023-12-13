@@ -1,0 +1,100 @@
+﻿<UserControl x:Class="SteamEmuUtility.Views.GoldbergConfigView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="clr-namespace:SteamEmuUtility.Views"
+	xmlns:lv="clr-namespace:XamlCommon"
+	xmlns:cv="clr-namespace:ConvertersCommon"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="830">
+    <DockPanel Margin="20">
+        <ListView Height="580" VirtualizingPanel.ScrollUnit="Pixel" x:Name="SelectedGames" Width="Auto" DockPanel.Dock="Top" Margin="0,5,0,0" ItemsSource="{Binding GoldbergGames}" HorizontalAlignment="Left" lv:ColumnResizeBehavior.DisableColumnResize="True">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
+                    <Setter Property="Margin" Value="0,10,0,10"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView AllowsColumnReorder="False">
+                    <GridViewColumn Header="Game" Width="160">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid Height="120" VerticalAlignment="Top">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Image VerticalAlignment="Center" Grid.Row="0" Source="{Binding CoverImage}" Width="70" Height="70" Stretch="UniformToFill"  RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,10,5"></Image>
+                                    <TextBlock Grid.Row="1" Text="{Binding Name}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Overlay" Width="Auto">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid Height="120" VerticalAlignment="Top">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <CheckBox Content="Disable Overlay" Grid.Row="0" IsChecked="{Binding DisableOverlay}"  Margin="0,2,0,2"/>
+                                    <CheckBox IsEnabled="{Binding DisableOverlay, Converter={cv:InverseBooleanConverter}}" Content="Disable Achievement Notification" Grid.Row="1" IsChecked="{Binding DisableOverlayAchievement}" Margin="0,2,0,2"/>
+                                    <CheckBox IsEnabled="{Binding DisableOverlay, Converter={cv:InverseBooleanConverter}}" Content="Disable Friend Notification" Grid.Row="2" IsChecked="{Binding DisableOverlayFriend}" Margin="0,2,0,2"/>
+                                    <CheckBox IsEnabled="{Binding DisableOverlay, Converter={cv:InverseBooleanConverter}}" Content="Disable local_save Warning" Grid.Row="3" IsChecked="{Binding DisableOverlaylocalsave}" Margin="0,2,0,2"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Networking" Width="Auto">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid Height="120" VerticalAlignment="Top">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <CheckBox Grid.Row="0" Margin="0,2,0,2" IsChecked="{Binding CustomBroadcast}" >
+                                        <TextBlock Text="Custom Broadcast" TextTrimming="WordEllipsis"/>
+                                    </CheckBox>
+                                    <TextBox IsEnabled="{Binding CustomBroadcast}" MaxHeight="20" Grid.Row="1" Margin="0,2,0,2" Text="{Binding CustomBroadcastAddress}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="150"/>
+                                    <CheckBox Content="Disable LAN Only" Grid.Row="2" Margin="0,2,0,2" IsChecked="{Binding DisableLANOnly}"/>
+                                    <CheckBox Content="Disable Networking" Grid.Row="3" Margin="0,2,0,2" IsChecked="{Binding DisableNetworking}"/>
+                                    <CheckBox Content="Offline Mode Steam" Grid.Row="4" Margin="0,2,0,2" IsChecked="{Binding OfflineModeSteam}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Other" Width="Auto">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid Height="120" VerticalAlignment="Top">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Button Grid.Row="0" Content="Open Settings folder" Margin="0,2,0,2" IsEnabled="{Binding SettingsExists}" Command="{Binding DataContext.OpenSettingsPath, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}" CommandParameter="{Binding}"/>
+                                    <CheckBox Content="Run as Admin" Grid.Row="1" Margin="0,2,0,2" IsChecked="{Binding RunAsAdmin}"/>
+                                    <CheckBox Content="Reconfigure DLC" Grid.Row="2" Margin="0,2,0,2" IsChecked="{Binding ReconfigureDLC}" IsEnabled="{Binding DLCExists}"/>
+                                    <CheckBox Content="Reconfigure Achievements" Grid.Row="3" Margin="0,2,0,2" IsChecked="{Binding ReconfigureAchievements}" IsEnabled="{Binding AchievementsExists}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
+            <Button Margin="5" Content="Apply All" Command="{Binding GenerateGames}" CommandParameter="{Binding GoldbergGames}"/>
+            <Button Margin="5" Content="Apply Selected" Command="{Binding GenerateGames}" CommandParameter="{Binding SelectedItems, ElementName=SelectedGames}"/>
+        </StackPanel>
+    </DockPanel>
+</UserControl>
