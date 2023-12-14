@@ -8,6 +8,7 @@ using System.Text;
 using GoldbergCommon;
 using Playnite.SDK;
 using Playnite.SDK.Data;
+using PluginsCommon;
 using SteamCommon.Models;
 
 namespace SteamCommon
@@ -23,12 +24,12 @@ namespace SteamCommon
         public static bool CacheExists(string pluginpath)
         {
             string path = Path.Combine(pluginpath, "Common", "DLCCache.json");
-            return File.Exists(path);
+            return FileSystem.FileExists(path);
         }
         public static bool Cache1Week(string pluginpath)
         {
             string path = Path.Combine(pluginpath, "Common", "DLCCache.json");
-            if (File.Exists(path))
+            if (FileSystem.FileExists(path))
             {
                 FileInfo fileInfo = new FileInfo(path);
                 TimeSpan difference = DateTime.Now - fileInfo.LastWriteTime;
@@ -49,7 +50,7 @@ namespace SteamCommon
             string json;
             int lastappid;
             ApplistDetails applist;
-            if (File.Exists(path)) ///Check if file exists, update it.
+            if (FileSystem.FileExists(path)) ///Check if file exists, update it.
             {
                 applist = Serialization.FromJsonFile<ApplistDetails>(path);
                 lastappid = applist.Applist.LastAppid;
@@ -82,11 +83,11 @@ namespace SteamCommon
                         }
                     }
                 } while (true);
-                if (!Directory.Exists(Path.GetDirectoryName(path)))
+                if (!FileSystem.DirectoryExists(Path.GetDirectoryName(path)))
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                    FileSystem.CreateDirectory(Path.GetDirectoryName(path));
                 }
-                File.WriteAllText(path, Serialization.ToJson(applist, true));
+                FileSystem.WriteStringToFile(path, Serialization.ToJson(applist, true));
                 return;
             }
         }
@@ -140,7 +141,7 @@ namespace SteamCommon
                         }
                     }
                 } while (true);
-                File.WriteAllText(path, Serialization.ToJson(applist, true));
+                FileSystem.WriteStringToFile(path, Serialization.ToJson(applist, true));
             }
         }
     }

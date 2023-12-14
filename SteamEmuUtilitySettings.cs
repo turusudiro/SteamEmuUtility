@@ -11,6 +11,7 @@ using GoldbergCommon;
 using GreenLumaCommon;
 using Playnite.SDK;
 using Playnite.SDK.Data;
+using PluginsCommon;
 using SevenZip;
 
 namespace SteamEmuUtility
@@ -32,7 +33,7 @@ namespace SteamEmuUtility
                 BitmapImage image = new BitmapImage();
                 image.BeginInit();
                 image.CacheOption = BitmapCacheOption.OnLoad;
-                if (File.Exists(Goldberg.GoldbergAvatar))
+                if (FileSystem.FileExists(Goldberg.GoldbergAvatar))
                 {
                     image.UriSource = new Uri(Goldberg.GoldbergAvatar);
                 }
@@ -458,9 +459,9 @@ namespace SteamEmuUtility
                 {
                     try
                     {
-                        if (!Directory.Exists(Path.Combine(Goldberg.GoldbergAppData, "settings")))
+                        if (!FileSystem.DirectoryExists(Path.Combine(Goldberg.GoldbergAppData, "settings")))
                         {
-                            Directory.CreateDirectory(Path.Combine(Goldberg.GoldbergAppData, "settings"));
+                            FileSystem.CreateDirectory(Path.Combine(Goldberg.GoldbergAppData, "settings"));
                         }
                         string[] files = Directory.GetFiles(Path.Combine(Goldberg.GoldbergAppData, "settings"), $"account_avatar.*");
 
@@ -468,9 +469,9 @@ namespace SteamEmuUtility
                         {
                             // If multiple files match, you may want to choose one based on your criteria
                             // In this example, the first matching file is selected
-                            File.Delete(files[0]);
+                            FileSystem.DeleteFile(files[0]);
                         }
-                        File.Copy(path, Path.Combine(Goldberg.GoldbergAppData, "settings", $"account_avatar{Path.GetExtension(path)}"), true);
+                        FileSystem.CopyFile(path, Path.Combine(Goldberg.GoldbergAppData, "settings", $"account_avatar{Path.GetExtension(path)}"), true);
                         Application.Current.Dispatcher.Invoke(() =>
                         {
                             BitmapImage image = new BitmapImage();
@@ -559,9 +560,9 @@ namespace SteamEmuUtility
                     //try extracting files
                     if (item.FileName.Contains("Normal"))
                     {
-                        if (!Directory.Exists(Path.Combine(destinationFolder, "NormalMode")))
+                        if (!FileSystem.DirectoryExists(Path.Combine(destinationFolder, "NormalMode")))
                         {
-                            Directory.CreateDirectory(Path.Combine(destinationFolder, "NormalMode"));
+                            FileSystem.CreateDirectory(Path.Combine(destinationFolder, "NormalMode"));
                         }
                         using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, "NormalMode", Path.GetFileName(item.FileName)), FileMode.Create))
                         {
@@ -570,9 +571,9 @@ namespace SteamEmuUtility
                     }
                     else
                     {
-                        if (!Directory.Exists(Path.Combine(destinationFolder, "StealthMode")))
+                        if (!FileSystem.DirectoryExists(Path.Combine(destinationFolder, "StealthMode")))
                         {
-                            Directory.CreateDirectory(Path.Combine(destinationFolder, "StealthMode"));
+                            FileSystem.CreateDirectory(Path.Combine(destinationFolder, "StealthMode"));
                         }
                         using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, "StealthMode", Path.GetFileName(item.FileName)), FileMode.Create))
                         {
@@ -580,7 +581,7 @@ namespace SteamEmuUtility
                         }
                     }
                     //check if password is wrong, if wrong the extracted files will 0 bytes and delete it and ask user to reenter password
-                    if (File.Exists(Path.Combine(destinationFolder, Path.GetFileName(item.FileName))))
+                    if (FileSystem.FileExists(Path.Combine(destinationFolder, Path.GetFileName(item.FileName))))
                     {
                         FileInfo fileInfo = new FileInfo(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)));
                         if (fileInfo.Length == 0)
@@ -629,15 +630,15 @@ namespace SteamEmuUtility
                     }
                     if (Regex.IsMatch(item.FileName, regexPattern))
                     {
-                        if (!Directory.Exists(destinationFolder))
+                        if (!FileSystem.DirectoryExists(destinationFolder))
                         {
-                            Directory.CreateDirectory(destinationFolder);
+                            FileSystem.CreateDirectory(destinationFolder);
                         }
                         using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)), FileMode.Create))
                         {
                             extractor.ExtractFile(item.Index, fileStream);
                         }
-                        if (File.Exists(Path.Combine(destinationFolder, Path.GetFileName(item.FileName))))
+                        if (FileSystem.FileExists(Path.Combine(destinationFolder, Path.GetFileName(item.FileName))))
                         {
                             FileInfo fileInfo = new FileInfo(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)));
                             if (fileInfo.Length == 0)

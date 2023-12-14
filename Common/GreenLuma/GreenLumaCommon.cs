@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Playnite.SDK;
 using Playnite.SDK.Models;
+using PluginsCommon;
 using SteamCommon;
 using SteamEmuUtility;
 
@@ -103,7 +104,7 @@ namespace GreenLumaCommon
             };
             foreach (string file in GreenLumaFiles)
             {
-                if (!File.Exists(file))
+                if (!FileSystem.FileExists(file))
                 {
                     // If the file doesn't exist, add it to the list of missing files
                     missingFiles.Add(GetRelativePath(GreenLumaPath, file));
@@ -135,7 +136,7 @@ namespace GreenLumaCommon
                 foreach (var file in GreenLumaFiles)
                 {
                     string path = Path.Combine(SteamUtilities.SteamDirectory, file);
-                    if (Directory.Exists(path))
+                    if (FileSystem.DirectoryExists(path))
                     {
                         DirectoryInfo dirinfo = new DirectoryInfo(path);
                         if (dirinfo.GetFiles().Length >= 1)
@@ -143,7 +144,7 @@ namespace GreenLumaCommon
                             return true;
                         }
                     }
-                    if (File.Exists(path))
+                    if (FileSystem.FileExists(path))
                     {
                         if (Path.GetFileName(path).Equals("x64launcher.exe"))
                         {

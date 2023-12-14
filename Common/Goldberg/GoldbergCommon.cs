@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Playnite.SDK;
 using Playnite.SDK.Models;
+using PluginsCommon;
 using SteamCommon;
 using SteamEmuUtility;
 
@@ -35,7 +36,7 @@ namespace GoldbergCommon
                 try
                 {
                     // Check if the directory exists
-                    if (Directory.Exists(Path.Combine(GoldbergAppData, "settings")))
+                    if (FileSystem.DirectoryExists(Path.Combine(GoldbergAppData, "settings")))
                     {
                         // Search for the file with the specified name
                         string[] files = Directory.GetFiles(Path.Combine(GoldbergAppData, "settings"), $"account_avatar.*");
@@ -102,7 +103,7 @@ namespace GoldbergCommon
             {
                 try
                 {
-                    return File.ReadAllText(Path.Combine(GoldbergAppData, "settings\\account_name.txt"));
+                    return FileSystem.ReadStringFromFile(Path.Combine(GoldbergAppData, "settings\\account_name.txt"));
                 }
                 catch { return string.Empty; }
             }
@@ -111,11 +112,11 @@ namespace GoldbergCommon
                 string filePath = Path.Combine(GoldbergAppData, "settings\\account_name.txt");
                 try
                 {
-                    if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+                    if (!FileSystem.DirectoryExists(Path.GetDirectoryName(filePath)))
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                        FileSystem.CreateDirectory(Path.GetDirectoryName(filePath));
                     }
-                    File.WriteAllText(filePath, value);
+                    FileSystem.WriteStringToFile(filePath, value);
                 }
                 catch { }
             }
@@ -126,7 +127,7 @@ namespace GoldbergCommon
             {
                 try
                 {
-                    return File.ReadAllText(Path.Combine(GoldbergAppData, "settings\\language.txt"));
+                    return FileSystem.ReadStringFromFile(Path.Combine(GoldbergAppData, "settings\\language.txt"));
                 }
                 catch { return string.Empty; }
             }
@@ -135,11 +136,11 @@ namespace GoldbergCommon
                 string filePath = Path.Combine(GoldbergAppData, "settings\\language.txt");
                 try
                 {
-                    if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+                    if (!FileSystem.DirectoryExists(Path.GetDirectoryName(filePath)))
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                        FileSystem.CreateDirectory(Path.GetDirectoryName(filePath));
                     }
-                    File.WriteAllText(filePath, value);
+                    FileSystem.WriteStringToFile(filePath, value);
                 }
                 catch { }
             }
@@ -150,7 +151,7 @@ namespace GoldbergCommon
             {
                 try
                 {
-                    return File.ReadAllText(Path.Combine(GoldbergAppData, "settings\\listen_port.txt"));
+                    return FileSystem.ReadStringFromFile(Path.Combine(GoldbergAppData, "settings\\listen_port.txt"));
                 }
                 catch { return string.Empty; }
             }
@@ -159,11 +160,11 @@ namespace GoldbergCommon
                 string filePath = Path.Combine(GoldbergAppData, "settings\\listen_port.txt");
                 try
                 {
-                    if (!Directory.Exists(Path.GetDirectoryName(filePath)))
+                    if (!FileSystem.DirectoryExists(Path.GetDirectoryName(filePath)))
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+                        FileSystem.CreateDirectory(Path.GetDirectoryName(filePath));
                     }
-                    File.WriteAllText(filePath, value);
+                    FileSystem.WriteStringToFile(filePath, value);
                 }
                 catch { }
             }
@@ -174,7 +175,7 @@ namespace GoldbergCommon
             {
                 try
                 {
-                    return File.ReadAllText(Path.Combine(GoldbergAppData, "settings\\user_steam_id.txt"));
+                    return FileSystem.ReadStringFromFile(Path.Combine(GoldbergAppData, "settings\\user_steam_id.txt"));
                 }
                 catch { return string.Empty; }
             }
@@ -183,7 +184,7 @@ namespace GoldbergCommon
                 string filePath = Path.Combine(GoldbergAppData, "settings\\user_steam_id.txt");
                 try
                 {
-                    File.WriteAllText(filePath, value);
+                    FileSystem.WriteStringToFile(filePath, value);
                 }
                 catch { }
             }
@@ -216,7 +217,7 @@ namespace GoldbergCommon
 
             foreach (string file in ColdClientFiles)
             {
-                if (!File.Exists(file))
+                if (!FileSystem.FileExists(file))
                 {
                     // If the file doesn't exist, add it to the list of missing files
                     missingFiles.Add(Path.GetFileName(file));

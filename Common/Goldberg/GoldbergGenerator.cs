@@ -246,9 +246,9 @@ namespace GoldbergCommon
         public static void GenerateColdClient(AppInfo productInfo, Game game)
         {
             string coldclient = Path.Combine(GameSettingsPath(game), "ColdClientLoader.ini");
-            if (!Directory.Exists(GameSettingsPath(game)))
+            if (!FileSystem.DirectoryExists(GameSettingsPath(game)))
             {
-                Directory.CreateDirectory(GameSettingsPath(game));
+                FileSystem.CreateDirectory(GameSettingsPath(game));
             }
             List<string> configs = new List<string>
             {
@@ -259,7 +259,7 @@ namespace GoldbergCommon
                 @"SteamClientDll=steamclient.dll",
                 @"SteamClient64Dll=steamclient64.dll"
             };
-            File.WriteAllLines(coldclient, configs);
+            FileSystem.WriteStringLinesToFile(coldclient, configs);
         }
         public static void GenerateAchievement(Game game, GlobalProgressActionArgs progress)
         {
@@ -270,9 +270,9 @@ namespace GoldbergCommon
             if (job != null && job.AvailableGameStats.Achievements.Count >= 1)
             {
                 progress.ProgressMaxValue = job.AvailableGameStats.Achievements.Count;
-                if (!Directory.Exists(achievementPath))
+                if (!FileSystem.DirectoryExists(achievementPath))
                 {
-                    Directory.CreateDirectory(achievementPath);
+                    FileSystem.CreateDirectory(achievementPath);
                 }
                 foreach (var ach in job.AvailableGameStats.Achievements)
                 {
@@ -287,7 +287,7 @@ namespace GoldbergCommon
                 }
                 try
                 {
-                    File.WriteAllText(Path.Combine(GameSteamSettingPath(game), "achievements.json"), Serialization.ToJson(job.AvailableGameStats.Achievements, true));
+                    FileSystem.WriteStringToFile(Path.Combine(GameSteamSettingPath(game), "achievements.json"), Serialization.ToJson(job.AvailableGameStats.Achievements, true));
                 }
                 catch { }
             }

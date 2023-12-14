@@ -58,8 +58,8 @@ namespace GoldbergCommon
                     string AchievementDBPath = Path.Combine(AchievementWatcherAppData, "steam_cache", "data", $"{game.GameId}.db");
                     try
                     {
-                        File.Delete(AchievementGameJSONPath);
-                        File.Delete(AchievementDBPath);
+                        FileSystem.DeleteFile(AchievementGameJSONPath);
+                        FileSystem.DeleteFile(AchievementDBPath);
                         count++;
                     }
                     catch { }
@@ -85,14 +85,14 @@ namespace GoldbergCommon
         }
         public static bool CopyColdClientIni(Game game, IPlayniteAPI PlayniteApi)
         {
-            if (!File.Exists(Path.Combine(GameSettingsPath(game), "ColdClientLoader.ini")))
+            if (!FileSystem.FileExists(Path.Combine(GameSettingsPath(game), "ColdClientLoader.ini")))
             {
                 List<Game> games = new List<Game> { game };
                 GoldbergGenerator.GenerateGoldbergConfig(games, PlayniteApi);
             }
             try
             {
-                File.Copy($"{GameSettingsPath(game)}\\ColdClientLoader.ini", ColdClientIni, true);
+                FileSystem.CopyFile($"{GameSettingsPath(game)}\\ColdClientLoader.ini", ColdClientIni, true);
                 return true;
             }
             catch { return false; }
@@ -101,11 +101,11 @@ namespace GoldbergCommon
         {
             try
             {
-                if (Directory.Exists(GameSteamSettingPath(game)))
+                if (FileSystem.DirectoryExists(GameSteamSettingPath(game)))
                 {
-                    if (Directory.Exists(SteamSettingsPath))
+                    if (FileSystem.DirectoryExists(SteamSettingsPath))
                     {
-                        Directory.Delete(SteamSettingsPath, true);
+                        FileSystem.DeleteDirectory(SteamSettingsPath, true);
                     }
                     if (FileSystem.CreateSymbolicLink(SteamSettingsPath, GameSteamSettingPath(game)))
                     {
@@ -125,15 +125,15 @@ namespace GoldbergCommon
             {
                 return true;
             }
-            if (!Directory.Exists(goldberggamepath))
+            if (!FileSystem.DirectoryExists(goldberggamepath))
             {
-                Directory.CreateDirectory(goldberggamepath);
+                FileSystem.CreateDirectory(goldberggamepath);
             }
             foreach (var dir in userdatappid)
             {
                 string rootdirectory = Path.GetFileName(dir);
                 string goldbergtarget = Path.Combine(goldberggamepath, rootdirectory);
-                if (Directory.Exists(goldbergtarget))
+                if (FileSystem.DirectoryExists(goldbergtarget))
                 {
                     if (!FileSystem.IsSymbolicLink(goldbergtarget))
                     {
@@ -142,7 +142,7 @@ namespace GoldbergCommon
                         {
                             try
                             {
-                                Directory.Delete(goldbergtarget, true);
+                                FileSystem.DeleteDirectory(goldbergtarget, true);
                             }
                             catch { continue; }
                         }
@@ -152,7 +152,7 @@ namespace GoldbergCommon
                         }
                     }
                 }
-                if (Directory.Exists(goldbergtarget) && FileSystem.IsSymbolicLink(goldbergtarget))
+                if (FileSystem.DirectoryExists(goldbergtarget) && FileSystem.IsSymbolicLink(goldbergtarget))
                 {
                     continue;
                 }

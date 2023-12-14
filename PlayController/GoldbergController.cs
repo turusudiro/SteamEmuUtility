@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using GoldbergCommon;
-using Playnite.Common;
 using Playnite.SDK;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
@@ -53,7 +52,7 @@ namespace SteamEmuUtility.Controller
                 ProcessUtilities.StartProcess(ColdClientExecutable, true);
             }
             else { ProcessUtilities.StartProcess(ColdClientExecutable); }
-            if (Directory.Exists(installDirectory))
+            if (FileSystem.DirectoryExists(installDirectory))
             {
                 procMon.WatchDirectoryProcesses(installDirectory, false, false);
             }

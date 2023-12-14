@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Playnite.SDK;
 using Playnite.SDK.Events;
 using Playnite.SDK.Models;
+using PluginsCommon;
 using ProcessCommon;
 using SteamCommon;
 using static GreenLumaCommon.GreenLuma;
@@ -39,13 +40,13 @@ namespace GreenLumaCommon
                     foreach (var file in GreenLumaFiles)
                     {
                         string path = Path.Combine(SteamUtilities.SteamDirectory, file);
-                        if (Directory.Exists(path))
+                        if (FileSystem.DirectoryExists(path))
                         {
                             DirectoryInfo dirinfo = new DirectoryInfo(path);
                             try { dirinfo.Delete(true); }
                             catch { }
                         }
-                        if (Path.GetFileName(file).Equals("x64launcher.exe") && File.Exists(path))
+                        if (Path.GetFileName(file).Equals("x64launcher.exe") && FileSystem.FileExists(path))
                         {
                             FileInfo x64steam = new FileInfo(Path.Combine(SteamUtilities.SteamDirectory, file));
                             FileInfo x64greenluma = new FileInfo(Path.Combine(GreenLumaPath, "NormalMode", Path.GetFileName(file)));
@@ -54,15 +55,15 @@ namespace GreenLumaCommon
                                 try
                                 {
                                     x64steam.Delete();
-                                    File.Copy(Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe"), Path.Combine(SteamUtilities.SteamDirectory, "bin\\x64launcher.exe"), true);
+                                    FileSystem.CopyFile(Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe"), Path.Combine(SteamUtilities.SteamDirectory, "bin\\x64launcher.exe"), true);
                                 }
                                 catch { }
                             }
                             continue;
                         }
-                        if (File.Exists(path))
+                        if (FileSystem.FileExists(path))
                         {
-                            try { File.Delete(Path.Combine(SteamUtilities.SteamDirectory, file)); }
+                            try { FileSystem.DeleteFile(Path.Combine(SteamUtilities.SteamDirectory, file)); }
                             catch { }
                         }
                     }
@@ -87,9 +88,9 @@ namespace GreenLumaCommon
             {
                 foreach (string file in appcache)
                 {
-                    if (File.Exists(file))
+                    if (FileSystem.FileExists(file))
                     {
-                        File.Delete(file);
+                        FileSystem.DeleteFile(file);
                     }
                 }
             }
@@ -127,12 +128,12 @@ namespace GreenLumaCommon
         }
         public static void CopyGreenLumaNormalMode()
         {
-            File.Copy(Path.Combine(GreenLumaPath, "NormalMode", "DLLInjector.exe"), Path.Combine(SteamUtilities.SteamDirectory, "DLLInjector.exe"), true);
-            File.Copy(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2023_x64.dll"), Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma_2023_x64.dll"), true);
-            File.Copy(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2023_x86.dll"), Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma_2023_x86.dll"), true);
-            Directory.CreateDirectory(Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma2023_Files"));
-            File.Copy(Path.Combine(GreenLumaPath, "NormalMode", "AchievementUnlocked.wav"), Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma2023_Files", "AchievementUnlocked.wav"), true);
-            File.Copy(Path.Combine(GreenLumaPath, "NormalMode", "x64launcher.exe"), Path.Combine(SteamUtilities.SteamDirectory, "bin", "x64launcher.exe"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "DLLInjector.exe"), Path.Combine(SteamUtilities.SteamDirectory, "DLLInjector.exe"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2023_x64.dll"), Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma_2023_x64.dll"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2023_x86.dll"), Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma_2023_x86.dll"), true);
+            FileSystem.CreateDirectory(Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma2023_Files"));
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "AchievementUnlocked.wav"), Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma2023_Files", "AchievementUnlocked.wav"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "x64launcher.exe"), Path.Combine(SteamUtilities.SteamDirectory, "bin", "x64launcher.exe"), true);
         }
         /// <summary>
         /// Copy GreenLuma NormalMode files
@@ -156,16 +157,16 @@ namespace GreenLumaCommon
                     return;
                 }
             }
-            if (!File.Exists(Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe")))
+            if (!FileSystem.FileExists(Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe")))
             {
                 BackupX64Launcher();
             }
-            if (File.Exists(Path.Combine(AppOwnershipTicketsPath, $"Ticket.{args.Game.GameId}")) && GreenLumaSettings.InjectAppOwnership)
+            if (FileSystem.FileExists(Path.Combine(AppOwnershipTicketsPath, $"Ticket.{args.Game.GameId}")) && GreenLumaSettings.InjectAppOwnership)
             {
                 logger.Info("Found AppOwnershipTickets, copying...");
                 InjectAppOwnershipTickets(Path.Combine(AppOwnershipTicketsPath, $"Ticket.{args.Game.GameId}"));
             }
-            if (File.Exists(Path.Combine(EncryptedAppTicketsPath, $"EncryptedTicket.{args.Game.GameId}")) && GreenLumaSettings.InjectEncryptedApp)
+            if (FileSystem.FileExists(Path.Combine(EncryptedAppTicketsPath, $"EncryptedTicket.{args.Game.GameId}")) && GreenLumaSettings.InjectEncryptedApp)
             {
                 logger.Info("Found EncryptedAppTickets, copying...");
                 InjectEncryptedAppTickets(Path.Combine(EncryptedAppTicketsPath, $"EncryptedTicket.{args.Game.GameId}"));
@@ -178,7 +179,7 @@ namespace GreenLumaCommon
             {
                 CopyGreenLumaNormalMode();
                 GreenLumaGenerator.CreateDLLInjectorIni();
-                File.WriteAllText(Path.Combine(SteamUtilities.SteamDirectory, stealth), null);
+                FileSystem.WriteStringToFile(Path.Combine(SteamUtilities.SteamDirectory, stealth), null);
             }
             catch (Exception ex) { PlayniteApi.Dialogs.ShowErrorMessage(ex.Message); args.CancelStartup = true; return; }
             if (!StartInjector(args, GreenLumaSettings.MaxAttemptDLLInjector, GreenLumaSettings.MillisecondsToWait))
@@ -213,12 +214,12 @@ namespace GreenLumaCommon
             }
             try
             {
-                if (!Directory.Exists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
+                if (!FileSystem.DirectoryExists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
                 {
-                    Directory.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
+                    FileSystem.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
                 }
-                File.WriteAllText(Path.Combine(SteamUtilities.SteamDirectory, "applist", stealth), null);
-                File.Copy(User32, Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)), true);
+                FileSystem.WriteStringToFile(Path.Combine(SteamUtilities.SteamDirectory, "applist", stealth), null);
+                FileSystem.CopyFile(User32, Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)), true);
             }
             catch (Exception ex)
             {
@@ -244,14 +245,14 @@ namespace GreenLumaCommon
         }
         public static void CopyGreenLumaStealthMode()
         {
-            if (!Directory.Exists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
+            if (!FileSystem.DirectoryExists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
             {
-                Directory.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
+                FileSystem.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
             }
             try
             {
-                File.WriteAllText(Path.Combine(SteamUtilities.SteamDirectory, "applist", stealth), null);
-                File.Copy(User32, Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)), true);
+                FileSystem.WriteStringToFile(Path.Combine(SteamUtilities.SteamDirectory, "applist", stealth), null);
+                FileSystem.CopyFile(User32, Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)), true);
             }
             catch { }
         }
@@ -274,12 +275,12 @@ namespace GreenLumaCommon
             }
             try
             {
-                if (!Directory.Exists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
+                if (!FileSystem.DirectoryExists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
                 {
-                    Directory.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
+                    FileSystem.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
                 }
-                File.WriteAllText(Path.Combine(SteamUtilities.SteamDirectory, "applist", stealth), null);
-                File.Copy(User32, Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)), true);
+                FileSystem.WriteStringToFile(Path.Combine(SteamUtilities.SteamDirectory, "applist", stealth), null);
+                FileSystem.CopyFile(User32, Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)), true);
             }
             catch (Exception ex)
             {
@@ -324,13 +325,13 @@ namespace GreenLumaCommon
             {
                 string x64steam = Path.Combine(SteamUtilities.SteamDirectory, "bin\\x64launcher.exe");
                 string x64backup = Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe");
-                if (!Directory.Exists(Path.Combine(BackupPath, "Steam\\bin")))
+                if (!FileSystem.DirectoryExists(Path.Combine(BackupPath, "Steam\\bin")))
                 {
-                    Directory.CreateDirectory(Path.Combine(BackupPath, "Steam\\bin"));
+                    FileSystem.CreateDirectory(Path.Combine(BackupPath, "Steam\\bin"));
                 }
                 if (new FileInfo(x64steam).Length != new FileInfo(x64backup).Length)
                 {
-                    File.Copy(x64steam, x64backup, true);
+                    FileSystem.CopyFile(x64steam, x64backup, true);
                 }
                 return Task.CompletedTask;
             }
@@ -342,13 +343,13 @@ namespace GreenLumaCommon
         public static Task InjectAppOwnershipTickets(string path)
         {
             string destinationFile = Path.Combine(SteamUtilities.SteamDirectory, "AppOwnershipTickets", Path.GetFileName(path));
-            if (!Directory.Exists(Path.GetDirectoryName(destinationFile)))
+            if (!FileSystem.DirectoryExists(Path.GetDirectoryName(destinationFile)))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(destinationFile));
+                FileSystem.CreateDirectory(Path.GetDirectoryName(destinationFile));
             }
             try
             {
-                File.Copy(path, destinationFile);
+                FileSystem.CopyFile(path, destinationFile);
                 return Task.CompletedTask;
             }
             catch (Exception ex)
@@ -359,13 +360,13 @@ namespace GreenLumaCommon
         public static Task InjectEncryptedAppTickets(string path)
         {
             string destinationFile = Path.Combine(SteamUtilities.SteamDirectory, "EncryptedAppTickets", Path.GetFileName(path));
-            if (!Directory.Exists(Path.GetDirectoryName(destinationFile)))
+            if (!FileSystem.DirectoryExists(Path.GetDirectoryName(destinationFile)))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(destinationFile));
+                FileSystem.CreateDirectory(Path.GetDirectoryName(destinationFile));
             }
             try
             {
-                File.Copy(path, destinationFile);
+                FileSystem.CopyFile(path, destinationFile);
                 return Task.CompletedTask;
             }
             catch (Exception ex)
@@ -390,13 +391,13 @@ namespace GreenLumaCommon
             bool availableEncryptedApp = EncryptedAppTickets.Any();
             logger.Info(availableAppOwnership.ToString());
             logger.Info(availableEncryptedApp.ToString());
-            if (!Directory.Exists(AppOwnershipTicketsPath) && availableAppOwnership)
+            if (!FileSystem.DirectoryExists(AppOwnershipTicketsPath) && availableAppOwnership)
             {
-                Directory.CreateDirectory(AppOwnershipTicketsPath);
+                FileSystem.CreateDirectory(AppOwnershipTicketsPath);
             }
-            if (!Directory.Exists(EncryptedAppTicketsPath) && availableEncryptedApp)
+            if (!FileSystem.DirectoryExists(EncryptedAppTicketsPath) && availableEncryptedApp)
             {
-                Directory.CreateDirectory(EncryptedAppTicketsPath);
+                FileSystem.CreateDirectory(EncryptedAppTicketsPath);
             }
             GlobalProgressOptions progressOptions = new GlobalProgressOptions("Steam Emu Utility");
             PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
@@ -407,7 +408,7 @@ namespace GreenLumaCommon
                     string destinationFile = Path.Combine(AppOwnershipTicketsPath, Path.GetFileName(file));
                     progress.Text = "Copying " + Path.GetFileName(file) + " to " + destinationFile;
                     progress.CurrentProgressValue++;
-                    if (File.Exists(destinationFile))
+                    if (FileSystem.FileExists(destinationFile))
                     {
                         if (PlayniteApi.Dialogs.ShowMessage($"The file {Path.GetFileName(file)} already exists. Do you want to overwrite it?", "Steam Emu Utility", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Information) == System.Windows.MessageBoxResult.No)
                         {
@@ -416,14 +417,14 @@ namespace GreenLumaCommon
                             continue;
                         }
                     }
-                    File.Copy(file, destinationFile, true);
+                    FileSystem.CopyFile(file, destinationFile, true);
                 }
                 foreach (string file in EncryptedAppTickets)
                 {
                     string destinationFile = Path.Combine(EncryptedAppTicketsPath, Path.GetFileName(file));
                     progress.Text = "Copying " + Path.GetFileName(file) + " to " + destinationFile;
                     progress.CurrentProgressValue++;
-                    if (File.Exists(destinationFile))
+                    if (FileSystem.FileExists(destinationFile))
                     {
                         if (PlayniteApi.Dialogs.ShowMessage($"The file {Path.GetFileName(file)} already exists. Do you want to overwrite it?", "Steam Emu Utility", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Information) == System.Windows.MessageBoxResult.No)
                         {
@@ -432,7 +433,7 @@ namespace GreenLumaCommon
                             continue;
                         }
                     }
-                    File.Copy(file, destinationFile, true);
+                    FileSystem.CopyFile(file, destinationFile, true);
                 }
             }, progressOptions);
             if (availableAppOwnership && !availableEncryptedApp)

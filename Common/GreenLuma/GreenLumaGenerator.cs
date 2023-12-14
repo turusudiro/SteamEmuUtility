@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Playnite.SDK;
 using Playnite.SDK.Events;
+using PluginsCommon;
 using SteamCommon;
 using static GreenLumaCommon.GreenLuma;
 
@@ -64,7 +65,7 @@ namespace GreenLumaCommon
                     injectorConfig[index] = $"CommandLine = -inhibitbootstrap {GreenLumaSettings.SteamArgs}";
                 }
             }
-            File.WriteAllLines(Path.Combine(SteamUtilities.SteamDirectory, "DLLInjector.ini"), injectorConfig);
+            FileSystem.WriteStringLinesToFile(Path.Combine(SteamUtilities.SteamDirectory, "DLLInjector.ini"), injectorConfig);
         }
         /// <summary>
         /// Create txt files in applist Steam directory
@@ -75,9 +76,9 @@ namespace GreenLumaCommon
         public static bool WriteAppList(List<string> appids)
         {
             int count = 0;
-            if (!Directory.Exists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
+            if (!FileSystem.DirectoryExists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
             {
-                Directory.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
+                FileSystem.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
             }
             try
             {
@@ -87,7 +88,7 @@ namespace GreenLumaCommon
                     {
                         break;
                     }
-                    File.WriteAllText(Path.Combine(SteamUtilities.SteamDirectory, "applist", $"{count}.txt"), appid);
+                    FileSystem.WriteStringToFile(Path.Combine(SteamUtilities.SteamDirectory, "applist", $"{count}.txt"), appid);
                     count++;
                 }
                 return true;
@@ -102,7 +103,7 @@ namespace GreenLumaCommon
             var game = args.Game;
             var appids = new List<string> { game.GameId };
             string dlcpath = Path.Combine(CommonPath, $"{game.GameId}.txt");
-            if (!File.Exists(dlcpath))
+            if (!FileSystem.FileExists(dlcpath))
             {
                 GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
                 PlayniteApi.Dialogs.ActivateGlobalProgress((progressOptions) =>
@@ -110,7 +111,7 @@ namespace GreenLumaCommon
                     GenerateDLC(appids, progressOptions);
                 }, progress);
             }
-            appids.AddRange(File.ReadAllLines(dlcpath).ToList());
+            appids.AddRange(FileSystem.ReadStringLinesFromFile(dlcpath).ToList());
             WriteAppList(appids);
         }
         public static void DLCUnlocking(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi)
@@ -118,7 +119,7 @@ namespace GreenLumaCommon
             var game = args.Game;
             var appids = new List<string> { game.GameId };
             string dlcpath = Path.Combine(CommonPath, $"{game.GameId}.txt");
-            if (!File.Exists(dlcpath))
+            if (!FileSystem.FileExists(dlcpath))
             {
                 GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
                 PlayniteApi.Dialogs.ActivateGlobalProgress((progressOptions) =>
@@ -126,7 +127,7 @@ namespace GreenLumaCommon
                     GenerateDLC(appids, progressOptions);
                 }, progress);
             }
-            appids = File.ReadAllLines(dlcpath).ToList();
+            appids = FileSystem.ReadStringLinesFromFile(dlcpath).ToList();
             WriteAppList(appids);
         }
         public static bool GenerateDLC(List<string> appids, GlobalProgressActionArgs progressOptions)
@@ -172,11 +173,11 @@ namespace GreenLumaCommon
                 }
                 try
                 {
-                    if (!Directory.Exists(CommonPath))
+                    if (!FileSystem.DirectoryExists(CommonPath))
                     {
-                        Directory.CreateDirectory(CommonPath);
+                        FileSystem.CreateDirectory(CommonPath);
                     }
-                    File.WriteAllLines(Path.Combine(CommonPath, $"{appid}.txt"), dlcid.Select(x => x.ToString()));
+                    FileSystem.WriteStringLinesToFile(Path.Combine(CommonPath, $"{appid}.txt"), dlcid.Select(x => x.ToString()));
                 }
                 catch
                 {
