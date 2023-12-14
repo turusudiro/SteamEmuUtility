@@ -52,6 +52,11 @@ namespace SteamEmuUtility.ViewModels
             get => new RelayCommand<object>((a) =>
             {
                 var Games = (a as IList)?.Cast<GoldbergGames>().ToList();
+                if (Games.Count == 0)
+                {
+                    PlayniteApi.Dialogs.ShowErrorMessage("Please choose atleast 1 game.");
+                    return;
+                }
                 GoldbergGenerator.GenerateGoldbergConfig(Games, PlayniteApi);
                 Games.ForEach(x =>
                 {
