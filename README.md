@@ -9,10 +9,10 @@
 - Steam Cloud Save with Goldberg Steam Emu.
 - Launch games with Goldberg Steam Emu without touching game files.
 
-# Disclaimer
+## Disclaimer
 **USE AT YOUR OWN RISK**
 
 I am not responsible for any potential damage to your system or Steam account.
 
-# Getting Started
+## Getting Started
 Please refer to the [Wiki](https://github.com/turusudiro/SteamEmuUtility/wiki).
