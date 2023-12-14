@@ -1,12 +1,18 @@
-# Steam Emu Utility
-Playnite Extension for using GreenLuma and/or Goldberg
+# <img src="icon.png" width="28" height="28"> Steam Emu Utility
 
-![Screenshot](Images/0.png)
+## Overview
+**Steam Emu Utility** is a Playnite plugin designed for easy use with GreenLuma and/or Goldberg. This plugin aims to enable Goldberg without modifying the original game files and supports Steam Cloud Save (Not all games are supported).
 
-# Usage
-## USE AT YOUR OWN RISK
+## Features
+- Automatically generate a configuration for GreenLuma or Goldberg.
+- Run Steam games from the Playnite library with GreenLuma or Goldberg.
+- Steam Cloud Save with Goldberg Steam Emu.
+- Launch games with Goldberg Steam Emu without touching game files.
 
-### Use this plugin at your own risk; I am not responsible for any damage that may occur to your system or your Steam account.
+# Disclaimer
+**USE AT YOUR OWN RISK**
 
+I am not responsible for any potential damage to your system or Steam account.
 
+# Getting Started
 Please refer to the [Wiki](https://github.com/turusudiro/SteamEmuUtility/wiki).
