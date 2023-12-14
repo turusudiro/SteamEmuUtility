@@ -129,31 +129,6 @@ namespace SteamCommon
             progressOptions.IsIndeterminate = false;
             return true;
         }
-        public void LogOff(GlobalProgressActionArgs progressOptions)
-        {
-            manager.Subscribe<SteamClient.ConnectedCallback>(callback =>
-            {
-                OnConnected(callback, progressOptions);
-            });
-            manager.Subscribe<SteamClient.DisconnectedCallback>(callback =>
-            {
-                OnDisconnected(callback, progressOptions);
-            });
-
-            manager.Subscribe<SteamUser.LoggedOnCallback>(callback =>
-            {
-                OnLoggedOn(callback, progressOptions);
-            });
-            manager.Subscribe<SteamUser.LoggedOffCallback>(callback =>
-            {
-                OnLoggedOff(callback, progressOptions);
-            });
-            steamClient.Disconnect();
-            while (isRunning)
-            {
-                manager.RunWaitCallbacks(TimeSpan.FromSeconds(3));
-            }
-        }
         void OnConnected(SteamClient.ConnectedCallback callback, GlobalProgressActionArgs a)
         {
             if (callback.Result != EResult.OK)

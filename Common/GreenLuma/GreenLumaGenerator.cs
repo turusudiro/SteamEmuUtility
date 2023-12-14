@@ -186,7 +186,7 @@ namespace GreenLumaCommon
                 progressOptions.CurrentProgressValue++;
                 count++;
             }
-            steam.LogOff(progressOptions);
+            steam.steamClient.Disconnect();
             return true;
         }
     }

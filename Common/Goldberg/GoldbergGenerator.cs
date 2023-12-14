@@ -90,7 +90,7 @@ namespace GoldbergCommon
                         GenerateAchievement(game.Game, progress);
                     }
                 }
-                steam.LogOff(progress);
+                steam.steamClient.Disconnect();
             }, progressOptions);
         }
         public static void GenerateSteamSettings(GoldbergGames game)
