@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Playnite.Native;
 
-namespace Playnite.Common
+namespace PluginsCommon
 {
     public class Paths
     {
