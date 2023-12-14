@@ -6,7 +6,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Playnite.Common;
 using Playnite.SDK;
 
 namespace PluginsCommon
@@ -413,6 +412,20 @@ namespace PluginsCommon
             throw new IOException($"Failed to read {path}", ioException);
         }
 
+        public static void WriteStringLinesToFile(string path, IEnumerable<string> content, bool useUtf8 = false)
+        {
+            path = FixPathLength(path);
+            PrepareSaveFile(path);
+            if (useUtf8)
+            {
+                File.WriteAllLines(path, content, Encoding.UTF8);
+            }
+            else
+            {
+                File.WriteAllLines(path, content);
+            }
+        }
+
         public static void WriteStringToFile(string path, string content, bool useUtf8 = false)
         {
             path = FixPathLength(path);
@@ -424,6 +437,19 @@ namespace PluginsCommon
             else
             {
                 File.WriteAllText(path, content);
+            }
+        }
+
+        public static string[] ReadStringLinesFromFile(string path, bool useUtf8 = false)
+        {
+            path = FixPathLength(path);
+            if (useUtf8)
+            {
+                return File.ReadAllLines(path, Encoding.UTF8);
+            }
+            else
+            {
+                return File.ReadAllLines(path);
             }
         }
 
