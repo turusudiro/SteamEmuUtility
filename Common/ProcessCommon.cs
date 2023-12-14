@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Playnite.Common;
 using Playnite.SDK;
+using PluginsCommon;
 
 namespace ProcessCommon
 {
@@ -331,7 +331,7 @@ namespace ProcessCommon
 
         private async Task WatchDirectoryByProcessNames(string directory, bool alreadyRunning, int trackingDelay = 2000)
         {
-            if (!Directory.Exists(directory))
+            if (!FileSystem.DirectoryExists(directory))
             {
                 throw new DirectoryNotFoundException($"Cannot watch directory processes, {directory} not found.");
             }
@@ -414,7 +414,7 @@ namespace ProcessCommon
 
         private async Task WatchDirectory(string directory, bool alreadyRunning, int trackingDelay = 2000)
         {
-            if (!Directory.Exists(directory))
+            if (!FileSystem.DirectoryExists(directory))
             {
                 throw new DirectoryNotFoundException($"Cannot watch directory processes, {directory} not found.");
             }
