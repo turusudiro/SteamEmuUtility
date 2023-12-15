@@ -141,7 +141,7 @@ namespace GreenLumaCommon
         /// </summary>
         public static void GreenLumaNormalMode(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi)
         {
-            if (ProcessUtilities.IsProcessRunning("steam") && !ProcessUtilities.IsProcessRunning("dllinjector"))
+            if (ProcessUtilities.IsProcessRunning("steam"))
             {
                 if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes)
                 {
@@ -157,19 +157,27 @@ namespace GreenLumaCommon
                     return;
                 }
             }
+            if (ProcessUtilities.IsProcessRunning("dllinjector"))
+            {
+                while (ProcessUtilities.IsProcessRunning("dllinjector"))
+                {
+                    ProcessUtilities.ProcessKill("dllinjector");
+                    Thread.Sleep(GreenLumaSettings.MillisecondsToWait);
+                }
+            }
             if (!FileSystem.FileExists(Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe")))
             {
-                BackupX64Launcher();
+                BackupX64Launcher().Wait();
             }
             if (FileSystem.FileExists(Path.Combine(AppOwnershipTicketsPath, $"Ticket.{args.Game.GameId}")) && GreenLumaSettings.InjectAppOwnership)
             {
                 logger.Info("Found AppOwnershipTickets, copying...");
-                InjectAppOwnershipTickets(Path.Combine(AppOwnershipTicketsPath, $"Ticket.{args.Game.GameId}"));
+                _ = InjectAppOwnershipTickets(Path.Combine(AppOwnershipTicketsPath, $"Ticket.{args.Game.GameId}"));
             }
             if (FileSystem.FileExists(Path.Combine(EncryptedAppTicketsPath, $"EncryptedTicket.{args.Game.GameId}")) && GreenLumaSettings.InjectEncryptedApp)
             {
                 logger.Info("Found EncryptedAppTickets, copying...");
-                InjectEncryptedAppTickets(Path.Combine(EncryptedAppTicketsPath, $"EncryptedTicket.{args.Game.GameId}"));
+                _ = InjectEncryptedAppTickets(Path.Combine(EncryptedAppTicketsPath, $"EncryptedTicket.{args.Game.GameId}"));
             }
             if (GreenLumaSettings.CleanAppCache)
             {
@@ -243,18 +251,21 @@ namespace GreenLumaCommon
                 ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap -applaunch {args.Game.GameId} {GreenLumaSettings.SteamArgs}", SteamUtilities.SteamDirectory);
             }
         }
-        public static void CopyGreenLumaStealthMode()
+        public static void CopyGreenLumaStealthMode(IPlayniteAPI PlayniteApi)
         {
-            if (!FileSystem.DirectoryExists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
-            {
-                FileSystem.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
-            }
             try
             {
+                if (!FileSystem.DirectoryExists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
+                {
+                    FileSystem.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
+                }
                 FileSystem.WriteStringToFile(Path.Combine(SteamUtilities.SteamDirectory, "applist", stealth), null);
                 FileSystem.CopyFile(User32, Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)), true);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                PlayniteApi.Dialogs.ShowErrorMessage(ex.Message);
+            }
         }
         public static void RunSteamWIthGreenLumaStealthMode(Game Game, IPlayniteAPI PlayniteApi)
         {
@@ -273,51 +284,28 @@ namespace GreenLumaCommon
                     return;
                 }
             }
-            try
-            {
-                if (!FileSystem.DirectoryExists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
-                {
-                    FileSystem.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
-                }
-                FileSystem.WriteStringToFile(Path.Combine(SteamUtilities.SteamDirectory, "applist", stealth), null);
-                FileSystem.CopyFile(User32, Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)), true);
-            }
-            catch (Exception ex)
-            {
-                PlayniteApi.Dialogs.ShowErrorMessage(ex.Message);
-            }
+            CopyGreenLumaStealthMode(PlayniteApi);
             if (GreenLumaSettings.CleanAppCache)
             {
                 CleanAppCache();
             }
-            if (Game.Features.Any(x => x.Name.Equals("[SEU] Goldberg")))
-            {
-                if (GreenLumaSettings.SkipUpdateStealth && !GreenLumaSettings.EnableSteamArgs)
-                {
-                    ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap", SteamUtilities.SteamDirectory);
-                }
-                else if (GreenLumaSettings.EnableSteamArgs && !GreenLumaSettings.SkipUpdateStealth)
-                {
-                    ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"{GreenLumaSettings.SteamArgs}", SteamUtilities.SteamDirectory);
-                }
-                else if (GreenLumaSettings.EnableSteamArgs && GreenLumaSettings.SkipUpdateStealth)
-                {
-                    ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap {GreenLumaSettings.SteamArgs}", SteamUtilities.SteamDirectory);
-                }
-                return;
-            }
             if (GreenLumaSettings.SkipUpdateStealth && !GreenLumaSettings.EnableSteamArgs)
             {
-                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap -applaunch {Game.GameId}", SteamUtilities.SteamDirectory);
+                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap", SteamUtilities.SteamDirectory);
             }
             else if (GreenLumaSettings.EnableSteamArgs && !GreenLumaSettings.SkipUpdateStealth)
             {
-                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-applaunch {Game.GameId} {GreenLumaSettings.SteamArgs}", SteamUtilities.SteamDirectory);
+                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"{GreenLumaSettings.SteamArgs}", SteamUtilities.SteamDirectory);
             }
             else if (GreenLumaSettings.EnableSteamArgs && GreenLumaSettings.SkipUpdateStealth)
             {
-                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap -applaunch {Game.GameId} {GreenLumaSettings.SteamArgs}", SteamUtilities.SteamDirectory);
+                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap {GreenLumaSettings.SteamArgs}", SteamUtilities.SteamDirectory);
             }
+            else if (!GreenLumaSettings.EnableSteamArgs && !GreenLumaSettings.SkipUpdateStealth)
+            {
+                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, string.Empty, SteamUtilities.SteamDirectory);
+            }
+            return;
         }
         public static Task BackupX64Launcher()
         {
@@ -325,9 +313,23 @@ namespace GreenLumaCommon
             {
                 string x64steam = Path.Combine(SteamUtilities.SteamDirectory, "bin\\x64launcher.exe");
                 string x64backup = Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe");
+                string x64greenluma = Path.Combine(GreenLumaPath, "NormalMode", "x64launcher.exe");
+                if (!FileSystem.FileExists(x64greenluma))
+                {
+                    return Task.CompletedTask;
+                }
+                if (new FileInfo(x64greenluma).Length == new FileInfo(x64steam).Length)
+                {
+                    return Task.CompletedTask;
+                }
                 if (!FileSystem.DirectoryExists(Path.Combine(BackupPath, "Steam\\bin")))
                 {
                     FileSystem.CreateDirectory(Path.Combine(BackupPath, "Steam\\bin"));
+                }
+                if (!FileSystem.FileExists(x64backup))
+                {
+                    FileSystem.CopyFile(x64steam, x64backup, true);
+                    return Task.CompletedTask;
                 }
                 if (new FileInfo(x64steam).Length != new FileInfo(x64backup).Length)
                 {
