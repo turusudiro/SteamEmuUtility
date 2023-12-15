@@ -105,7 +105,7 @@ namespace GoldbergCommon
                 {
                     if (FileSystem.DirectoryExists(SteamSettingsPath))
                     {
-                        FileSystem.DeleteDirectory(SteamSettingsPath, true);
+                        FileSystem.DeleteDirectory(SteamSettingsPath);
                     }
                     if (FileSystem.CreateSymbolicLink(SteamSettingsPath, GameSteamSettingPath(game)))
                     {
@@ -142,7 +142,7 @@ namespace GoldbergCommon
                         {
                             try
                             {
-                                FileSystem.DeleteDirectory(goldbergtarget, true);
+                                FileSystem.DeleteDirectory(goldbergtarget);
                             }
                             catch { continue; }
                         }
