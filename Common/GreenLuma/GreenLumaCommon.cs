@@ -119,14 +119,8 @@ namespace GreenLumaCommon
         {
             get
             {
-                foreach (Process clsProcess in Process.GetProcesses())
-                {
-                    if (clsProcess.ProcessName.Contains("dllinjector"))
-                    {
-                        return true;
-                    }
-                }
-                return false;
+                var processes = Process.GetProcessesByName("dllinjector");
+                return processes.Length > 0;
             }
         }
         public static bool GreenLumaFilesOnSteam
@@ -160,8 +154,5 @@ namespace GreenLumaCommon
                 return false;
             }
         }
-
-
-
     }
 }

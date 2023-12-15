@@ -89,14 +89,8 @@ namespace SteamCommon
         {
             get
             {
-                foreach (Process clsProcess in Process.GetProcesses())
-                {
-                    if (clsProcess.ProcessName.Contains("steam"))
-                    {
-                        return true;
-                    }
-                }
-                return false;
+                var steamProcesses = Process.GetProcessesByName("steam");
+                return steamProcesses.Length > 0;
             }
         }
         /// <summary>
