@@ -50,8 +50,8 @@ namespace SteamEmuUtility
         {
             yield return new MainMenuItem
             {
-                Description = "God Mode",
-                MenuSection = "@Steam Emu Utility",
+                Description = "Unlock all installed Steam games",
+                MenuSection = "@Steam Emu Utility|God Mode",
                 Action = (a) =>
                 {
                     GreenLumaGenerator.WriteAppList(PlayniteApi.Database.Games.Where(x => SteamUtilities.IsGameSteamGame(x)).Select(x => x.GameId).ToList());
@@ -60,7 +60,18 @@ namespace SteamEmuUtility
             };
             yield return new MainMenuItem
             {
-                Description = "Load OwnershipTickets or EncryptedAppTickets",
+                Description = "Unlock all installed Steam games and clean",
+                MenuSection = "@Steam Emu Utility|God Mode",
+                Action = (a) =>
+                {
+                    GreenLumaGenerator.WriteAppList(PlayniteApi.Database.Games.Where(x => SteamUtilities.IsGameSteamGame(x)).Select(x => x.GameId).ToList());
+                    GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(null, PlayniteApi);
+                    _ = GreenLumaTasks.CleanGreenLuma();
+                }
+            };
+            yield return new MainMenuItem
+            {
+                Description = "Load Tickets",
                 MenuSection = "@Steam Emu Utility",
                 Action = (a) =>
                 {
