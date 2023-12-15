@@ -608,7 +608,7 @@ namespace SteamEmuUtility
         }
         void ExtractGoldbergFiles(string archivePath, string destinationFolder, string password)
         {
-            string regexPattern = @"\\experimental_steamclient\\";
+            string regexPattern = @"^(?!.*debug_experimental_steamclient).*experimental_steamclient\\.*";
             SevenZipBase.SetLibraryPath(Path.Combine(SevenZipLib, Environment.Is64BitProcess ? "x64" : "x86", "7z.dll"));
             using (var extractor = new SevenZipExtractor(archivePath, password))
             {
@@ -623,7 +623,7 @@ namespace SteamEmuUtility
                         var result = plugin.PlayniteApi.Dialogs.SelectString("File is password-protected, Please enter the password", "Error", "");
                         if (result.Result)
                         {
-                            ExtractGreenLumaFiles(archivePath, destinationFolder, result.SelectedString);
+                            ExtractGoldbergFiles(archivePath, destinationFolder, result.SelectedString);
                             return;
                         }
                         return;
@@ -647,7 +647,7 @@ namespace SteamEmuUtility
                                 var result = plugin.PlayniteApi.Dialogs.SelectString("Wrong Password, Please re-enter the password", "Error", "");
                                 if (result.Result)
                                 {
-                                    ExtractGreenLumaFiles(archivePath, destinationFolder, result.SelectedString);
+                                    ExtractGoldbergFiles(archivePath, destinationFolder, result.SelectedString);
                                     return;
                                 }
                                 return;
