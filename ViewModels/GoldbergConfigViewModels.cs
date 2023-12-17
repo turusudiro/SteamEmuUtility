@@ -58,14 +58,13 @@ namespace SteamEmuUtility.ViewModels
                     return;
                 }
                 GoldbergGenerator.GenerateGoldbergConfig(Games, PlayniteApi);
-                Games.ForEach(x =>
+                GoldbergGames.ForEach(x =>
                 {
-                    string settingspath = Goldberg.GameSteamSettingPath(x.Game);
+                    string settingspath = Goldberg.GameSteamSettingPath(x.AppID);
                     x.DLCExists = FileSystem.FileExists(Path.Combine(settingspath, "DLC.txt"));
                     x.AchievementsExists = FileSystem.FileExists(Path.Combine(settingspath, "achievements.json"));
-                    x.SettingsExists = FileSystem.DirectoryExists(Goldberg.GameSettingsPath(x.Game));
+                    x.SettingsExists = FileSystem.DirectoryExists(Goldberg.GameSettingsPath(x.AppID));
                 });
-                GoldbergGames = Games;
             });
         }
         private List<Game> selectedSteamGames;
