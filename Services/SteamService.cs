@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -8,22 +7,20 @@ using Gameloop.Vdf.JsonConverter;
 using Playnite.SDK;
 using SteamCommon.Models;
 using SteamKit2;
+using SteamKit2.Unified.Internal;
 
 namespace SteamCommon
 {
-    public interface ISteamService
-    {
-        AppInfo GetAppInfo(IEnumerable<uint> appid, GlobalProgressActionArgs progressOptions);
-    }
-    public class SteamService : ISteamService
+    public class SteamService : IDisposable
     {
         private int attemptReconnect = 0;
-        private bool LoggedOn = false;
-        private bool isRunning = true;
-        public SteamClient steamClient;
+        public bool LoggedOn = false;
+        private SteamClient steamClient;
         private CallbackManager manager;
-        public SteamUser steamUser;
+        private SteamUser steamUser;
         private SteamApps steamApps;
+        private bool disposed = false;
+
         public SteamService()
         {
             steamClient = new SteamClient();
@@ -31,7 +28,30 @@ namespace SteamCommon
             steamUser = steamClient.GetHandler<SteamUser>();
             manager = new CallbackManager(steamClient);
         }
-        public AppIdInfo ParseAppInfo(KeyValue keyValue, GlobalProgressActionArgs progressOptions)
+        public PublishedFileDetails GetPublishedFileDetails(ulong publishedfileid, GlobalProgressActionArgs progress)
+        {
+            if (!LoggedOn)
+            {
+                if (!AnonymousLogin(progress))
+                {
+                    return null;
+                }
+                LoggedOn = true;
+            }
+            progress.Text = $"Downloading publisedfileid {publishedfileid}";
+            try
+            {
+                PublishedFileID req = new PublishedFileID(publishedfileid);
+                var pubFileRequest = new CPublishedFile_GetDetails_Request();
+                pubFileRequest.publishedfileids.Add(req);
+                SteamUnifiedMessages.UnifiedService<IPublishedFile> steamPublishedFile = steamClient.GetHandler<SteamUnifiedMessages>().CreateService<IPublishedFile>();
+                progress.CancelToken.ThrowIfCancellationRequested();
+                var publishedFileDetails = steamPublishedFile.SendMessage(x => x.GetDetails(pubFileRequest)).ToTask().Result.GetDeserializedResponse<CPublishedFile_GetDetails_Response>().publishedfiledetails;
+                return publishedFileDetails.FirstOrDefault();
+            }
+            catch { return null; }
+        }
+        private AppIdInfo ParseAppInfo(KeyValue keyValue)
         {
             using (Stream stream = new MemoryStream())
             {
@@ -46,88 +66,73 @@ namespace SteamCommon
                 }
             }
         }
-        public AppInfo GetAppInfo(IEnumerable<uint> appids, GlobalProgressActionArgs progressOptions)
+        public AppIdInfo GetAppInfo(string id, GlobalProgressActionArgs progress)
         {
-            return GetAppInfo(appids, progressOptions, null);
-        }
-        public AppInfo GetAppInfo(IEnumerable<uint> appids, GlobalProgressActionArgs progressOptions, AppInfo AppInfo)
-        {
-            if (AppInfo == null)
-            {
-                AppInfo = new AppInfo();
-            }
-            if (AppInfo.Data == null)
-            {
-                AppInfo.Data = new Dictionary<string, AppIdInfo>();
-            }
+            AppIdInfo app = new AppIdInfo();
             if (!LoggedOn)
             {
-                if (!AnonymousLogin(progressOptions))
+                if (!AnonymousLogin(progress))
                 {
-                    return null;
+                    return app;
                 }
                 LoggedOn = true;
             }
-            progressOptions.IsIndeterminate = true;
-            foreach (uint appid in appids)
+            uint appid = uint.Parse(id);
+            var pics = steamApps.PICSGetProductInfo(appid, null).ToTask().Result;
+            if (!pics.Failed && pics.Results.Any(x => x.Apps.ContainsKey(appid)))
             {
-                if (progressOptions.CancelToken.IsCancellationRequested)
-                {
-                    return null;
-                }
-                var pics = steamApps.PICSGetProductInfo(appid, null).ToTask().Result;
-                if (!pics.Failed)
-                {
-                    foreach (var item in pics.Results.Where(x => x.Apps.ContainsKey(appid)))
-                    {
-                        progressOptions.Text = $"Configuring {item.Apps[appid].KeyValues["common"]["name"].Value}";
-                        AppInfo.Data.Add(appid.ToString(), ParseAppInfo(item.Apps[appid].KeyValues, progressOptions));
-                    }
-                }
+                app = ParseAppInfo(pics.Results.FirstOrDefault(x => x.Apps.ContainsKey(appid)).Apps[appid].KeyValues);
             }
-            return AppInfo;
+            return app;
         }
-
-        public bool AnonymousLogin(GlobalProgressActionArgs progressOptions)
+        private bool AnonymousLogin(GlobalProgressActionArgs progress)
         {
             manager.Subscribe<SteamClient.ConnectedCallback>(callback =>
             {
-                OnConnected(callback, progressOptions);
+                OnConnected(callback, progress);
             });
             manager.Subscribe<SteamClient.DisconnectedCallback>(callback =>
             {
-                OnDisconnected(callback, progressOptions);
+                OnDisconnected(callback, progress);
             });
             manager.Subscribe<SteamUser.LoggedOnCallback>(callback =>
             {
-                OnLoggedOn(callback, progressOptions);
+                OnLoggedOn(callback, progress);
             });
             manager.Subscribe<SteamUser.LoggedOffCallback>(callback =>
             {
-                OnLoggedOff(callback, progressOptions);
+                OnLoggedOff(callback, progress);
             });
             steamClient.Connect();
-            progressOptions.Text = ("Connecting to Steam...");
-            while (!steamClient.IsConnected)
-            {
-                if (progressOptions.CancelToken.IsCancellationRequested)
-                {
-                    return false;
-                }
-                manager.RunWaitCallbacks(TimeSpan.FromSeconds(3));
-            }
-            steamUser.LogOnAnonymous(new SteamUser.AnonymousLogOnDetails());
-            progressOptions.Text = ("Logging in anonymously");
+
             while (!LoggedOn)
             {
-                if (progressOptions.CancelToken.IsCancellationRequested)
+                if (progress.CancelToken.IsCancellationRequested)
                 {
-                    return false;
+                    LoggedOn = false;
+                    Dispose();
                 }
+                if (!steamClient.IsConnected)
+                {
+                    progress.Text = "Connecting to Steam...";
+                    while (!steamClient.IsConnected)
+                    {
+                        if (progress.CancelToken.IsCancellationRequested)
+                        {
+                            Dispose();
+                            LoggedOn = false;
+                        }
+                        manager.RunWaitCallbacks(TimeSpan.FromSeconds(1));
+                    }
+                }
+                progress.Text = "Logging in anonymously";
+
+                steamUser.LogOnAnonymous(new SteamUser.AnonymousLogOnDetails());
                 manager.RunWaitCallbacks(TimeSpan.FromSeconds(3));
             }
-            progressOptions.IsIndeterminate = false;
-            return true;
+            progress.IsIndeterminate = false;
+            return LoggedOn;
+
         }
         void OnConnected(SteamClient.ConnectedCallback callback, GlobalProgressActionArgs a)
         {
@@ -142,18 +147,17 @@ namespace SteamCommon
         {
             if (attemptReconnect == 2 || callback.UserInitiated)
             {
-                isRunning = false;
                 return;
             }
             attemptReconnect++;
-            // after recieving an AccountLogonDenied, we'll be disconnected from steam
-            // so after we read an authcode from the user, we need to reconnect to begin the logon flow again
-            a.Text = "Disconnected from Steam, reconnecting in 3...";
-            Thread.Sleep(TimeSpan.FromSeconds(3));
-            if (a.CancelToken.IsCancellationRequested)
+            for (int i = 3; i >= 0; i--)
             {
-                isRunning = false;
-                return;
+                a.Text = $"Disconnected from Steam, reconnecting in {i}...";
+                if (a.CancelToken.IsCancellationRequested)
+                {
+                    return;
+                }
+                Thread.Sleep(TimeSpan.FromSeconds(1));
             }
             steamClient.Connect();
         }
@@ -162,11 +166,11 @@ namespace SteamCommon
         {
             if (callback.Result != EResult.OK)
             {
-                a.Text = ($"Unable to logon to Steam: {callback.Result} / {callback.ExtendedResult}");
+                a.Text = $"Unable to logon to Steam: {callback.Result} / {callback.ExtendedResult}";
 
                 return;
             }
-            a.Text = ("Successfully logged on!");
+            a.Text = "Successfully logged on!";
             LoggedOn = true;
         }
 
@@ -174,6 +178,32 @@ namespace SteamCommon
         {
             a.Text = $"Logged off of Steam: {callback.Result}";
             Console.WriteLine("Logged off of Steam: {0}", callback.Result);
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose of managed resources
+                    steamClient.Disconnect();
+                }
+
+                // Dispose of unmanaged resources
+
+                disposed = true;
+            }
+        }
+
+        ~SteamService()
+        {
+            Dispose(false);
         }
     }
 
