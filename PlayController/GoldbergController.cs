@@ -17,11 +17,12 @@ namespace SteamEmuUtility.Controller
         private Stopwatch stopWatch;
         private ProcessMonitor procMon;
         private readonly IPlayniteAPI PlayniteApi;
-        private string installDirectoryTemp { get; set; }
-        public GoldBergController(Game game, IPlayniteAPI PlayniteApi) : base(game)
+        private readonly SteamEmuUtilitySettings settings;
+        public GoldBergController(Game game, IPlayniteAPI PlayniteApi, SteamEmuUtilitySettings settings) : base(game)
         {
             Name = $"Start {game.Name} with Goldberg";
             this.PlayniteApi = PlayniteApi;
+            this.settings = settings;
         }
         public override void Dispose()
         {
@@ -36,18 +37,17 @@ namespace SteamEmuUtility.Controller
                 InvokeOnStopped(new GameStoppedEventArgs());
                 return;
             }
-            installDirectoryTemp = Game.InstallDirectory;
             procMon = new ProcessMonitor();
             procMon.TreeStarted += ProcMon_TreeStarted;
             procMon.TreeDestroyed += Monitor_TreeDestroyed;
-            if (!GoldbergTasks.InjectJob(Game, PlayniteApi))
+            if (!GoldbergTasks.InjectJob(Game, PlayniteApi, out string message, settings.SteamWebApi))
             {
-                PlayniteApi.Dialogs.ShowErrorMessage("Something went wrong, please try again");
+                PlayniteApi.Dialogs.ShowErrorMessage(message);
                 InvokeOnStopped(new GameStoppedEventArgs());
                 return;
             }
             string installDirectory = Paths.GetFinalPathName(Game.InstallDirectory);
-            if (FileSystem.FileExists(Path.Combine(GameSettingsPath(Game), "admin.txt")))
+            if (FileSystem.FileExists(Path.Combine(GameSettingsPath(Game.GameId), "admin.txt")))
             {
                 ProcessUtilities.StartProcess(ColdClientExecutable, true);
             }
@@ -71,7 +71,6 @@ namespace SteamEmuUtility.Controller
         {
             stopWatch?.Stop();
             InvokeOnStopped(new GameStoppedEventArgs(Convert.ToUInt64(stopWatch?.Elapsed.TotalSeconds ?? 0)));
-            Game.InstallDirectory = installDirectoryTemp;
         }
     }
 }
