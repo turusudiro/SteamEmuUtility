@@ -10,22 +10,17 @@
              d:DesignHeight="700" d:DesignWidth="830">
     <DockPanel Margin="20">
         <ListView Height="580" VirtualizingPanel.ScrollUnit="Pixel" x:Name="SelectedGames" Width="Auto" DockPanel.Dock="Top" Margin="0,5,0,0" ItemsSource="{Binding GoldbergGames}" HorizontalAlignment="Left" lv:ColumnResizeBehavior.DisableColumnResize="True">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
-                    <Setter Property="Margin" Value="0,10,0,10"/>
-                </Style>
-            </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView AllowsColumnReorder="False">
                     <GridViewColumn Header="Game" Width="160">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Grid Height="120" VerticalAlignment="Top">
+                                <Grid Height="120" VerticalAlignment="Top" Margin="0,10,0,10">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-                                    <Image VerticalAlignment="Center" Grid.Row="0" Source="{Binding CoverImage}" Width="70" Height="70" Stretch="UniformToFill"  RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,10,5"></Image>
+                                    <Image VerticalAlignment="Center" Grid.Row="0" Source="{Binding CoverImage}" Width="70" Height="70" Stretch="UniformToFill"  RenderOptions.BitmapScalingMode="HighQuality" Margin="0,5,10,5"></Image>
                                     <TextBlock Grid.Row="1" Text="{Binding Name}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                 </Grid>
                             </DataTemplate>
@@ -60,7 +55,7 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <CheckBox Grid.Row="0" Margin="0,2,0,2" IsChecked="{Binding CustomBroadcast}" >
+                                    <CheckBox Grid.Row="0" Margin="0,2,0,2" IsChecked="{Binding CustomBroadcast}">
                                         <TextBlock Text="Custom Broadcast" TextTrimming="WordEllipsis"/>
                                     </CheckBox>
                                     <TextBox IsEnabled="{Binding CustomBroadcast}" MaxHeight="20" Grid.Row="1" Margin="0,2,0,2" Text="{Binding CustomBroadcastAddress}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="150"/>
@@ -74,17 +69,15 @@
                     <GridViewColumn Header="Other" Width="Auto">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Grid Height="120" VerticalAlignment="Top">
+                                <Grid Height="120">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Button Grid.Row="0" Content="Open Settings folder" Margin="0,2,0,2" IsEnabled="{Binding SettingsExists}" Command="{Binding DataContext.OpenSettingsPath, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}" CommandParameter="{Binding}"/>
                                     <CheckBox Content="Run as Admin" Grid.Row="1" Margin="0,2,0,2" IsChecked="{Binding RunAsAdmin}"/>
-                                    <CheckBox Content="Reconfigure DLC" Grid.Row="2" Margin="0,2,0,2" IsChecked="{Binding ReconfigureDLC}" IsEnabled="{Binding DLCExists}"/>
-                                    <CheckBox Content="Reconfigure Achievements" Grid.Row="3" Margin="0,2,0,2" IsChecked="{Binding ReconfigureAchievements}" IsEnabled="{Binding AchievementsExists}"/>
+                                    <CheckBox Content="Reconfigure Goldberg" Grid.Row="2" Margin="0,2,0,2" IsChecked="{Binding ReconfigureGoldberg}" IsEnabled="{Binding GoldbergExists}"/>
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
