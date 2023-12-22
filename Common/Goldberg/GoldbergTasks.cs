@@ -11,40 +11,66 @@ namespace GoldbergCommon
 {
     public class GoldbergTasks
     {
-        public static List<GoldbergGames> ConvertGames(IEnumerable<Game> games, IPlayniteAPI PlayniteApi)
+        public static List<GoldbergGame> ConvertGames(IEnumerable<Game> games, IPlayniteAPI PlayniteApi)
         {
-            var GoldbergGames = new List<GoldbergGames>();
+            var GoldbergGames = new List<GoldbergGame>();
             foreach (var game in games)
             {
-                string settingspath = GameSteamSettingPath(game);
+                string steamsettingspath = GameSteamSettingPath(game.GameId);
+                string settingspath = GameSettingsPath(game.GameId);
                 string fullpath = string.Empty;
                 if (game.CoverImage != null)
                 {
                     fullpath = Path.Combine(PlayniteApi.Database.GetFullFilePath(game.CoverImage));
                 }
-                var goldbergGame = new GoldbergGames
+                var goldbergGame = new GoldbergGame
                 {
                     Name = game.Name,
                     CoverImage = fullpath,
-                    Game = game,
-                    CustomBroadcast = FileSystem.FileExists(Path.Combine(settingspath, "custom_broadcasts.txt")),
-                    CustomBroadcastAddress = FileSystem.FileExists(Path.Combine(settingspath, "custom_broadcasts.txt")) ?
-                    FileSystem.ReadStringFromFile(Path.Combine(settingspath, "custom_broadcasts.txt")).TrimEnd() : string.Empty,
-                    DisableLANOnly = FileSystem.FileExists(Path.Combine(settingspath, "disable_lan_only.txt")),
-                    DisableNetworking = FileSystem.FileExists(Path.Combine(settingspath, "disable_networking.txt")),
-                    DisableOverlay = FileSystem.FileExists(Path.Combine(settingspath, "disable_overlay.txt")),
-                    DisableOverlayAchievement = FileSystem.FileExists(Path.Combine(settingspath, "disable_overlay_achievement_notification")),
-                    DisableOverlayFriend = FileSystem.FileExists(Path.Combine(settingspath, "disable_overlay_friend_notification.txtdisable_overlay_friend_notification.txt")),
-                    DisableOverlaylocalsave = FileSystem.FileExists(Path.Combine(settingspath, "disable_overlay_warning.txt")),
-                    OfflineModeSteam = FileSystem.FileExists(Path.Combine(settingspath, "offline.txt")),
-                    RunAsAdmin = FileSystem.FileExists(Path.Combine(GameSettingsPath(game), "admin.txt")),
-                    DLCExists = FileSystem.FileExists(Path.Combine(settingspath, "DLC.txt")),
-                    AchievementsExists = FileSystem.FileExists(Path.Combine(settingspath, "achievements.json")),
-                    SettingsExists = FileSystem.DirectoryExists(GameSettingsPath(game))
+                    AppID = game.GameId,
+                    CustomBroadcast = FileSystem.FileExists(Path.Combine(steamsettingspath, "custom_broadcasts.txt")),
+                    CustomBroadcastAddress = FileSystem.FileExists(Path.Combine(steamsettingspath, "custom_broadcasts.txt")) ?
+                    FileSystem.ReadStringFromFile(Path.Combine(steamsettingspath, "custom_broadcasts.txt")).TrimEnd() : string.Empty,
+                    DisableLANOnly = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_lan_only.txt")),
+                    DisableNetworking = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_networking.txt")),
+                    DisableOverlay = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_overlay.txt")),
+                    DisableOverlayAchievement = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_overlay_achievement_notification")),
+                    DisableOverlayFriend = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_overlay_friend_notification.txtdisable_overlay_friend_notification.txt")),
+                    DisableOverlaylocalsave = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_overlay_warning.txt")),
+                    OfflineModeSteam = FileSystem.FileExists(Path.Combine(steamsettingspath, "offline.txt")),
+                    RunAsAdmin = FileSystem.FileExists(Path.Combine(settingspath, "admin.txt")),
+                    SettingsExists = FileSystem.DirectoryExists(settingspath),
+                    InstallDirectory = game.InstallDirectory,
+                    GoldbergExists = IsGoldbergExists(game.GameId)
                 };
                 GoldbergGames.Add(goldbergGame);
             }
             return GoldbergGames;
+        }
+        public static bool IsGoldbergExists(string appid)
+        {
+            string steamsettingspath = GameSteamSettingPath(appid);
+            string settingspath = GameSettingsPath(appid);
+            string achievements = Path.Combine(steamsettingspath, "achievements.json");
+            string dlc = Path.Combine(steamsettingspath, "DLC.txt");
+            string controller = Path.Combine(steamsettingspath, "controller");
+            string coldclient = Path.Combine(settingspath, "ColdClientLoader.ini");
+            string depots = Path.Combine(steamsettingspath, "depots.txt");
+            string buildid = Path.Combine(steamsettingspath, "build_id.txt");
+            string supportedlanguages = Path.Combine(steamsettingspath, "supported_languages.txt");
+            if (FileSystem.FileExists(achievements) ||
+                FileSystem.FileExists(dlc) ||
+                Directory.Exists(controller) ||
+                FileSystem.FileExists(coldclient) ||
+                FileSystem.FileExists(depots) ||
+                FileSystem.FileExists(buildid) ||
+                FileSystem.FileExists(supportedlanguages))
+            {
+                return true; // At least one file or directory exists
+            }
+
+            return false; // None of the files or directories exist
+
         }
         public static void ResetAchievementFile(IEnumerable<Game> games, IPlayniteAPI PlayniteApi)
         {
@@ -67,32 +93,36 @@ namespace GoldbergCommon
             }, progress);
             PlayniteApi.Dialogs.ShowMessage($"Achievement reset successful for {count} games.");
         }
-        public static bool InjectJob(Game game, IPlayniteAPI PlayniteApi)
+        public static bool InjectJob(Game game, IPlayniteAPI PlayniteApi, out string message, string apikey)
         {
-            if (!CopyColdClientIni(game, PlayniteApi))
+            message = string.Empty;
+            if (!CopyColdClientIni(game, PlayniteApi, apikey))
             {
+                message = "Cannot copy coldclient, make sure to generate config first.";
                 return false;
             }
             if (!CreateSymbolicSteamSettings(game))
             {
+                message = "Cannot create symlink for steam_settings.";
                 return false;
             }
             if (GoldbergSettings.SymbolicLinkAppdata && !CreateSymbolicSteamToAppdata(game, PlayniteApi))
             {
+                message = "Cannot create symlink for Goldberg appdarta.";
                 return false;
             }
             return true;
         }
-        public static bool CopyColdClientIni(Game game, IPlayniteAPI PlayniteApi)
+        public static bool CopyColdClientIni(Game game, IPlayniteAPI PlayniteApi, string apikey)
         {
-            if (!FileSystem.FileExists(Path.Combine(GameSettingsPath(game), "ColdClientLoader.ini")))
+            if (!FileSystem.FileExists(Path.Combine(GameSettingsPath(game.GameId), "ColdClientLoader.ini")))
             {
                 List<Game> games = new List<Game> { game };
-                GoldbergGenerator.GenerateGoldbergConfig(games, PlayniteApi);
+                GoldbergGenerator.GenerateGoldbergConfig(games, PlayniteApi, apikey);
             }
             try
             {
-                FileSystem.CopyFile($"{GameSettingsPath(game)}\\ColdClientLoader.ini", ColdClientIni, true);
+                FileSystem.CopyFile($"{GameSettingsPath(game.GameId)}\\ColdClientLoader.ini", ColdClientIni, true);
                 return true;
             }
             catch { return false; }
@@ -101,18 +131,18 @@ namespace GoldbergCommon
         {
             try
             {
-                if (FileSystem.DirectoryExists(GameSteamSettingPath(game)))
+                if (FileSystem.DirectoryExists(GameSteamSettingPath(game.GameId)))
                 {
                     if (FileSystem.DirectoryExists(SteamSettingsPath))
                     {
                         FileSystem.DeleteDirectory(SteamSettingsPath);
                     }
-                    if (FileSystem.CreateSymbolicLink(SteamSettingsPath, GameSteamSettingPath(game)))
+                    if (FileSystem.CreateSymbolicLink(SteamSettingsPath, GameSteamSettingPath(game.GameId)))
                     {
                         return true;
                     }
                 }
-                return false;
+                return true;
             }
             catch { return false; }
         }

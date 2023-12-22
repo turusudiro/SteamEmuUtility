@@ -229,7 +229,7 @@ namespace GoldbergCommon
         }
         public static string GameUserDataSteamPath(Game game)
         {
-            return Path.Combine(SteamUtilities.SteamDirectory, "userdata", UserSteamID3.ToString(), game.GameId);
+            return Path.Combine(Steam.SteamDirectory, "userdata", UserSteamID3.ToString(), game.GameId);
         }
         public static GameFeature Feature(IPlayniteAPI PlayniteApi)
         {
@@ -239,13 +239,13 @@ namespace GoldbergCommon
         {
             return Path.Combine(GoldbergAppData, game.GameId);
         }
-        public static string GameSteamSettingPath(Game game)
+        public static string GameSteamSettingPath(string appid)
         {
-            return Path.Combine(CommonPath, game.GameId, "steam_settings");
+            return Path.Combine(CommonPath, appid, "steam_settings");
         }
-        public static string GameSettingsPath(Game game)
+        public static string GameSettingsPath(string appid)
         {
-            return Path.Combine(CommonPath, game.GameId);
+            return Path.Combine(CommonPath, appid);
         }
         public static string SteamSettingsPath
         {
