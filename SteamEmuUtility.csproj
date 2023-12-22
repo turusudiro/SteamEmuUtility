@@ -28,7 +28,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -78,7 +78,7 @@
     <Compile Include="Common\FileSystem.cs" />
     <Compile Include="Common\Goldberg\GoldbergCommon.cs" />
     <Compile Include="Common\Goldberg\GoldbergGenerator.cs" />
-    <Compile Include="Common\Goldberg\Models\GoldbergGames.cs" />
+    <Compile Include="Common\Goldberg\Models\GoldbergGame.cs" />
     <Compile Include="Common\Goldberg\GoldbergTasks.cs" />
     <Compile Include="Common\GreenLuma\GreenLumaCommon.cs" />
     <Compile Include="Common\GreenLuma\GreenLumaGenerator.cs" />
@@ -97,12 +97,14 @@
     <Compile Include="Common\Steam\SteamCommon.cs" />
     <Compile Include="Common\PlayniteCommon.cs" />
     <Compile Include="Common\ProcessCommon.cs" />
+    <Compile Include="Common\Steam\SteamUtilities.cs" />
     <Compile Include="Common\Web\Downloader.cs" />
     <Compile Include="Common\Web\HttpDownloader.cs" />
     <Compile Include="Common\Steam\Models\AppDetails.cs" />
     <Compile Include="Common\Steam\Models\AppInfo.cs" />
     <Compile Include="Common\Steam\Models\AppList.cs" />
     <Compile Include="PlayController\GoldbergController.cs" />
+    <Compile Include="Common\Goldberg\ParseController.cs" />
     <Compile Include="Services\SteamService.cs" />
     <Compile Include="SteamEmuUtility.cs" />
     <Compile Include="SteamEmuUtilitySettings.cs" />
@@ -151,4 +153,20 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if $(ConfigurationName) == Release (
+if "$(ConfigurationName)" == "Release" (
+    "%25LocalAppData%25\Playnite\Toolbox.exe" pack "$(ProjectDir)bin\Debug" "$(ProjectDir)bin\Release"
+)
+
+)</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>if $(ConfigurationName) == Debug (
+    rmdir /s /q "$(ProjectDir)bin\Debug"
+) else (
+rmdir /s /q "$(ProjectDir)bin\Debug"
+rmdir /s /q "$(ProjectDir)bin\Release"
+)</PreBuildEvent>
+  </PropertyGroup>
 </Project>
