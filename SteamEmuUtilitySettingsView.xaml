@@ -4,17 +4,42 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:cv="clr-namespace:ConvertersCommon"
+             xmlns:steam="clr-namespace:SteamEmuUtility"
              mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="600">
+
     <TabControl>
-        <TabItem Header="GreenLuma Settings">
+        <TabItem Header="General">
             <ScrollViewer>
                 <StackPanel Orientation="Vertical" Margin="20">
-                    <StackPanel Orientation="Horizontal" Margin="5,5,5,0">
-                        <TextBlock Text="GreenLuma Status" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="5,15,5,0">
+                        <TextBlock Text="Steam Web API Key" Margin="0,0,15,10" VerticalAlignment="Center"/>
+                        <PasswordBox steam:PasswordBoxAssistant.BindPassword="True" steam:PasswordBoxAssistant.BoundPassword="{Binding Settings.SteamWebApi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=150}" Margin="0,0,0,10" Width="160" VerticalAlignment="Center"/>
+                        <TextBlock Margin="10,0,15,10" VerticalAlignment="Center">
+                            <Hyperlink NavigateUri="https://steamcommunity.com/dev/apikey"
+                                   Command="{Binding OpenURL}"
+                                   CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource Self}}">
+                                <Run Text="Get API Key"/>
+                            </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5,10,5,0">
+                        <TextBlock Text="GreenLuma Status" VerticalAlignment="Center" Margin="0,0,10,0" Width="120"/>
                         <TextBlock Text="{Binding Settings.GreenLumaStatus}" Foreground="{Binding Settings.ColorGreenLumaStatus}" VerticalAlignment="Center" Margin="10,0,0,0" Width="150"/>
                         <Button MinWidth="80" Content="Import" Command="{Binding ImportGreenLuma}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="5,10,5,0">
+                        <TextBlock Text="Goldberg Status" VerticalAlignment="Center" Margin="0,0,10,0" Width="120"/>
+                        <TextBlock Text="{Binding Settings.GoldbergStatus}" Foreground="{Binding Settings.ColorGoldbergStatus}" VerticalAlignment="Center" Margin="10,0,0,0" Width="150"/>
+                        <Button MinWidth="80" Content="Import" Command="{Binding ImportGoldberg}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+        <TabItem Header="GreenLuma Settings">
+            <ScrollViewer>
+                <StackPanel Orientation="Vertical" Margin="20">
+                    
                     <StackPanel Visibility="{Binding Settings.GreenLumaNotExists, Converter={cv:BooleanToVisibilityConverter}}" Margin="5,5,5,0">
                         <TextBlock Text="Missing Files" Foreground="IndianRed" Margin="0,0,10,0"/>
                         <ItemsControl ItemsSource="{Binding Settings.MissingGreenLumaFiles}">
@@ -46,6 +71,7 @@
                         <CheckBox Content="Run Steam with additional argument" IsChecked="{Binding Settings.EnableSteamArgs}" Margin="0,0,0,10"/>
                         <TextBox IsEnabled="{Binding Settings.EnableSteamArgs}" Text="{Binding Settings.SteamArgs}" Margin="0,0,0,10"/>
                         <CheckBox Content="Clean Steam AppCache on starting game" IsChecked="{Binding Settings.CleanAppCache}" Margin="0,0,0,10"/>
+                        <CheckBox Content="Clean applist folder on Steam if it's not empty" IsChecked="{Binding Settings.CleanApplist}" Margin="0,0,0,10"/>
                     </StackPanel>
                     <StackPanel Margin="5,10,5,0">
                         <TextBlock Text="Stealth Mode" Margin="5,0,0,10"/>
@@ -69,11 +95,7 @@
         </TabItem>
         <TabItem Header="Goldberg Settings">
             <StackPanel Orientation="Vertical" Margin="20">
-                <StackPanel Orientation="Horizontal" Margin="5,5,5,0">
-                    <TextBlock Text="Goldberg Status" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Text="{Binding Settings.GoldbergStatus}" Foreground="{Binding Settings.ColorGoldbergStatus}" VerticalAlignment="Center" Margin="10,0,0,0" Width="150"/>
-                    <Button MinWidth="80" Content="Import" Command="{Binding ImportGoldberg}" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                </StackPanel>
+                
                 <StackPanel Visibility="{Binding Settings.GoldbergNotExists, Converter={cv:BooleanToVisibilityConverter}}" Margin="5,5,5,0">
                     <TextBlock Text="Missing Files" Foreground="IndianRed" Margin="0,0,10,0"/>
                     <ItemsControl ItemsSource="{Binding Settings.MissingGoldbergFiles}">
@@ -84,10 +106,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="5,15,5,0">
-                    <TextBlock Text="Steam Web API Key" Margin="0,0,15,10" VerticalAlignment="Center"/>
-                    <TextBox Text="{Binding Settings.SteamWebApi}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
-                </StackPanel>
+                
                 <StackPanel Margin="5,5,5,0">
                     <CheckBox Content="Create symbolic link on Goldberg appdata folder" VerticalAlignment="Center" IsChecked="{Binding Settings.SymbolicLinkAppdata}" Margin="0,0,0,10"/>
                     <CheckBox Content="Open Steam and unlock with last stopped game after exit." VerticalAlignment="Center" IsChecked="{Binding Settings.OpenSteamAfterExit}" Margin="0,0,0,10"/>
