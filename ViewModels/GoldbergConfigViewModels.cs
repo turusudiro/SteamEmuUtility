@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using GoldbergCommon;
@@ -18,19 +17,21 @@ namespace SteamEmuUtility.ViewModels
     {
         public event PropertyChangedEventHandler PropertyChanged;
         private readonly IPlayniteAPI PlayniteApi;
+        private readonly SteamEmuUtilitySettings settings;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             var caller = name;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        public GoldbergConfigViewModel(IPlayniteAPI api)
+        public GoldbergConfigViewModel(IPlayniteAPI api, SteamEmuUtilitySettings settings)
         {
             PlayniteApi = api;
-            SelectedSteamGames = PlayniteApi.MainView.SelectedGames.Where(g => g.IsInstalled && SteamUtilities.IsGameSteamGame(g)).OrderBy(x => x.Name).ToList();
+            this.settings = settings;
+            SelectedSteamGames = PlayniteApi.MainView.SelectedGames.Where(g => g.IsInstalled && Steam.IsGameSteamGame(g)).OrderBy(x => x.Name).ToList();
             GoldbergGames = GoldbergTasks.ConvertGames(SelectedSteamGames, api);
         }
-        private List<GoldbergGames> goldberggames;
-        public List<GoldbergGames> GoldbergGames
+        private List<GoldbergGame> goldberggames;
+        public List<GoldbergGame> GoldbergGames
         {
             get => goldberggames;
             set
@@ -43,27 +44,31 @@ namespace SteamEmuUtility.ViewModels
         {
             get => new RelayCommand<object>((a) =>
             {
-                var Game = (a as GoldbergGames)?.Game;
-                ProcessCommon.ProcessUtilities.StartProcess(Goldberg.GameSettingsPath(Game));
+                var appid = (a as GoldbergGame)?.AppID;
+                if (FileSystem.DirectoryExists(Goldberg.GameSettingsPath(appid)))
+                {
+                    ProcessCommon.ProcessUtilities.StartProcess(Goldberg.GameSettingsPath(appid));
+                }
             });
         }
         public RelayCommand<object> GenerateGames
         {
             get => new RelayCommand<object>((a) =>
             {
-                var Games = (a as IList)?.Cast<GoldbergGames>().ToList();
+                var Games = (a as IList)?.Cast<GoldbergGame>().ToList();
                 if (Games.Count == 0)
                 {
                     PlayniteApi.Dialogs.ShowErrorMessage("Please choose atleast 1 game.");
                     return;
                 }
-                GoldbergGenerator.GenerateGoldbergConfig(Games, PlayniteApi);
-                GoldbergGames.ForEach(x =>
+                GoldbergGenerator.GenerateGoldbergConfig(Games, PlayniteApi, settings.SteamWebApi);
+                Games.ForEach(game =>
                 {
-                    string settingspath = Goldberg.GameSteamSettingPath(x.AppID);
-                    x.DLCExists = FileSystem.FileExists(Path.Combine(settingspath, "DLC.txt"));
-                    x.AchievementsExists = FileSystem.FileExists(Path.Combine(settingspath, "achievements.json"));
-                    x.SettingsExists = FileSystem.DirectoryExists(Goldberg.GameSettingsPath(x.AppID));
+                    string steamsettingspath = Goldberg.GameSteamSettingPath(game.AppID);
+                    string settingspath = Goldberg.GameSettingsPath(game.AppID);
+                    var x = GoldbergGames.FirstOrDefault(g => g.Equals(game));
+                    x.SettingsExists = FileSystem.DirectoryExists(settingspath);
+                    x.GoldbergExists = GoldbergTasks.IsGoldbergExists(game.AppID);
                 });
             });
         }
