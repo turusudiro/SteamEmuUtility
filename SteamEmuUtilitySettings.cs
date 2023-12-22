@@ -11,7 +11,9 @@ using GoldbergCommon;
 using GreenLumaCommon;
 using Playnite.SDK;
 using Playnite.SDK.Data;
+using Playnite.SDK.Models;
 using PluginsCommon;
+using ProcessCommon;
 using SevenZip;
 
 namespace SteamEmuUtility
@@ -124,6 +126,16 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
+        private bool cleanapplist = true;
+        public bool CleanApplist
+        {
+            get => cleanapplist;
+            set
+            {
+                cleanapplist = value;
+                OnPropertyChanged();
+            }
+        }
         private int cleanmode = 0;
         public int CleanMode
         {
@@ -215,17 +227,17 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool cleangreenlumastartup = true;
+        private bool cleangreenlumastartup = false;
         public bool CleanGreenLumaStartup
         {
             get => cleangreenlumastartup;
             set
             {
-                cleangreenluma = value;
+                cleangreenlumastartup = value;
                 OnPropertyChanged();
             }
         }
-        private bool cleangreenluma = true;
+        private bool cleangreenluma = false;
         public bool CleanGreenLuma
         {
             get => cleangreenluma;
@@ -443,6 +455,50 @@ namespace SteamEmuUtility
             return true;
         }
 
+        public RelayCommand<object> OpenURL
+        {
+            get => new RelayCommand<object>((url) =>
+            {
+                try
+                {
+                    NavigateUrl(url);
+                }
+                catch { }
+            });
+        }
+        public static void NavigateUrl(object url)
+        {
+            if (url is string stringUrl)
+            {
+                NavigateUrl(stringUrl);
+            }
+            else if (url is Link linkUrl)
+            {
+                NavigateUrl(linkUrl.Url);
+            }
+            else if (url is Uri uriUrl)
+            {
+                NavigateUrl(uriUrl.OriginalString);
+            }
+            else
+            {
+                throw new Exception("Unsupported URL format.");
+            }
+        }
+        public static void NavigateUrl(string url)
+        {
+            if (url.IsNullOrEmpty())
+            {
+                throw new Exception("No URL was given.");
+            }
+
+            if (!url.IsUri())
+            {
+                url = "http://" + url;
+            }
+
+            ProcessUtilities.StartUrl(url);
+        }
         private static string SevenZipLib { get { return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Libraries", "7z"); } }
         public RelayCommand<object> ChangeAvatar
         {
