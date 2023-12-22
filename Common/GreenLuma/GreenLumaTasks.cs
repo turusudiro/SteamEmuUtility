@@ -25,7 +25,7 @@ namespace GreenLumaCommon
         /// </summary>
         public static async Task CleanGreenLuma()
         {
-            while (SteamUtilities.IsSteamRunning)
+            while (Steam.IsSteamRunning)
             {
                 await Task.Delay(1000);
             }
@@ -39,7 +39,7 @@ namespace GreenLumaCommon
                 {
                     foreach (var file in GreenLumaFiles)
                     {
-                        string path = Path.Combine(SteamUtilities.SteamDirectory, file);
+                        string path = Path.Combine(Steam.SteamDirectory, file);
                         if (FileSystem.DirectoryExists(path))
                         {
                             DirectoryInfo dirinfo = new DirectoryInfo(path);
@@ -48,14 +48,14 @@ namespace GreenLumaCommon
                         }
                         if (Path.GetFileName(file).Equals("x64launcher.exe") && FileSystem.FileExists(path))
                         {
-                            FileInfo x64steam = new FileInfo(Path.Combine(SteamUtilities.SteamDirectory, file));
+                            FileInfo x64steam = new FileInfo(Path.Combine(Steam.SteamDirectory, file));
                             FileInfo x64greenluma = new FileInfo(Path.Combine(GreenLumaPath, "NormalMode", Path.GetFileName(file)));
                             if (x64steam.Length == x64greenluma.Length)
                             {
                                 try
                                 {
                                     x64steam.Delete();
-                                    FileSystem.CopyFile(Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe"), Path.Combine(SteamUtilities.SteamDirectory, "bin\\x64launcher.exe"), true);
+                                    FileSystem.CopyFile(Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe"), Path.Combine(Steam.SteamDirectory, "bin\\x64launcher.exe"), true);
                                 }
                                 catch { }
                             }
@@ -63,7 +63,7 @@ namespace GreenLumaCommon
                         }
                         if (FileSystem.FileExists(path))
                         {
-                            try { FileSystem.DeleteFile(Path.Combine(SteamUtilities.SteamDirectory, file)); }
+                            try { FileSystem.DeleteFile(Path.Combine(Steam.SteamDirectory, file)); }
                             catch { }
                         }
                     }
@@ -77,8 +77,8 @@ namespace GreenLumaCommon
         /// </summary>
         public static void CleanAppCache()
         {
-            string appinfo = Path.Combine(SteamUtilities.SteamDirectory, "appcache\\appinfo.vdf");
-            string packageinfo = Path.Combine(SteamUtilities.SteamDirectory, "appcache\\packageinfo.vdf");
+            string appinfo = Path.Combine(Steam.SteamDirectory, "appcache\\appinfo.vdf");
+            string packageinfo = Path.Combine(Steam.SteamDirectory, "appcache\\packageinfo.vdf");
             string[] appcache = new string[]
             {
                 appinfo,
@@ -109,9 +109,9 @@ namespace GreenLumaCommon
         public static bool StartInjector(OnGameStartingEventArgs args, int maxAttempts, int delay)
         {
             maxAttempts++;
-            string FileName = Path.Combine(SteamUtilities.SteamDirectory, "DLLInjector.exe");
+            string FileName = Path.Combine(Steam.SteamDirectory, "DLLInjector.exe");
             string Arguments = $"-applaunch {args.Game.GameId}";
-            string workingdir = SteamUtilities.SteamDirectory;
+            string workingdir = Steam.SteamDirectory;
             Process process = ProcessUtilities.TryStartProcess(FileName, Arguments, workingdir, maxAttempts, delay);
             if (ProcessUtilities.IsProcessRunning(process.ProcessName))
             {
@@ -128,12 +128,12 @@ namespace GreenLumaCommon
         }
         public static void CopyGreenLumaNormalMode()
         {
-            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "DLLInjector.exe"), Path.Combine(SteamUtilities.SteamDirectory, "DLLInjector.exe"), true);
-            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2023_x64.dll"), Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma_2023_x64.dll"), true);
-            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2023_x86.dll"), Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma_2023_x86.dll"), true);
-            FileSystem.CreateDirectory(Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma2023_Files"));
-            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "AchievementUnlocked.wav"), Path.Combine(SteamUtilities.SteamDirectory, "GreenLuma2023_Files", "AchievementUnlocked.wav"), true);
-            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "x64launcher.exe"), Path.Combine(SteamUtilities.SteamDirectory, "bin", "x64launcher.exe"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "DLLInjector.exe"), Path.Combine(Steam.SteamDirectory, "DLLInjector.exe"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2023_x64.dll"), Path.Combine(Steam.SteamDirectory, "GreenLuma_2023_x64.dll"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2023_x86.dll"), Path.Combine(Steam.SteamDirectory, "GreenLuma_2023_x86.dll"), true);
+            FileSystem.CreateDirectory(Path.Combine(Steam.SteamDirectory, "GreenLuma2023_Files"));
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "AchievementUnlocked.wav"), Path.Combine(Steam.SteamDirectory, "GreenLuma2023_Files", "AchievementUnlocked.wav"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "x64launcher.exe"), Path.Combine(Steam.SteamDirectory, "bin", "x64launcher.exe"), true);
         }
         /// <summary>
         /// Copy GreenLuma NormalMode files
@@ -141,22 +141,6 @@ namespace GreenLumaCommon
         /// </summary>
         public static void GreenLumaNormalMode(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi)
         {
-            if (ProcessUtilities.IsProcessRunning("steam"))
-            {
-                if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes)
-                {
-                    while (ProcessUtilities.IsProcessRunning("steam"))
-                    {
-                        ProcessUtilities.ProcessKill("steam");
-                        Thread.Sleep(GreenLumaSettings.MillisecondsToWait);
-                    }
-                }
-                else
-                {
-                    args.CancelStartup = true;
-                    return;
-                }
-            }
             if (ProcessUtilities.IsProcessRunning("dllinjector"))
             {
                 while (ProcessUtilities.IsProcessRunning("dllinjector"))
@@ -187,7 +171,7 @@ namespace GreenLumaCommon
             {
                 CopyGreenLumaNormalMode();
                 GreenLumaGenerator.CreateDLLInjectorIni();
-                FileSystem.WriteStringToFile(Path.Combine(SteamUtilities.SteamDirectory, stealth), null);
+                FileSystem.WriteStringToFile(Path.Combine(Steam.SteamDirectory, stealth), null);
             }
             catch (Exception ex) { PlayniteApi.Dialogs.ShowErrorMessage(ex.Message); args.CancelStartup = true; return; }
             if (!StartInjector(args, GreenLumaSettings.MaxAttemptDLLInjector, GreenLumaSettings.MillisecondsToWait))
@@ -204,30 +188,14 @@ namespace GreenLumaCommon
         /// </summary>
         public static void GreenLumaStealthMode(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi)
         {
-            if (SteamUtilities.IsSteamRunning)
-            {
-                if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes)
-                {
-                    while (SteamUtilities.IsSteamRunning)
-                    {
-                        _ = SteamUtilities.KillSteam;
-                        Thread.Sleep(GreenLumaSettings.MillisecondsToWait);
-                    }
-                }
-                else
-                {
-                    args.CancelStartup = true;
-                    return;
-                }
-            }
             try
             {
-                if (!FileSystem.DirectoryExists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
+                if (!FileSystem.DirectoryExists(Path.Combine(Steam.SteamDirectory, "applist")))
                 {
-                    FileSystem.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
+                    FileSystem.CreateDirectory(Path.Combine(Path.Combine(Steam.SteamDirectory, "applist")));
                 }
-                FileSystem.WriteStringToFile(Path.Combine(SteamUtilities.SteamDirectory, "applist", stealth), null);
-                FileSystem.CopyFile(User32, Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)), true);
+                FileSystem.WriteStringToFile(Path.Combine(Steam.SteamDirectory, "applist", stealth), null);
+                FileSystem.CopyFile(User32, Path.Combine(Steam.SteamDirectory, Path.GetFileName(User32)), true);
             }
             catch (Exception ex)
             {
@@ -240,27 +208,27 @@ namespace GreenLumaCommon
             }
             if (GreenLumaSettings.SkipUpdateStealth && !GreenLumaSettings.EnableSteamArgs)
             {
-                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap -applaunch {args.Game.GameId}", SteamUtilities.SteamDirectory);
+                ProcessUtilities.StartProcess(Steam.SteamExecutable, $"-inhibitbootstrap -applaunch {args.Game.GameId}", Steam.SteamDirectory);
             }
             else if (GreenLumaSettings.EnableSteamArgs && !GreenLumaSettings.SkipUpdateStealth)
             {
-                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-applaunch {args.Game.GameId} {GreenLumaSettings.SteamArgs}", SteamUtilities.SteamDirectory);
+                ProcessUtilities.StartProcess(Steam.SteamExecutable, $"-applaunch {args.Game.GameId} {GreenLumaSettings.SteamArgs}", Steam.SteamDirectory);
             }
             else if (GreenLumaSettings.EnableSteamArgs && GreenLumaSettings.SkipUpdateStealth)
             {
-                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap -applaunch {args.Game.GameId} {GreenLumaSettings.SteamArgs}", SteamUtilities.SteamDirectory);
+                ProcessUtilities.StartProcess(Steam.SteamExecutable, $"-inhibitbootstrap -applaunch {args.Game.GameId} {GreenLumaSettings.SteamArgs}", Steam.SteamDirectory);
             }
         }
         public static void CopyGreenLumaStealthMode(IPlayniteAPI PlayniteApi)
         {
             try
             {
-                if (!FileSystem.DirectoryExists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
+                if (!FileSystem.DirectoryExists(Path.Combine(Steam.SteamDirectory, "applist")))
                 {
-                    FileSystem.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
+                    FileSystem.CreateDirectory(Path.Combine(Path.Combine(Steam.SteamDirectory, "applist")));
                 }
-                FileSystem.WriteStringToFile(Path.Combine(SteamUtilities.SteamDirectory, "applist", stealth), null);
-                FileSystem.CopyFile(User32, Path.Combine(SteamUtilities.SteamDirectory, Path.GetFileName(User32)), true);
+                FileSystem.WriteStringToFile(Path.Combine(Steam.SteamDirectory, "applist", stealth), null);
+                FileSystem.CopyFile(User32, Path.Combine(Steam.SteamDirectory, Path.GetFileName(User32)), true);
             }
             catch (Exception ex)
             {
@@ -269,13 +237,13 @@ namespace GreenLumaCommon
         }
         public static void RunSteamWIthGreenLumaStealthMode(Game Game, IPlayniteAPI PlayniteApi)
         {
-            if (SteamUtilities.IsSteamRunning)
+            if (Steam.IsSteamRunning)
             {
                 if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes)
                 {
-                    while (SteamUtilities.IsSteamRunning)
+                    while (Steam.IsSteamRunning)
                     {
-                        _ = SteamUtilities.KillSteam;
+                        _ = Steam.KillSteam;
                         Thread.Sleep(GreenLumaSettings.MillisecondsToWait);
                     }
                 }
@@ -291,19 +259,19 @@ namespace GreenLumaCommon
             }
             if (GreenLumaSettings.SkipUpdateStealth && !GreenLumaSettings.EnableSteamArgs)
             {
-                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap", SteamUtilities.SteamDirectory);
+                ProcessUtilities.StartProcess(Steam.SteamExecutable, $"-inhibitbootstrap", Steam.SteamDirectory);
             }
             else if (GreenLumaSettings.EnableSteamArgs && !GreenLumaSettings.SkipUpdateStealth)
             {
-                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"{GreenLumaSettings.SteamArgs}", SteamUtilities.SteamDirectory);
+                ProcessUtilities.StartProcess(Steam.SteamExecutable, $"{GreenLumaSettings.SteamArgs}", Steam.SteamDirectory);
             }
             else if (GreenLumaSettings.EnableSteamArgs && GreenLumaSettings.SkipUpdateStealth)
             {
-                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, $"-inhibitbootstrap {GreenLumaSettings.SteamArgs}", SteamUtilities.SteamDirectory);
+                ProcessUtilities.StartProcess(Steam.SteamExecutable, $"-inhibitbootstrap {GreenLumaSettings.SteamArgs}", Steam.SteamDirectory);
             }
             else if (!GreenLumaSettings.EnableSteamArgs && !GreenLumaSettings.SkipUpdateStealth)
             {
-                ProcessUtilities.StartProcess(SteamUtilities.SteamExecutable, string.Empty, SteamUtilities.SteamDirectory);
+                ProcessUtilities.StartProcess(Steam.SteamExecutable, string.Empty, Steam.SteamDirectory);
             }
             return;
         }
@@ -311,7 +279,7 @@ namespace GreenLumaCommon
         {
             try
             {
-                string x64steam = Path.Combine(SteamUtilities.SteamDirectory, "bin\\x64launcher.exe");
+                string x64steam = Path.Combine(Steam.SteamDirectory, "bin\\x64launcher.exe");
                 string x64backup = Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe");
                 string x64greenluma = Path.Combine(GreenLumaPath, "NormalMode", "x64launcher.exe");
                 if (!FileSystem.FileExists(x64greenluma))
@@ -344,7 +312,7 @@ namespace GreenLumaCommon
         }
         public static Task InjectAppOwnershipTickets(string path)
         {
-            string destinationFile = Path.Combine(SteamUtilities.SteamDirectory, "AppOwnershipTickets", Path.GetFileName(path));
+            string destinationFile = Path.Combine(Steam.SteamDirectory, "AppOwnershipTickets", Path.GetFileName(path));
             if (!FileSystem.DirectoryExists(Path.GetDirectoryName(destinationFile)))
             {
                 FileSystem.CreateDirectory(Path.GetDirectoryName(destinationFile));
@@ -361,7 +329,7 @@ namespace GreenLumaCommon
         }
         public static Task InjectEncryptedAppTickets(string path)
         {
-            string destinationFile = Path.Combine(SteamUtilities.SteamDirectory, "EncryptedAppTickets", Path.GetFileName(path));
+            string destinationFile = Path.Combine(Steam.SteamDirectory, "EncryptedAppTickets", Path.GetFileName(path));
             if (!FileSystem.DirectoryExists(Path.GetDirectoryName(destinationFile)))
             {
                 FileSystem.CreateDirectory(Path.GetDirectoryName(destinationFile));

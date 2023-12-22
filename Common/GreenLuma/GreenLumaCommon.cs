@@ -81,6 +81,91 @@ namespace GreenLumaCommon
         {
             return PlayniteApi.Database.Features.Add(stealthfeature);
         }
+        public static bool GreenLumaInjected()
+        {
+            if (IsDLLInjectorRunning)
+            {
+                return true;
+            }
+            foreach (var file in GreenLumaFiles)
+            {
+                string path = Path.Combine(Steam.SteamDirectory, file);
+                if (FileSystem.FileExists(path) && !file.Contains("x64launcher"))
+                {
+                    try
+                    {
+                        using (Stream stream = new FileStream(path, FileMode.Open)) { }
+                    }
+                    catch
+                    {
+                        return true;
+                    }
+                }
+            }
+            if (GreenLumaFilesOnSteam)
+            {
+                return true;
+            }
+            return false;
+        }
+        public static bool ApplistConfigured(IEnumerable<string> appids)
+        {
+            var appidSet = new HashSet<string>(appids);
+            var applist = AppList();
+            if (applist != null && applist.Length > 0)
+            {
+                foreach (var fileInfo in applist)
+                {
+                    try
+                    {
+                        using (var reader = fileInfo.OpenText())
+                        {
+                            // Read each line of the file and check if any line is in appidSet
+                            string line;
+                            while ((line = reader.ReadLine()) != null)
+                            {
+                                if (appidSet.Contains(line.Trim())) // Assuming trimming is appropriate
+                                {
+                                    return true; // At least one file contains an app ID, configured
+                                }
+                            }
+                        }
+                    }
+                    catch (IOException ex)
+                    {
+                        // Handle or log the exception
+                        Console.WriteLine($"Error reading file {fileInfo.FullName}: {ex.Message}");
+                    }
+                }
+
+                // If no file contains any app ID, it is considered not configured
+                return false;
+            }
+
+            // No files in the applist, considered not configured
+            return false;
+        }
+        public static IEnumerable<string> GetDLC(string appid)
+        {
+            string path = Path.Combine(CommonPath, appid + ".txt");
+            return FileSystem.ReadStringLinesFromFile(path);
+        }
+        public static bool DLCExists(string appid)
+        {
+            return FileSystem.FileExists(Path.Combine(Path.Combine(CommonPath, $"{appid}.txt")));
+        }
+        public static FileInfo[] AppList()
+        {
+            if (FileSystem.DirectoryExists(Path.Combine(Steam.SteamDirectory, "applist")))
+            {
+                string path = FileSystem.FixPathLength(Path.Combine(Steam.SteamDirectory, "applist"));
+                return new DirectoryInfo(path).GetFiles("*.txt", SearchOption.TopDirectoryOnly);
+            }
+            else
+            {
+                return null;
+            }
+        }
         static string GetRelativePath(string basePath, string targetPath)
         {
             Uri baseUri = new Uri($"{basePath}\\");
@@ -129,7 +214,7 @@ namespace GreenLumaCommon
             {
                 foreach (var file in GreenLumaFiles)
                 {
-                    string path = Path.Combine(SteamUtilities.SteamDirectory, file);
+                    string path = Path.Combine(Steam.SteamDirectory, file);
                     if (FileSystem.DirectoryExists(path))
                     {
                         DirectoryInfo dirinfo = new DirectoryInfo(path);

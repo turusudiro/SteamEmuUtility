@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Playnite.SDK;
-using Playnite.SDK.Events;
+using Playnite.SDK.Models;
 using PluginsCommon;
 using SteamCommon;
 using static GreenLumaCommon.GreenLuma;
@@ -65,7 +67,7 @@ namespace GreenLumaCommon
                     injectorConfig[index] = $"CommandLine = -inhibitbootstrap {GreenLumaSettings.SteamArgs}";
                 }
             }
-            FileSystem.WriteStringLinesToFile(Path.Combine(SteamUtilities.SteamDirectory, "DLLInjector.ini"), injectorConfig);
+            FileSystem.WriteStringLinesToFile(Path.Combine(Steam.SteamDirectory, "DLLInjector.ini"), injectorConfig);
         }
         /// <summary>
         /// Create txt files in applist Steam directory
@@ -76,19 +78,28 @@ namespace GreenLumaCommon
         public static bool WriteAppList(List<string> appids)
         {
             int count = 0;
-            if (!FileSystem.DirectoryExists(Path.Combine(SteamUtilities.SteamDirectory, "applist")))
+            var applist = AppList();
+            if (applist != null && applist.Count() > 0)
             {
-                FileSystem.CreateDirectory(Path.Combine(Path.Combine(SteamUtilities.SteamDirectory, "applist")));
+                foreach (var file in applist)
+                {
+                    string content = file.OpenText().ReadToEnd();
+                    if (!string.IsNullOrWhiteSpace(content))
+                    {
+                        appids.RemoveAll(x => x.Contains(content));
+                    }
+                }
+                count = applist.Count();
+            }
+            if (!FileSystem.DirectoryExists(Path.Combine(Steam.SteamDirectory, "applist")))
+            {
+                FileSystem.CreateDirectory(Path.Combine(Path.Combine(Steam.SteamDirectory, "applist")));
             }
             try
             {
                 foreach (var appid in appids)
                 {
-                    if (count == appids.Count)
-                    {
-                        break;
-                    }
-                    FileSystem.WriteStringToFile(Path.Combine(SteamUtilities.SteamDirectory, "applist", $"{count}.txt"), appid);
+                    FileSystem.WriteStringToFile(Path.Combine(Steam.SteamDirectory, "applist", $"{count}.txt"), appid);
                     count++;
                 }
                 return true;
@@ -98,96 +109,54 @@ namespace GreenLumaCommon
                 return false;
             }
         }
-        public static void GameAndDLCUnlocking(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi)
+
+        public static void GenerateDLC(Game game, SteamService steam, GlobalProgressActionArgs progress, string apikey)
         {
-            var game = args.Game;
-            var appids = new List<string> { game.GameId };
-            string dlcpath = Path.Combine(CommonPath, $"{game.GameId}.txt");
-            if (!FileSystem.FileExists(dlcpath))
+            string AlphaNumOnlyRegex = "[^0-9a-zA-Z]+";
+            string appid = game.GameId;
+            string gameName = game.Name;
+            List<string> dlcid = new List<string>();
+            var appdetailsdlc = SteamAppDetails.GetAppDetailsStore(new List<string> { game.GameId }, progress).Result;
+            var appinfo = SteamUtilities.GetAppIdInfo(appid, steam, progress);
+            if (!IStoreService.CacheExists(PluginPath))
             {
-                GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
-                PlayniteApi.Dialogs.ActivateGlobalProgress((progressOptions) =>
-                {
-                    GenerateDLC(appids, progressOptions);
-                }, progress);
+                IStoreService.GenerateCache(PluginPath, progress, apikey);
             }
-            appids.AddRange(FileSystem.ReadStringLinesFromFile(dlcpath).ToList());
-            WriteAppList(appids);
-        }
-        public static void DLCUnlocking(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi)
-        {
-            var game = args.Game;
-            var appids = new List<string> { game.GameId };
-            string dlcpath = Path.Combine(CommonPath, $"{game.GameId}.txt");
-            if (!FileSystem.FileExists(dlcpath))
+            if (IStoreService.Cache1Day(PluginPath))
             {
-                GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
-                PlayniteApi.Dialogs.ActivateGlobalProgress((progressOptions) =>
-                {
-                    GenerateDLC(appids, progressOptions);
-                }, progress);
+                IStoreService.UpdateCache(PluginPath, progress, apikey);
             }
-            appids = FileSystem.ReadStringLinesFromFile(dlcpath).ToList();
-            WriteAppList(appids);
-        }
-        public static bool GenerateDLC(List<string> appids, GlobalProgressActionArgs progressOptions)
-        {
-            progressOptions.CurrentProgressValue = 0;
-            progressOptions.ProgressMaxValue = appids.Count;
-            int count = 0;
-            var steam = new SteamService();
-            bool LoggedIn = false;
-            foreach (var appid in appids)
+            var applistdetails = IStoreService.GetApplistDetails(PluginPath);
+            if (appinfo.Depots?.depots != null && appinfo.Depots.depots.Any(x => x.Value.dlcappid != null))
             {
-                if (progressOptions.CancelToken.IsCancellationRequested)
-                {
-                    return false;
-                }
-                List<int> dlcid = new List<int>();
-                int app = int.Parse(appid);
-                var appDetails = SteamAppDetails.GetAppDetailsStore(new List<int> { app }, progressOptions).Result;
-                var appinfo = SteamCMDApi.GetAppInfo(new List<string> { appid }, progressOptions);
-                progressOptions.Text = $"Getting DLC Info for {appid}";
-                if (appDetails[app]?.Data?.DLC?.Count >= 1)
-                {
-                    dlcid.AddMissing(appDetails[app].Data.DLC);
-                }
-                if (!appinfo.Status)
-                {
-                    if (!LoggedIn && !steam.AnonymousLogin(progressOptions))
-                    {
-                        return false;
-                    }
-                    LoggedIn = true;
-                    appinfo = steam.GetAppInfo(new List<uint>(app), progressOptions);
-                }
-                if (appinfo?.Data[appid]?.Extended?.ListOfDLC?.Count >= 1)
-                {
-                    dlcid.AddMissing(appinfo.Data[appid].Extended.ListOfDLC);
-                }
-                if (appinfo.Data[appid]?.Depots?.depots != null && appinfo.Data[appid].Depots.depots.Any(x => x.Value.dlcappid != null))
-                {
-                    var dlcappid = appinfo.Data[appid].Depots.depots
-                        .Where(x => x.Value.dlcappid != null).Select(x => int.TryParse(x.Value.dlcappid, out int result) ? result : 0).ToList();
-                    dlcid.AddMissing(dlcappid);
-                }
-                try
-                {
-                    if (!FileSystem.DirectoryExists(CommonPath))
-                    {
-                        FileSystem.CreateDirectory(CommonPath);
-                    }
-                    FileSystem.WriteStringLinesToFile(Path.Combine(CommonPath, $"{appid}.txt"), dlcid.Select(x => x.ToString()));
-                }
-                catch
-                {
-                    continue;
-                };
-                progressOptions.CurrentProgressValue++;
-                count++;
+                var dlcappid = appinfo.Depots.depots
+                    .Where(x => x.Value.dlcappid != null).Select(x => string.IsNullOrEmpty(x.Value?.dlcappid) ? string.Empty : x.Value?.dlcappid).ToList();
+
+                dlcid.AddMissing(dlcappid.Where(x => !string.IsNullOrWhiteSpace(x)));
             }
-            steam.steamClient.Disconnect();
-            return true;
+            if (appinfo.Extended?.ListOfDLC != null)
+            {
+                dlcid.AddMissing(appinfo.Extended.ListOfDLC);
+            }
+            if (appdetailsdlc[appid]?.Data?.DLC?.Count >= 1)
+            {
+                dlcid.AddMissing(appdetailsdlc[appid].Data.DLC);
+            }
+            if (applistdetails.Applist.Apps.Any(x => x.Name.IndexOf(appinfo.Common.Name, StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                var filter = applistdetails.Applist.Apps.Where(x => Regex.Replace(x.Name, AlphaNumOnlyRegex, "")
+                .Contains(Regex.Replace(gameName, AlphaNumOnlyRegex, ""))).ToList();
+                dlcid.AddMissing(filter.Select(x => x.Appid.ToString()));
+            }
+            try
+            {
+                if (!FileSystem.DirectoryExists(CommonPath))
+                {
+                    FileSystem.CreateDirectory(CommonPath);
+                }
+                FileSystem.WriteStringLinesToFile(Path.Combine(CommonPath, $"{appid}.txt"), dlcid.Select(x => x.ToString()));
+            }
+            catch { }
         }
     }
 }
