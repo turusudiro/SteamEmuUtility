@@ -26,7 +26,7 @@ namespace SteamCommon
             string path = Path.Combine(pluginpath, "Common", "DLCCache.json");
             return FileSystem.FileExists(path);
         }
-        public static bool Cache1Week(string pluginpath)
+        public static bool Cache1Day(string pluginpath)
         {
             string path = Path.Combine(pluginpath, "Common", "DLCCache.json");
             if (FileSystem.FileExists(path))
@@ -40,7 +40,7 @@ namespace SteamCommon
             }
             return false;
         }
-        public static void UpdateCache(string pluginpath, GlobalProgressActionArgs progressOptions)
+        public static void UpdateCache(string pluginpath, GlobalProgressActionArgs progressOptions, string apikey)
         {
             progressOptions.IsIndeterminate = true;
             progressOptions.Text = "Updating DLC Cache...";
@@ -52,12 +52,14 @@ namespace SteamCommon
             ApplistDetails applist;
             if (FileSystem.FileExists(path)) ///Check if file exists, update it.
             {
+                FileInfo fileInfo = new FileInfo(path);
+                fileInfo.LastWriteTime = DateTime.Now;
                 applist = Serialization.FromJsonFile<ApplistDetails>(path);
                 lastappid = applist.Applist.LastAppid;
                 do
                 {
-                    var response = lastappid > 0 ? client.GetAsync(getapplistUrl + Goldberg.SteamWebAPIKey + "&last_appid=" + lastappid.ToString()).Result :
-                        client.GetAsync(getapplistUrl + Goldberg.SteamWebAPIKey).Result;
+                    var response = lastappid > 0 ? client.GetAsync(getapplistUrl + apikey + "&last_appid=" + lastappid.ToString()).Result :
+                        client.GetAsync(getapplistUrl + apikey).Result;
                     if (response.IsSuccessStatusCode)
                     {
                         var content = response.Content.ReadAsStreamAsync().Result;
@@ -91,7 +93,7 @@ namespace SteamCommon
                 return;
             }
         }
-        public static void GenerateCache(string pluginpath, GlobalProgressActionArgs progressOptions)
+        public static void GenerateCache(string pluginpath, GlobalProgressActionArgs progressOptions, string apikey)
         {
             progressOptions.IsIndeterminate = true;
             progressOptions.Text = "Downloading DLC Cache...";
@@ -115,7 +117,7 @@ namespace SteamCommon
                 }
                 do
                 {
-                    var response = lastappid > 0 ? client.GetAsync(getapplistUrl + Goldberg.SteamWebAPIKey + "&last_appid=" + lastappid.ToString()).Result :
+                    var response = lastappid > 0 ? client.GetAsync(getapplistUrl + apikey + "&last_appid=" + lastappid.ToString()).Result :
                         client.GetAsync(getapplistUrl + Goldberg.SteamWebAPIKey).Result;
                     if (response.IsSuccessStatusCode)
                     {

@@ -26,5 +26,14 @@ namespace System
         {
             return string.IsNullOrWhiteSpace(source);
         }
+        public static bool IsUri(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                return false;
+            }
+
+            return Uri.IsWellFormedUriString(str, UriKind.Absolute);
+        }
     }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using GoldbergCommon;
@@ -11,6 +13,7 @@ using Playnite.SDK.Events;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
 using PlayniteCommon;
+using PluginsCommon;
 using SteamCommon;
 using SteamEmuUtility.Controller;
 using SteamEmuUtility.ViewModels;
@@ -40,21 +43,26 @@ namespace SteamEmuUtility
         }
         public override IEnumerable<PlayController> GetPlayActions(GetPlayActionsArgs args)
         {
-            if (SteamUtilities.IsGameSteamGame(args.Game) && args.Game.Features.Any(x => x.Name.Equals("[SEU] Goldberg")))
+            if (Steam.IsGameSteamGame(args.Game) && args.Game.Features.Any(x => x.Name.Equals("[SEU] Goldberg")))
             {
                 args.Game.IncludeLibraryPluginAction = false;
-                yield return new GoldBergController(args.Game, PlayniteApi);
+                yield return new GoldBergController(args.Game, PlayniteApi, settings.Settings);
             }
         }
         public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs args)
         {
+            var SteamGame = PlayniteApi.Database.Games.Where(x => x.IsInstalled && Steam.IsGameSteamGame(x));
             yield return new MainMenuItem
             {
                 Description = "Unlock all installed Steam games",
                 MenuSection = "@Steam Emu Utility|God Mode",
                 Action = (a) =>
                 {
-                    GreenLumaGenerator.WriteAppList(PlayniteApi.Database.Games.Where(x => SteamUtilities.IsGameSteamGame(x)).Select(x => x.GameId).ToList());
+                    if (settings.Settings.CleanApplist && !FileSystem.IsDirectoryEmpty(Path.Combine(Steam.SteamDirectory, "applist")))
+                    {
+                        FileSystem.DeleteDirectory(Path.Combine(Steam.SteamDirectory, "applist"));
+                    }
+                    GreenLumaGenerator.WriteAppList(SteamGame.Select(x => x.GameId).ToList());
                     GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(null, PlayniteApi);
                 }
             };
@@ -64,7 +72,11 @@ namespace SteamEmuUtility
                 MenuSection = "@Steam Emu Utility|God Mode",
                 Action = (a) =>
                 {
-                    GreenLumaGenerator.WriteAppList(PlayniteApi.Database.Games.Where(x => SteamUtilities.IsGameSteamGame(x)).Select(x => x.GameId).ToList());
+                    if (settings.Settings.CleanApplist && !FileSystem.IsDirectoryEmpty(Path.Combine(Steam.SteamDirectory, "applist")))
+                    {
+                        FileSystem.DeleteDirectory(Path.Combine(Steam.SteamDirectory, "applist"));
+                    }
+                    GreenLumaGenerator.WriteAppList(SteamGame.Select(x => x.GameId).ToList());
                     GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(null, PlayniteApi);
                     _ = GreenLumaTasks.CleanGreenLuma();
                 }
@@ -90,7 +102,7 @@ namespace SteamEmuUtility
             window.Width = 830;
             window.Title = "Goldberg Config Generator";
             window.Content = new GoldbergConfigView();
-            window.DataContext = new GoldbergConfigViewModel(PlayniteApi);
+            window.DataContext = new GoldbergConfigViewModel(PlayniteApi, settings.Settings);
             window.Owner = PlayniteApi.Dialogs.GetCurrentAppWindow();
             window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
@@ -98,7 +110,7 @@ namespace SteamEmuUtility
         }
         public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
         {
-            var SteamGame = args.Games.Where(SteamUtilities.IsGameSteamGame);
+            var SteamGame = args.Games.Where(x => x.IsInstalled && Steam.IsGameSteamGame(x));
             yield return new GameMenuItem
             {
                 Description = "Enable Goldberg",
@@ -167,7 +179,7 @@ namespace SteamEmuUtility
                     PlayniteUtilities.RemoveFeatures(args.Games, GreenLuma.DLCFeature(PlayniteApi));
                     PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.GameFeature(PlayniteApi));
                     PlayniteUtilities.AddFeatures(SteamGame, GreenLuma.StealthFeature(PlayniteApi));
-                    PlayniteApi.Dialogs.ShowMessage($"Added {args.Games.Where(SteamUtilities.IsGameSteamGame).Count()} games Stealth Mode Features", "Steam Emu Utility");
+                    PlayniteApi.Dialogs.ShowMessage($"Added {args.Games.Where(Steam.IsGameSteamGame).Count()} games Stealth Mode Features", "Steam Emu Utility");
                 }
             };
             yield return new GameMenuItem
@@ -230,14 +242,30 @@ namespace SteamEmuUtility
                 MenuSection = @"Steam Emu Utility",
                 Action = (a) =>
                 {
-                    var Steamservice = new SteamService();
-                    GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
-                    progress.Cancelable = true;
-                    var b = PlayniteApi.Dialogs.ActivateGlobalProgress((global) =>
+                    using (var steam = new SteamService())
                     {
-                        var appids = SteamGame.Select(x => x.GameId).ToList();
-                        GreenLumaGenerator.GenerateDLC(appids, global);
-                    }, progress);
+                        PlayniteApi.Dialogs.ActivateGlobalProgress(async (progress) =>
+                        {
+                            progress.CancelToken.Register(() =>
+                            {
+                                steam.Dispose();
+                                return;
+                            });
+                            var tasks = new List<Task>();
+                            foreach (var game in SteamGame)
+                            {
+                                tasks.Add(Task.Run(() => { GreenLumaGenerator.GenerateDLC(game, steam, progress, settings.Settings.SteamWebApi); }));
+                            }
+                            while (!Task.WhenAll(tasks).IsCompleted)
+                            {
+                                if (progress.CancelToken.IsCancellationRequested)
+                                {
+                                    return;
+                                }
+                                await Task.Delay(500);
+                            }
+                        }, new GlobalProgressOptions("Steam Emu Utility", true));
+                    }
                 }
             };
             yield return new GameMenuItem
@@ -246,7 +274,7 @@ namespace SteamEmuUtility
                 MenuSection = @"Steam Emu Utility",
                 Action = (a) =>
                 {
-                    GoldbergGenerator.GenerateGoldbergConfig(SteamGame, PlayniteApi);
+                    GoldbergGenerator.GenerateGoldbergConfig(SteamGame, PlayniteApi, settings.Settings.SteamWebApi);
                 }
             };
             yield return new GameMenuItem
@@ -267,10 +295,20 @@ namespace SteamEmuUtility
                     ShowGoldbergConfig();
                 }
             };
+            yield return new GameMenuItem
+            {
+                Description = $"tes",
+                MenuSection = @"Steam Emu Utility",
+                Action = (a) =>
+                {
+                    var es = GreenLuma.GreenLumaInjected();
+                    Console.WriteLine();
+                }
+            };
         }
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
-            if (!SteamUtilities.IsGameSteamGame(args.Game))
+            if (!Steam.IsGameSteamGame(args.Game))
             {
                 return;
             }
@@ -293,22 +331,57 @@ namespace SteamEmuUtility
             {
                 return;
             }
-            if (GreenLumaGameUnlocking && !GreenLumaDLCUnlocking)
+            string appid = args.Game.GameId;
+            var appids = new List<string>();
+            if (GreenLumaGameUnlocking)
             {
-                GreenLumaGenerator.WriteAppList(new List<string> { args.Game.GameId });
+                appids.Add(appid);
             }
-            else if (GreenLumaDLCUnlocking && !GreenLumaGameUnlocking)
+            if (GreenLumaDLCUnlocking)
             {
-                GreenLumaGenerator.DLCUnlocking(args, PlayniteApi);
+                if (!GreenLuma.DLCExists(appid))
+                {
+                    using (var steam = new SteamService())
+                    {
+                        PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
+                        {
+                            progress.CancelToken.Register(() =>
+                            {
+                                steam.Dispose();
+                                return;
+                            });
+                            GreenLumaGenerator.GenerateDLC(args.Game, steam, progress, settings.Settings.SteamWebApi);
+                        }, new GlobalProgressOptions("Steam Emu Utility", true));
+                    }
+                }
+                if (GreenLuma.DLCExists(appid))
+                {
+                    appids.AddRange(GreenLuma.GetDLC(appid).ToList());
+                }
             }
-            else if (GreenLumaGameUnlocking && GreenLumaDLCUnlocking)
+            bool injected = GreenLuma.GreenLumaInjected();
+            bool applistConfigured = GreenLuma.ApplistConfigured(appids);
+            if (Steam.IsSteamRunning && (!injected || !applistConfigured))
             {
-                GreenLumaGenerator.GameAndDLCUnlocking(args, PlayniteApi);
+                if (PlayniteApi.Dialogs.ShowMessage("Steam is running without configured applist! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    while (Steam.IsSteamRunning)
+                    {
+                        _ = Steam.KillSteam;
+                        Thread.Sleep(settings.Settings.MillisecondsToWait);
+                    }
+                }
+                else
+                {
+                    args.CancelStartup = true;
+                    return;
+                }
             }
-            else
+            if (settings.Settings.CleanApplist && !FileSystem.IsDirectoryEmpty(Path.Combine(Steam.SteamDirectory, "applist")))
             {
-                return;
+                FileSystem.DeleteDirectory(Path.Combine(Steam.SteamDirectory, "applist"));
             }
+            GreenLumaGenerator.WriteAppList(appids);
             if (GreenLumaStealth)
             {
                 if (!GreenLuma.GreenLumaFilesExists(out List<string> _))
@@ -368,7 +441,7 @@ namespace SteamEmuUtility
                         switch (settings.Settings.CleanMode)
                         {
                             case 0:
-                                _ = SteamUtilities.KillSteam;
+                                _ = Steam.KillSteam;
                                 _ = GreenLumaTasks.CleanGreenLuma();
                                 break;
                             case 1:
@@ -381,7 +454,7 @@ namespace SteamEmuUtility
         }
         public override void OnGameStartupCancelled(OnGameStartupCancelledEventArgs args)
         {
-            if (!SteamUtilities.IsGameSteamGame(args.Game))
+            if (!Steam.IsGameSteamGame(args.Game))
             {
                 return;
             }
@@ -389,7 +462,7 @@ namespace SteamEmuUtility
         }
         public override void OnGameStopped(OnGameStoppedEventArgs args)
         {
-            if (!SteamUtilities.IsGameSteamGame(args.Game))
+            if (!Steam.IsGameSteamGame(args.Game))
             {
                 return;
             }

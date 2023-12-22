@@ -10,9 +10,29 @@ using PluginsCommon;
 
 namespace ProcessCommon
 {
+    public static class CmdLineTools
+    {
+        public const string TaskKill = "taskkill";
+        public const string Cmd = "cmd";
+        public const string IPConfig = "ipconfig";
+    }
     public static class ProcessUtilities
     {
         private static readonly ILogger logger = LogManager.GetLogger();
+        public static Process StartUrl(string url)
+        {
+            logger.Debug($"Opening URL: {url}");
+            try
+            {
+                return Process.Start(url);
+            }
+            catch (Exception e)
+            {
+                // There are some crash report with 0x80004005 error when opening standard URL.
+                logger.Error(e, "Failed to open URL.");
+                return Process.Start(CmdLineTools.Cmd, $"/C start {url}");
+            }
+        }
         public static Process StartProcess(string path, bool asAdmin = false)
         {
             return StartProcess(path, string.Empty, string.Empty, asAdmin);

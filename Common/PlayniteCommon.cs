@@ -9,12 +9,12 @@ namespace PlayniteCommon
     {
         public static bool AddedFeature(Game game, GameFeature Feature)
         {
-            if (game.Features == null && SteamUtilities.IsGameSteamGame(game))
+            if (game.Features == null && Steam.IsGameSteamGame(game))
             {
                 game.FeatureIds = new List<Guid> { Feature.Id };
                 return true;
             }
-            if (!game.FeatureIds.Contains(Feature.Id) && SteamUtilities.IsGameSteamGame(game))
+            if (!game.FeatureIds.Contains(Feature.Id) && Steam.IsGameSteamGame(game))
             {
                 game.FeatureIds.Add(Feature.Id);
                 return true;
@@ -35,7 +35,7 @@ namespace PlayniteCommon
         }
         public static bool RemovedFeature(Game game, GameFeature Feature)
         {
-            if (game.FeatureIds.Contains(Feature.Id) && SteamUtilities.IsGameSteamGame(game))
+            if (game.FeatureIds.Contains(Feature.Id) && Steam.IsGameSteamGame(game))
             {
                 game.FeatureIds.Remove(Feature.Id);
                 return true;

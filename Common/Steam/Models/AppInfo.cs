@@ -67,6 +67,12 @@ namespace SteamCommon.Models
         [JsonProperty("type")]
         private string _type;
         public string Type { get => _type; }
+        [JsonProperty("controller_support")]
+        private string _controllersupport;
+        public string ControllerSupport { get => _controllersupport; }
+        [JsonProperty("supported_languages")]
+        private Dictionary<string, object> _supportedlanguages;
+        public Dictionary<string, object> SupportedLanguages { get => _supportedlanguages; }
     }
     public partial class ConfigInfo
     {
@@ -74,8 +80,27 @@ namespace SteamCommon.Models
         private Dictionary<string, LaunchInfo> _launch;
         [JsonIgnore]
         public Dictionary<string, LaunchInfo> Launch { get => _launch; }
-
+        [JsonProperty("steamcontrollerconfigdetails")]
+        private Dictionary<string, ControllerConfig> _steamcontrollerconfigdetails;
+        [JsonIgnore]
+        public Dictionary<string, ControllerConfig> SteamControllerConfigDetails { get => _steamcontrollerconfigdetails; }
+        [JsonProperty("steamcontrollertouchconfigdetails")]
+        private Dictionary<string, ControllerConfig> _steamcontrollertouchconfigdetails;
+        [JsonIgnore]
+        public Dictionary<string, ControllerConfig> SteamControllerTouchConfigDetails { get => _steamcontrollertouchconfigdetails; }
     }
+    public partial class ControllerConfig
+    {
+        [JsonProperty("controller_type")]
+        private string _controllertype;
+        [JsonIgnore]
+        public string ControllerType { get => _controllertype; }
+        [JsonProperty("enabled_branches")]
+        private string _enabledbranches;
+        [JsonIgnore]
+        public string EnabledBranches { get => _enabledbranches; }
+    }
+
     public partial class LaunchInfo
     {
         [JsonProperty("executable")]
@@ -86,13 +111,17 @@ namespace SteamCommon.Models
         private string _type;
         [JsonIgnore]
         public string Type { get => _type; }
+        [JsonProperty("arguments")]
+        private string _arguments;
+        [JsonIgnore]
+        public string Arguments { get => _arguments; }
     }
     public partial class ExtendedInfo
     {
         [JsonProperty("listofdlc")]
         private string _listofdlc;
         [JsonIgnore]
-        public List<int> ListOfDLC
+        public List<string> ListOfDLC
         {
             get
             {
@@ -100,7 +129,7 @@ namespace SteamCommon.Models
                 {
                     return null;
                 }
-                var dlcs = _listofdlc.Split(',').Select(str => int.TryParse(str, out int result) ? result : 0).ToList();
+                var dlcs = _listofdlc.Split(',').ToList();
                 return dlcs;
             }
         }
@@ -120,6 +149,13 @@ namespace SteamCommon.Models
                 }
                 return _baselanguages.Split(',').Select(str => str.Trim()).ToList();
             }
+        }
+        [JsonProperty("branches")]
+        private BranchesInfo _branches;
+        [JsonIgnore]
+        public BranchesInfo Branches
+        {
+            get => _branches;
         }
         [JsonExtensionData]
         private JObject _depotsjobject;
@@ -151,6 +187,27 @@ namespace SteamCommon.Models
             set { _depots = value; }
         }
     }
+    public partial class BranchesInfo
+    {
+        [JsonProperty("public")]
+        private PublicInfo _public;
+        [JsonIgnore]
+        public PublicInfo Public
+        {
+            get => _public;
+        }
+        public class PublicInfo
+        {
+            [JsonProperty("buildid")]
+            private string _buildid;
+            [JsonIgnore]
+            public string BuildId
+            {
+                get => _buildid;
+            }
+        }
+    }
+
     public partial class depotinfo
     {
         [JsonProperty("config")]

@@ -79,11 +79,11 @@ namespace SteamCommon.Models
         [JsonIgnore]
         public AppDetails Data { get => _data; }
     }
-    public class AppDetails : CommonInfo
+    public class AppDetails
     {
         [JsonProperty("dlc")]
-        private List<int> _dlc;
+        private List<string> _dlc;
         [JsonIgnore]
-        public List<int> DLC { get => _dlc; }
+        public List<string> DLC { get => _dlc; }
     }
 }

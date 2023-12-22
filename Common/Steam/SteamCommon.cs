@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Win32;
-using Playnite.SDK;
 using Playnite.SDK.Models;
 using ProcessCommon;
 
 namespace SteamCommon
 {
-    public class SteamUtilities
+    public static class Steam
     {
-        private static ILogger logger = LogManager.GetLogger();
         private static Guid steamPluginId = Guid.Parse("cb91dfc9-b977-43bf-8e70-55f46e410fab");
         private const string defaultexe = @"C:\Program Files (x86)\Steam\steam.exe";
         private const string defaultdir = @"C:\Program Files (x86)\Steam";
@@ -72,13 +70,6 @@ namespace SteamCommon
         {
             return game.PluginId == steamPluginId;
         }
-        public static Process[] SteamProcess
-        {
-            get
-            {
-                return ProcessUtilities.GetProcesses("steam");
-            }
-        }
         /// <summary>
         /// Checks if Steam running.
         /// </summary>
@@ -112,10 +103,6 @@ namespace SteamCommon
                     return false;
                 }
             }
-        }
-        public static void RunSteam()
-        {
-            Process.Start(SteamExecutable);
         }
     }
 }
