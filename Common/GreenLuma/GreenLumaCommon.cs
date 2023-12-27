@@ -12,6 +12,19 @@ namespace GreenLumaCommon
 {
     public class GreenLuma
     {
+        public static List<string> GreenLumaFilesNormalMode = new List<string>()
+        {
+        "bin\\x64launcher.exe",
+        "GreenLuma2023_Files",
+        "GreenLuma2023_Files\\AchievementUnlocked.wav",
+        "DLLInjector.exe",
+        "DLLInjector.ini",
+        "GreenLuma_2023_x64.dll",
+        "GreenLuma_2023_x86.dll",
+        "AppOwnershipTickets",
+        "EncryptedAppTickets",
+        "GreenLuma_2023.log"
+        };
         public static List<string> GreenLumaFiles = new List<string>
         {
         "bin\\x64launcher.exe",
@@ -81,37 +94,45 @@ namespace GreenLumaCommon
         {
             return PlayniteApi.Database.Features.Add(stealthfeature);
         }
-        public static bool GreenLumaInjected()
+        public static bool GreenLumaNormalInjected
         {
-            if (IsDLLInjectorRunning)
+            get
             {
-                return true;
-            }
-            foreach (var file in GreenLumaFiles)
-            {
-                string path = Path.Combine(Steam.SteamDirectory, file);
-                if (FileSystem.FileExists(path) && !file.Contains("x64launcher"))
+                foreach (var file in GreenLumaFilesNormalMode)
                 {
-                    try
+                    if (file.Equals("AppOwnershipTickets") || file.Equals("EncryptedAppTickets"))
                     {
-                        using (Stream stream = new FileStream(path, FileMode.Open)) { }
+                        continue;
                     }
-                    catch
+                    string path = Path.Combine(Steam.SteamDirectory, file);
+                    if (file.Equals("GreenLuma2023_Files"))
                     {
-                        return true;
+                        if (!FileSystem.DirectoryExists(path))
+                        {
+                            return false;
+                        }
+                        continue;
+                    }
+                    if (path.Contains("x64launcher"))
+                    {
+                        if (new FileInfo(path).Length != new FileInfo(Path.Combine(GreenLumaPath, "NormalMode", "x64launcher.exe")).Length)
+                        {
+                            return false;
+                        }
+                    }
+                    if (!FileSystem.FileExists(path))
+                    {
+                        return false;
                     }
                 }
-            }
-            if (GreenLumaFilesOnSteam)
-            {
                 return true;
             }
-            return false;
         }
         public static bool ApplistConfigured(IEnumerable<string> appids)
         {
             var appidSet = new HashSet<string>(appids);
             var applist = AppList();
+
             if (applist != null && applist.Length > 0)
             {
                 foreach (var fileInfo in applist)
@@ -120,14 +141,22 @@ namespace GreenLumaCommon
                     {
                         using (var reader = fileInfo.OpenText())
                         {
+                            bool fileContainsAppId = false;
+
                             // Read each line of the file and check if any line is in appidSet
                             string line;
                             while ((line = reader.ReadLine()) != null)
                             {
                                 if (appidSet.Contains(line.Trim())) // Assuming trimming is appropriate
                                 {
-                                    return true; // At least one file contains an app ID, configured
+                                    fileContainsAppId = true;
+                                    break; // Exit the loop if at least one app ID is found in the file
                                 }
+                            }
+
+                            if (!fileContainsAppId)
+                            {
+                                return false; // If no app ID is found in the file, return false
                             }
                         }
                     }
@@ -138,13 +167,14 @@ namespace GreenLumaCommon
                     }
                 }
 
-                // If no file contains any app ID, it is considered not configured
-                return false;
+                // If the loop completes without returning, it means all files contain at least one app ID
+                return true;
             }
 
             // No files in the applist, considered not configured
             return false;
         }
+
         public static IEnumerable<string> GetDLC(string appid)
         {
             string path = Path.Combine(CommonPath, appid + ".txt");
@@ -206,37 +236,6 @@ namespace GreenLumaCommon
             {
                 var processes = Process.GetProcessesByName("dllinjector");
                 return processes.Length > 0;
-            }
-        }
-        public static bool GreenLumaFilesOnSteam
-        {
-            get
-            {
-                foreach (var file in GreenLumaFiles)
-                {
-                    string path = Path.Combine(Steam.SteamDirectory, file);
-                    if (FileSystem.DirectoryExists(path))
-                    {
-                        DirectoryInfo dirinfo = new DirectoryInfo(path);
-                        if (dirinfo.GetFiles().Length >= 1)
-                        {
-                            return true;
-                        }
-                    }
-                    if (FileSystem.FileExists(path))
-                    {
-                        if (Path.GetFileName(path).Equals("x64launcher.exe"))
-                        {
-                            FileInfo fileinfo = new FileInfo(path);
-                            FileInfo fileinfo2 = new FileInfo(Path.Combine(GreenLumaPath, "NormalMode", Path.GetFileName(file)));
-                            if (fileinfo.Length == fileinfo2.Length)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-                return false;
             }
         }
     }
