@@ -63,7 +63,7 @@ namespace SteamEmuUtility
                         FileSystem.DeleteDirectory(Path.Combine(Steam.SteamDirectory, "applist"));
                     }
                     GreenLumaGenerator.WriteAppList(SteamGame.Select(x => x.GameId).ToList());
-                    GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(null, PlayniteApi);
+                    GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(PlayniteApi);
                 }
             };
             yield return new MainMenuItem
@@ -77,7 +77,8 @@ namespace SteamEmuUtility
                         FileSystem.DeleteDirectory(Path.Combine(Steam.SteamDirectory, "applist"));
                     }
                     GreenLumaGenerator.WriteAppList(SteamGame.Select(x => x.GameId).ToList());
-                    GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(null, PlayniteApi);
+                    GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(PlayniteApi);
+                    GreenLumaTasks.Token = new CancellationTokenSource();
                     _ = GreenLumaTasks.CleanGreenLuma();
                 }
             };
@@ -295,16 +296,6 @@ namespace SteamEmuUtility
                     ShowGoldbergConfig();
                 }
             };
-            yield return new GameMenuItem
-            {
-                Description = $"tes",
-                MenuSection = @"Steam Emu Utility",
-                Action = (a) =>
-                {
-                    var es = GreenLuma.GreenLumaInjected();
-                    Console.WriteLine();
-                }
-            };
         }
         public override void OnGameStarting(OnGameStartingEventArgs args)
         {
@@ -359,29 +350,14 @@ namespace SteamEmuUtility
                     appids.AddRange(GreenLuma.GetDLC(appid).ToList());
                 }
             }
-            bool injected = GreenLuma.GreenLumaInjected();
-            bool applistConfigured = GreenLuma.ApplistConfigured(appids);
-            if (Steam.IsSteamRunning && (!injected || !applistConfigured))
+            if (!GreenLuma.ApplistConfigured(appids))
             {
-                if (PlayniteApi.Dialogs.ShowMessage("Steam is running without configured applist! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-                {
-                    while (Steam.IsSteamRunning)
-                    {
-                        _ = Steam.KillSteam;
-                        Thread.Sleep(settings.Settings.MillisecondsToWait);
-                    }
-                }
-                else
-                {
-                    args.CancelStartup = true;
-                    return;
-                }
+                GreenLumaGenerator.WriteAppList(appids);
             }
             if (settings.Settings.CleanApplist && !FileSystem.IsDirectoryEmpty(Path.Combine(Steam.SteamDirectory, "applist")))
             {
                 FileSystem.DeleteDirectory(Path.Combine(Steam.SteamDirectory, "applist"));
             }
-            GreenLumaGenerator.WriteAppList(appids);
             if (GreenLumaStealth)
             {
                 if (!GreenLuma.GreenLumaFilesExists(out List<string> _))
@@ -415,9 +391,10 @@ namespace SteamEmuUtility
                         return;
                     }
                     GreenLumaGenerator.WriteAppList(new List<string> { game.GameId });
-                    GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(game, PlayniteApi);
+                    GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(PlayniteApi);
                     if (settings.Settings.GoldbergCleanSteam)
                     {
+                        GreenLumaTasks.Token = new CancellationTokenSource();
                         _ = GreenLumaTasks.CleanGreenLuma();
                     }
                     return;
@@ -442,9 +419,11 @@ namespace SteamEmuUtility
                         {
                             case 0:
                                 _ = Steam.KillSteam;
+                                GreenLumaTasks.Token = new CancellationTokenSource();
                                 _ = GreenLumaTasks.CleanGreenLuma();
                                 break;
                             case 1:
+                                GreenLumaTasks.Token = new CancellationTokenSource();
                                 _ = GreenLumaTasks.CleanGreenLuma();
                                 break;
                         }
@@ -472,6 +451,7 @@ namespace SteamEmuUtility
         {
             if (settings.Settings.CleanGreenLumaStartup)
             {
+                GreenLumaTasks.Token = new CancellationTokenSource();
                 _ = GreenLumaTasks.CleanGreenLuma();
             }
         }
