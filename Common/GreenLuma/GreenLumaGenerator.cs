@@ -22,7 +22,7 @@ namespace GreenLumaCommon
                 "UseFullPathsFromIni = 0",
                 "Exe = Steam.exe",
                 "CommandLine = -inhibitbootstrap",
-                "Dll = GreenLuma_2023_x86.dll",
+                "Dll = GreenLuma_2024_x86.dll",
                 "WaitForProcessTermination = 1",
                 "EnableFakeParentProcess = 0",
                 "FakeParentProcess = explorer.exe",

@@ -312,10 +312,10 @@ namespace GreenLumaCommon
         public static void CopyGreenLumaNormalMode()
         {
             FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "DLLInjector.exe"), Path.Combine(Steam.SteamDirectory, "DLLInjector.exe"), true);
-            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2023_x64.dll"), Path.Combine(Steam.SteamDirectory, "GreenLuma_2023_x64.dll"), true);
-            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2023_x86.dll"), Path.Combine(Steam.SteamDirectory, "GreenLuma_2023_x86.dll"), true);
-            FileSystem.CreateDirectory(Path.Combine(Steam.SteamDirectory, "GreenLuma2023_Files"));
-            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "AchievementUnlocked.wav"), Path.Combine(Steam.SteamDirectory, "GreenLuma2023_Files", "AchievementUnlocked.wav"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2024_x64.dll"), Path.Combine(Steam.SteamDirectory, "GreenLuma_2024_x64.dll"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2024_x86.dll"), Path.Combine(Steam.SteamDirectory, "GreenLuma_2024_x86.dll"), true);
+            FileSystem.CreateDirectory(Path.Combine(Steam.SteamDirectory, "GreenLuma2024_Files"));
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "AchievementUnlocked.wav"), Path.Combine(Steam.SteamDirectory, "GreenLuma2024_Files", "AchievementUnlocked.wav"), true);
             FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "x64launcher.exe"), Path.Combine(Steam.SteamDirectory, "bin", "x64launcher.exe"), true);
         }
         public static void CopyGreenLumaStealthMode(IPlayniteAPI PlayniteApi)

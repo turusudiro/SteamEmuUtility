@@ -15,30 +15,30 @@ namespace GreenLumaCommon
         public static List<string> GreenLumaFilesNormalMode = new List<string>()
         {
         "bin\\x64launcher.exe",
-        "GreenLuma2023_Files",
-        "GreenLuma2023_Files\\AchievementUnlocked.wav",
+        "GreenLuma2024_Files",
+        "GreenLuma2024_Files\\AchievementUnlocked.wav",
         "DLLInjector.exe",
         "DLLInjector.ini",
-        "GreenLuma_2023_x64.dll",
-        "GreenLuma_2023_x86.dll",
+        "GreenLuma_2024_x64.dll",
+        "GreenLuma_2024_x86.dll",
         "AppOwnershipTickets",
         "EncryptedAppTickets",
-        "GreenLuma_2023.log"
+        "GreenLuma_2024.log"
         };
         public static List<string> GreenLumaFiles = new List<string>
         {
         "bin\\x64launcher.exe",
-        "GreenLuma2023_Files\\AchievementUnlocked.wav",
+        "GreenLuma2024_Files\\AchievementUnlocked.wav",
         "DLLInjector.exe",
         "DLLInjector.ini",
-        "GreenLuma_2023_x64.dll",
-        "GreenLuma_2023_x86.dll",
-        "GreenLumaSettings_2023.exe",
-        "GreenLuma_2023.log",
+        "GreenLuma_2024_x64.dll",
+        "GreenLuma_2024_x86.dll",
+        "GreenLumaSettings_2024.exe",
+        "GreenLuma_2024.log",
         "Applist.log",
         "User32.dll",
         "applist",
-        "GreenLuma2023_Files",
+        "GreenLuma2024_Files",
         "AppOwnershipTickets",
         "EncryptedAppTickets"
         };
@@ -105,7 +105,7 @@ namespace GreenLumaCommon
                         continue;
                     }
                     string path = Path.Combine(Steam.SteamDirectory, file);
-                    if (file.Equals("GreenLuma2023_Files"))
+                    if (file.Equals("GreenLuma2024_Files"))
                     {
                         if (!FileSystem.DirectoryExists(path))
                         {
@@ -213,7 +213,7 @@ namespace GreenLumaCommon
             {
             $"{GreenLumaPath}\\NormalMode\\AchievementUnlocked.wav",
             $"{GreenLumaPath}\\NormalMode\\DLLInjector.exe",
-            $"{GreenLumaPath}\\NormalMode\\GreenLuma_2023_x64.dll",
+            $"{GreenLumaPath}\\NormalMode\\GreenLuma_2024_x64.dll",
             $"{GreenLumaPath}\\NormalMode\\x64launcher.exe",
             $"{GreenLumaPath}\\StealthMode\\User32.dll",
             };

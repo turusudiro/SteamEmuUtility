@@ -549,7 +549,7 @@ namespace SteamEmuUtility
         {
             get => new RelayCommand<object>((a) =>
             {
-                var path = plugin.PlayniteApi.Dialogs.SelectFile(@"GreenLuma_2023_X.X.X-Steam006.zip Files|*.zip");
+                var path = plugin.PlayniteApi.Dialogs.SelectFile(@"GreenLuma_2024_X.X.X-Steam006.zip Files|*.zip");
                 if (string.IsNullOrEmpty(path))
                 {
                     return;
@@ -591,12 +591,12 @@ namespace SteamEmuUtility
                     "x64launcher.exe",
                     "AchievementUnlocked.wav",
                     "DLLInjector.exe",
-                    "GreenLuma_2023_x64.dll",
-                    "GreenLuma_2023_x86.dll",
+                    "GreenLuma_2024_x64.dll",
+                    "GreenLuma_2024_x86.dll",
                     "User32.dll"
                 };
-                var tes = extractor.ArchiveFileData.Where(x => gl.Any(file => x.FileName.Contains(file)));
-                foreach (var item in tes)
+                var files = extractor.ArchiveFileData.Where(x => gl.Any(file => x.FileName.Contains(file)));
+                foreach (var item in files)
                 {
                     if (item.IsDirectory)
                     {
