@@ -350,13 +350,13 @@ namespace SteamEmuUtility
                     appids.AddRange(GreenLuma.GetDLC(appid).ToList());
                 }
             }
-            if (!GreenLuma.ApplistConfigured(appids))
-            {
-                GreenLumaGenerator.WriteAppList(appids);
-            }
             if (settings.Settings.CleanApplist && !FileSystem.IsDirectoryEmpty(Path.Combine(Steam.SteamDirectory, "applist")))
             {
                 FileSystem.DeleteDirectory(Path.Combine(Steam.SteamDirectory, "applist"));
+            }
+            if (!GreenLuma.ApplistConfigured(appids))
+            {
+                GreenLumaGenerator.WriteAppList(appids);
             }
             if (GreenLumaStealth)
             {
