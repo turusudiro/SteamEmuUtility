@@ -213,6 +213,23 @@ namespace GreenLumaCommon
             {
                 return;
             }
+            else if (Steam.IsSteamRunning && !ApplistConfigured(appids))
+            {
+                if (PlayniteApi.Dialogs.ShowMessage("Steam is running without configured applist! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    Token.Cancel();
+                    while (Steam.IsSteamRunning)
+                    {
+                        _ = Steam.KillSteam;
+                        Thread.Sleep(GreenLumaSettings.MillisecondsToWait);
+                    }
+                }
+                else
+                {
+                    args.CancelStartup = true;
+                    return;
+                }
+            }
             else if (Steam.IsSteamRunning)
             {
                 if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
@@ -251,6 +268,10 @@ namespace GreenLumaCommon
             }
             try
             {
+                if (GreenLumaSettings.CleanApplist && !FileSystem.IsDirectoryEmpty(Path.Combine(Steam.SteamDirectory, "applist")))
+                {
+                    FileSystem.DeleteDirectory(Path.Combine(Steam.SteamDirectory, "applist"));
+                }
                 if (!ApplistConfigured(appids))
                 {
                     GreenLumaGenerator.WriteAppList(appids);
@@ -299,6 +320,23 @@ namespace GreenLumaCommon
             {
                 return;
             }
+            else if (Steam.IsSteamRunning && !ApplistConfigured(appids))
+            {
+                if (PlayniteApi.Dialogs.ShowMessage("Steam is running without configured applist! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    Token.Cancel();
+                    while (Steam.IsSteamRunning)
+                    {
+                        _ = Steam.KillSteam;
+                        Thread.Sleep(GreenLumaSettings.MillisecondsToWait);
+                    }
+                }
+                else
+                {
+                    args.CancelStartup = true;
+                    return;
+                }
+            }
             else if (Steam.IsSteamRunning)
             {
                 if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
@@ -321,6 +359,10 @@ namespace GreenLumaCommon
                 if (!FileSystem.DirectoryExists(Path.Combine(Steam.SteamDirectory, "applist")))
                 {
                     FileSystem.CreateDirectory(Path.Combine(Path.Combine(Steam.SteamDirectory, "applist")));
+                }
+                if (GreenLumaSettings.CleanApplist && !FileSystem.IsDirectoryEmpty(Path.Combine(Steam.SteamDirectory, "applist")))
+                {
+                    FileSystem.DeleteDirectory(Path.Combine(Steam.SteamDirectory, "applist"));
                 }
                 if (!ApplistConfigured(appids))
                 {
