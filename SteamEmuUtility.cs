@@ -366,7 +366,7 @@ namespace SteamEmuUtility
                     args.CancelStartup = true;
                     return;
                 }
-                GreenLumaTasks.GreenLumaStealthMode(args, PlayniteApi);
+                GreenLumaTasks.GreenLumaStealthMode(args, PlayniteApi, appids);
             }
             else if (GreenLumaNormal)
             {
@@ -376,7 +376,7 @@ namespace SteamEmuUtility
                     args.CancelStartup = true;
                     return;
                 }
-                GreenLumaTasks.GreenLumaNormalMode(args, PlayniteApi);
+                GreenLumaTasks.GreenLumaNormalMode(args, PlayniteApi, appids);
             }
 
         }
