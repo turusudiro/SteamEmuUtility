@@ -149,9 +149,13 @@
                             <TextBox Text="{Binding Settings.GoldbergListenPort}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="2">
+                            <TextBlock Text="Broadcasts" Margin="0,0,15,10" VerticalAlignment="Center" Width="100"/>
+                            <TextBox Text="{Binding Settings.GoldbergCustomBroadcasts}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center" AcceptsReturn="True"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="2">
                             <TextBlock Text="User Steam ID" Margin="0,0,15,10" VerticalAlignment="Center" Width="100"/>
                             <TextBox Text="{Binding Settings.GoldbergUserSteamID}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
-                        </StackPanel>
+                        </StackPanel> 
                     </StackPanel>
                 </Grid>
             </StackPanel>

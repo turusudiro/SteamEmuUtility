@@ -117,6 +117,16 @@ namespace SteamEmuUtility
             }
         }
         [DontSerialize]
+        public string GoldbergCustomBroadcasts
+        {
+            get => Goldberg.CustomBroadcasts;
+            set
+            {
+                Goldberg.CustomBroadcasts = value;
+                OnPropertyChanged();
+            }
+        }
+        [DontSerialize]
         public string GoldbergUserSteamID
         {
             get => Goldberg.UserSteamID;

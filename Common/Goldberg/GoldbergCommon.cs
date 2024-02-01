@@ -169,6 +169,30 @@ namespace GoldbergCommon
                 catch { }
             }
         }
+        public static string CustomBroadcasts
+        {
+            get
+            {
+                try
+                {
+                    return FileSystem.ReadStringFromFile(Path.Combine(GoldbergAppData, "settings\\custom_broadcasts.txt"));
+                }
+                catch { return string.Empty; }
+            }
+            set
+            {
+                string filePath = Path.Combine(GoldbergAppData, "settings\\custom_broadcasts.txt");
+                try
+                {
+                    if (!FileSystem.DirectoryExists(Path.GetDirectoryName(filePath)))
+                    {
+                        FileSystem.CreateDirectory(Path.GetDirectoryName(filePath));
+                    }
+                    FileSystem.WriteStringToFile(filePath, value);
+                }
+                catch { }
+            }
+        }
         public static string UserSteamID
         {
             get
