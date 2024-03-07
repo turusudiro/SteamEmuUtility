@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using SteamKit2;
+using System.Collections.Generic;
 using System.Linq;
-using SteamKit2;
 
 namespace GoldbergCommon
 {

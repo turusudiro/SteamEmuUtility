@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using Playnite.SDK;
+﻿using Playnite.SDK;
 using Playnite.SDK.Models;
 using PluginsCommon;
 using SteamCommon;
 using SteamEmuUtility;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace GoldbergCommon
 {
@@ -61,11 +61,18 @@ namespace GoldbergCommon
                 return Path.Combine(GoldbergPath, "ColdClientLoader.ini");
             }
         }
-        public static string ColdClientExecutable
+        public static string ColdClientExecutable32
         {
             get
             {
-                return Path.Combine(GoldbergPath, "steamclient_loader.exe");
+                return Path.Combine(GoldbergPath, "steamclient_loader_32.exe");
+            }
+        }
+        public static string ColdClientExecutable64
+        {
+            get
+            {
+                return Path.Combine(GoldbergPath, "steamclient_loader_64.exe");
             }
         }
         public static string AchievementWatcherAppData
@@ -234,7 +241,10 @@ namespace GoldbergCommon
             var ColdClientFiles = new List<string>
             {
             $"{GoldbergPath}\\steamclient.dll",
-            $"{GoldbergPath}\\steamclient_loader.exe",
+            $"{GoldbergPath}\\extra_dlls\\steamclient_extra.dll",
+            $"{GoldbergPath}\\extra_dlls\\steamclient_extra64.dll",
+            $"{GoldbergPath}\\steamclient_loader_32.exe",
+            $"{GoldbergPath}\\steamclient_loader_64.exe",
             $"{GoldbergPath}\\steamclient64.dll",
             };
             missingFiles = new List<string>();

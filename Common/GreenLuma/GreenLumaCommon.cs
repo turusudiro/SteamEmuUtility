@@ -1,44 +1,98 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using Playnite.SDK;
+﻿using Playnite.SDK;
+using Playnite.SDK.Data;
 using Playnite.SDK.Models;
 using PluginsCommon;
 using SteamCommon;
 using SteamEmuUtility;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace GreenLumaCommon
 {
+    public partial class GreenLumaVersion
+    {
+        public string Version { get; set; }
+        public string Year { get; set; }
+    }
+
     public class GreenLuma
     {
+        public const string Url = @"https://cs.rin.ru/forum/viewtopic.php?f=29&t=103709";
+        private static string version;
+        public static string Version
+        {
+            get
+            {
+                if (version == null)
+                {
+                    try
+                    {
+                        version = Serialization.FromJsonFile<GreenLumaVersion>(Path
+                    .Combine(GreenLumaPath, "Version.json")).Version;
+                    }
+                    catch { version = "0.0.0"; }
+                }
+                return version;
+            }
+            set
+            {
+                version = value;
+            }
+        }
+        private static string year;
+        public static string Year
+        {
+            get
+            {
+                if (year == null)
+                {
+                    try
+                    {
+                        year = Serialization.FromJsonFile<GreenLumaVersion>(Path
+                    .Combine(GreenLumaPath, "Version.json")).Year;
+                    }
+                    catch { year = DateTime.Now.Year.ToString(); }
+                }
+                return year;
+            }
+            set
+            {
+                year = value;
+            }
+        }
+
         public static List<string> GreenLumaFilesNormalMode = new List<string>()
         {
         "bin\\x64launcher.exe",
-        "GreenLuma2024_Files",
-        "GreenLuma2024_Files\\AchievementUnlocked.wav",
+        $"GreenLuma{GreenLuma.Year}.txt",
+        $"GreenLuma{GreenLuma.Year}_Files",
+        $"GreenLuma{GreenLuma.Year}_Files\\AchievementUnlocked.wav",
         "DLLInjector.exe",
         "DLLInjector.ini",
-        "GreenLuma_2024_x64.dll",
-        "GreenLuma_2024_x86.dll",
+        $"GreenLuma_{GreenLuma.Year}_x64.dll",
+        $"GreenLuma_{GreenLuma.Year}_x86.dll",
         "AppOwnershipTickets",
         "EncryptedAppTickets",
-        "GreenLuma_2024.log"
+        $"GreenLuma_{GreenLuma.Year}.log"
         };
         public static List<string> GreenLumaFiles = new List<string>
         {
         "bin\\x64launcher.exe",
-        "GreenLuma2024_Files\\AchievementUnlocked.wav",
+        $"GreenLuma{GreenLuma.Year}_Files\\AchievementUnlocked.wav",
         "DLLInjector.exe",
         "DLLInjector.ini",
-        "GreenLuma_2024_x64.dll",
-        "GreenLuma_2024_x86.dll",
-        "GreenLumaSettings_2024.exe",
-        "GreenLuma_2024.log",
+        $"GreenLuma_{GreenLuma.Year}_x64.dll",
+        $"GreenLuma_{GreenLuma.Year}_x86.dll",
+        $"GreenLumaSettings_{GreenLuma.Year}.exe",
+        $"GreenLuma_{GreenLuma.Year}.log",
         "Applist.log",
-        "User32.dll",
+        "user32.dll",
         "applist",
-        "GreenLuma2024_Files",
+        $"GreenLuma{GreenLuma.Year}_Files",
         "AppOwnershipTickets",
         "EncryptedAppTickets"
         };
@@ -63,7 +117,7 @@ namespace GreenLumaCommon
         public static string EncryptedAppTicketsPath { get { return Path.Combine(CommonPath, "EncryptedAppTickets"); } }
         public static string AppOwnershipTicketsPath { get { return Path.Combine(CommonPath, "AppOwnershipTickets"); } }
         public static string BackupPath { get { return Path.Combine(CommonPath, "Backup"); } }
-        public static string User32 { get { return Path.Combine(GreenLumaPath, "StealthMode", "User32.dll"); } }
+        public static string user32 { get { return Path.Combine(GreenLumaPath, "StealthMode", "user32.dll"); } }
         public static string CommonPath { get { return Path.Combine(pluginpath, "Common", "GreenLuma"); } }
         public static string GreenLumaPath { get { return Path.Combine(pluginpath, "GreenLuma"); } }
         private static string pluginpath;
@@ -105,7 +159,7 @@ namespace GreenLumaCommon
                         continue;
                     }
                     string path = Path.Combine(Steam.SteamDirectory, file);
-                    if (file.Equals("GreenLuma2024_Files"))
+                    if (file.Equals($"GreenLuma{GreenLuma.Year}_Files"))
                     {
                         if (!FileSystem.DirectoryExists(path))
                         {
@@ -209,22 +263,28 @@ namespace GreenLumaCommon
         public static bool GreenLumaFilesExists(out List<string> missingFiles)
         {
             missingFiles = new List<string>();
-            var GreenLumaFiles = new List<string>
+            try
             {
-            $"{GreenLumaPath}\\NormalMode\\AchievementUnlocked.wav",
-            $"{GreenLumaPath}\\NormalMode\\DLLInjector.exe",
-            $"{GreenLumaPath}\\NormalMode\\GreenLuma_2024_x64.dll",
-            $"{GreenLumaPath}\\NormalMode\\x64launcher.exe",
-            $"{GreenLumaPath}\\StealthMode\\User32.dll",
-            };
-            foreach (string file in GreenLumaFiles)
-            {
-                if (!FileSystem.FileExists(file))
+                var files = Directory.GetFiles(GreenLumaPath, "*", SearchOption.AllDirectories).Select(x => Path.GetFileName(x));
+                var FilesToCheck = new List<string>
                 {
-                    // If the file doesn't exist, add it to the list of missing files
-                    missingFiles.Add(GetRelativePath(GreenLumaPath, file));
+                "DLLInjector.exe",
+                "x64launcher.exe",
+                "AchievementUnlocked.wav",
+                $"GreenLuma_{GreenLuma.Year}_x64.dll",
+                $"GreenLuma_{GreenLuma.Year}_x86.dll",
+                "user32.dll"
+                };
+                foreach (string file in FilesToCheck)
+                {
+                    if (!files.Any(infoFile => Regex.IsMatch(infoFile, file, RegexOptions.IgnoreCase)))
+                    {
+                        // If the file doesn't exist, add it to the list of missing files
+                        missingFiles.Add(file);
+                    }
                 }
             }
+            catch (Exception ex) { missingFiles.Add(ex.Message); }
 
             // Return true if there are no missing files, otherwise return false
             return missingFiles.Count == 0;

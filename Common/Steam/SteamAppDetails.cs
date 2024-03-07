@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DownloaderCommon;
+﻿using DownloaderCommon;
 using Newtonsoft.Json;
 using Playnite.SDK;
 using SteamCommon.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SteamCommon
 {

@@ -1,15 +1,15 @@
-﻿using System;
+﻿using GoldbergCommon;
+using Playnite.SDK;
+using Playnite.SDK.Data;
+using PluginsCommon;
+using SteamCommon.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
-using GoldbergCommon;
-using Playnite.SDK;
-using Playnite.SDK.Data;
-using PluginsCommon;
-using SteamCommon.Models;
 
 namespace SteamCommon
 {

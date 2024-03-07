@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+﻿using DownloaderCommon;
 using GoldbergCommon;
 using GreenLumaCommon;
 using Playnite.SDK;
@@ -15,6 +7,15 @@ using Playnite.SDK.Models;
 using PluginsCommon;
 using ProcessCommon;
 using SevenZip;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace SteamEmuUtility
 {
@@ -133,6 +134,26 @@ namespace SteamEmuUtility
             set
             {
                 Goldberg.UserSteamID = value;
+                OnPropertyChanged();
+            }
+        }
+        private bool checkgoldbergupdate = true;
+        public bool CheckGoldbergUpdate
+        {
+            get => checkgoldbergupdate;
+            set
+            {
+                checkgoldbergupdate = value;
+                OnPropertyChanged();
+            }
+        }
+        private bool checkgreenlumaupdate = true;
+        public bool CheckGreenLumaUpdate
+        {
+            get => checkgreenlumaupdate;
+            set
+            {
+                checkgreenlumaupdate = value;
                 OnPropertyChanged();
             }
         }
@@ -559,7 +580,7 @@ namespace SteamEmuUtility
         {
             get => new RelayCommand<object>((a) =>
             {
-                var path = plugin.PlayniteApi.Dialogs.SelectFile(@"GreenLuma_2024_X.X.X-Steam006.zip Files|*.zip");
+                var path = plugin.PlayniteApi.Dialogs.SelectFile(@"GreenLuma_XXXX_X.X.X-Steam006.zip Files|*.zip");
                 if (string.IsNullOrEmpty(path))
                 {
                     return;
@@ -568,6 +589,17 @@ namespace SteamEmuUtility
                 plugin.PlayniteApi.Dialogs.ActivateGlobalProgress((global) =>
                 {
                     ExtractGreenLumaFiles(path, GreenLuma.GreenLumaPath);
+                }, progress);
+            });
+        }
+        public RelayCommand<object> UpdateGreenLuma
+        {
+            get => new RelayCommand<object>((a) =>
+            {
+                GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
+                plugin.PlayniteApi.Dialogs.ActivateGlobalProgress((global) =>
+                {
+                    GreenLumaTasks.CheckForUpdate(plugin.PlayniteApi);
                 }, progress);
             });
         }
@@ -587,6 +619,40 @@ namespace SteamEmuUtility
                 }, progress);
             });
         }
+        public void DownloadGoldberg()
+        {
+            string url = @"https://api.github.com/repos/otavepto/gbe_fork/releases/latest";
+            string raw = HttpDownloader.DownloadString(url);
+            if (string.IsNullOrEmpty(raw))
+            {
+                return;
+            }
+            GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
+            plugin.PlayniteApi.Dialogs.ActivateGlobalProgress((global) =>
+            {
+                dynamic json = Serialization.FromJson<object>(raw);
+                foreach (var asset in json.assets)
+                {
+                    var name = asset.name;
+                    if (name == "emu-win-release.7z")
+                    {
+                        string urlDownload = asset.browser_download_url;
+                        string tempfilename = Path.GetTempFileName();
+                        HttpDownloader.DownloadFile(urlDownload, tempfilename);
+                        ExtractGoldbergFiles(tempfilename, Goldberg.GoldbergPath);
+                        FileSystem.DeleteFile(tempfilename);
+                        break;
+                    }
+                }
+            }, progress);
+        }
+        public RelayCommand<object> DownloadGoldbergButton
+        {
+            get => new RelayCommand<object>((a) =>
+            {
+                DownloadGoldberg();
+            });
+        }
         void ExtractGreenLumaFiles(string archivePath, string destinationFolder)
         {
             ExtractGreenLumaFiles(archivePath, destinationFolder, null);
@@ -598,14 +664,18 @@ namespace SteamEmuUtility
             {
                 List<string> gl = new List<string>
                 {
+                    "DLLInjector.exe",
                     "x64launcher.exe",
                     "AchievementUnlocked.wav",
-                    "DLLInjector.exe",
-                    "GreenLuma_2024_x64.dll",
-                    "GreenLuma_2024_x86.dll",
-                    "User32.dll"
+                    @"GreenLuma_\d{4}_x64.dll",
+                    @"GreenLuma_\d{4}_x86.dll",
+                    "user32.dll",
+                    @"GreenLuma\d{4}.txt"
                 };
-                var files = extractor.ArchiveFileData.Where(x => gl.Any(file => x.FileName.Contains(file)));
+
+                var files = extractor.ArchiveFileData.Where(x => gl.Any(file => Regex.IsMatch(x.FileName, file, RegexOptions.IgnoreCase)));
+                //var files = extractor.ArchiveFileData.Where(x => gl.Any(file => x.FileName.Contains(file)) || Regex.IsMatch(x.FileName, regexPattern, RegexOptions.IgnoreCase));
+                string kosong = string.Empty;
                 foreach (var item in files)
                 {
                     if (item.IsDirectory)
@@ -635,7 +705,7 @@ namespace SteamEmuUtility
                             extractor.ExtractFile(item.Index, fileStream);
                         }
                     }
-                    else
+                    if (item.FileName.Contains("Stealth"))
                     {
                         if (!FileSystem.DirectoryExists(Path.Combine(destinationFolder, "StealthMode")))
                         {
@@ -645,6 +715,25 @@ namespace SteamEmuUtility
                         {
                             extractor.ExtractFile(item.Index, fileStream);
                         }
+                    }
+                    if (Regex.IsMatch(item.FileName, @"GreenLuma\d{4}.txt"))
+                    {
+                        if (!FileSystem.DirectoryExists(destinationFolder))
+                        {
+                            FileSystem.CreateDirectory(destinationFolder);
+                        }
+                        using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)), FileMode.Create))
+                        {
+                            extractor.ExtractFile(item.Index, fileStream);
+                        }
+                        string file = FileSystem.ReadStringFromFile(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)));
+                        string rawinfo = Regex.Match(file, @"\* (.+?) \*").Value.Trim('*', ' ', '\n', '\r');
+                        var version = new GreenLumaVersion()
+                        {
+                            Version = rawinfo.Split(' ')[2],
+                            Year = rawinfo.Split(' ')[1]
+                        };
+                        FileSystem.WriteStringToFileSafe(Path.Combine(destinationFolder, "Version.json"), Serialization.ToJson(version, true));
                     }
                     //check if password is wrong, if wrong the extracted files will 0 bytes and delete it and ask user to reenter password
                     if (FileSystem.FileExists(Path.Combine(destinationFolder, Path.GetFileName(item.FileName))))
@@ -674,7 +763,7 @@ namespace SteamEmuUtility
         }
         void ExtractGoldbergFiles(string archivePath, string destinationFolder, string password)
         {
-            string regexPattern = @"^(?!.*debug_experimental_steamclient).*experimental_steamclient\\.*";
+            string regexPattern = @"^(?!.*debug_experimental_steamclient).*experimental_steamclient\\(?!dll_injection.EXAMPLE)";
             SevenZipBase.SetLibraryPath(Path.Combine(SevenZipLib, Environment.Is64BitProcess ? "x64" : "x86", "7z.dll"));
             using (var extractor = new SevenZipExtractor(archivePath, password))
             {
@@ -694,7 +783,62 @@ namespace SteamEmuUtility
                         }
                         return;
                     }
+                    if (item.FileName.Contains("steamclient_extra"))
+                    {
+                        string destinationFolderExtra = Path.Combine(destinationFolder, "extra_dlls");
+                        if (!FileSystem.DirectoryExists(destinationFolderExtra))
+                        {
+                            FileSystem.CreateDirectory(destinationFolderExtra);
+                        }
+                        using (FileStream fileStream = new FileStream(Path.Combine(destinationFolderExtra, Path.GetFileName(item.FileName)), FileMode.Create))
+                        {
+                            extractor.ExtractFile(item.Index, fileStream);
+                        }
+                        if (FileSystem.FileExists(Path.Combine(destinationFolderExtra, Path.GetFileName(item.FileName))))
+                        {
+                            FileInfo fileInfo = new FileInfo(Path.Combine(destinationFolderExtra, Path.GetFileName(item.FileName)));
+                            if (fileInfo.Length == 0)
+                            {
+                                fileInfo.Delete();
+                                var result = plugin.PlayniteApi.Dialogs.SelectString("Wrong Password, Please re-enter the password", "Error", "");
+                                if (result.Result)
+                                {
+                                    ExtractGoldbergFiles(archivePath, destinationFolderExtra, result.SelectedString);
+                                    return;
+                                }
+                                return;
+                            }
+                        }
+                        continue;
+                    }
                     if (Regex.IsMatch(item.FileName, regexPattern))
+                    {
+                        if (!FileSystem.DirectoryExists(destinationFolder))
+                        {
+                            FileSystem.CreateDirectory(destinationFolder);
+                        }
+                        using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)), FileMode.Create))
+                        {
+                            extractor.ExtractFile(item.Index, fileStream);
+                        }
+                        if (FileSystem.FileExists(Path.Combine(destinationFolder, Path.GetFileName(item.FileName))))
+                        {
+                            FileInfo fileInfo = new FileInfo(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)));
+                            if (fileInfo.Length == 0)
+                            {
+                                fileInfo.Delete();
+                                var result = plugin.PlayniteApi.Dialogs.SelectString("Wrong Password, Please re-enter the password", "Error", "");
+                                if (result.Result)
+                                {
+                                    ExtractGoldbergFiles(archivePath, destinationFolder, result.SelectedString);
+                                    return;
+                                }
+                                return;
+                            }
+                        }
+                        continue;
+                    }
+                    if (item.FileName.Contains("CHANGELOG.md"))
                     {
                         if (!FileSystem.DirectoryExists(destinationFolder))
                         {

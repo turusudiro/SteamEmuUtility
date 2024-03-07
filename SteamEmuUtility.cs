@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using GoldbergCommon;
+﻿using GoldbergCommon;
 using GreenLumaCommon;
 using Playnite.SDK;
 using Playnite.SDK.Events;
@@ -18,6 +10,15 @@ using SteamCommon;
 using SteamEmuUtility.Controller;
 using SteamEmuUtility.ViewModels;
 using SteamEmuUtility.Views;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace SteamEmuUtility
 {
@@ -39,6 +40,16 @@ namespace SteamEmuUtility
             Properties = new GenericPluginProperties
             {
                 HasSettings = true
+            };
+        }
+        public override IEnumerable<SidebarItem> GetSidebarItems()
+        {
+            yield return new SidebarItem
+            {
+                Title = "Update",
+                // Loads icon from plugin's installation path
+                Icon = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "icon.png"),
+                Activated = () => GreenLumaTasks.CheckForUpdate(PlayniteApi)
             };
         }
         public override IEnumerable<PlayController> GetPlayActions(GetPlayActionsArgs args)
@@ -441,6 +452,14 @@ namespace SteamEmuUtility
         }
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
+            if (settings.Settings.CheckGoldbergUpdate)
+            {
+                GoldbergTasks.CheckForUpdate(PlayniteApi, settings);
+            }
+            if (settings.Settings.CheckGreenLumaUpdate)
+            {
+                GreenLumaTasks.CheckForUpdate(PlayniteApi);
+            }
             if (settings.Settings.CleanGreenLumaStartup)
             {
                 GreenLumaTasks.Token = new CancellationTokenSource();

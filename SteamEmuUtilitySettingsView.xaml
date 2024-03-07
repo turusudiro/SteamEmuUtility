@@ -27,11 +27,19 @@
                         <TextBlock Text="GreenLuma Status" VerticalAlignment="Center" Margin="0,0,10,0" Width="120"/>
                         <TextBlock Text="{Binding Settings.GreenLumaStatus}" Foreground="{Binding Settings.ColorGreenLumaStatus}" VerticalAlignment="Center" Margin="10,0,0,0" Width="150"/>
                         <Button MinWidth="80" Content="Import" Command="{Binding ImportGreenLuma}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        <TextBlock Margin="17,0,0,0" VerticalAlignment="Center">
+                            <Hyperlink NavigateUri="https://cs.rin.ru/forum/viewtopic.php?f=29&amp;t=103709"
+                                   Command="{Binding OpenURL}"
+                                   CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource Self}}">
+                                <Run Text="Download"/>
+                            </Hyperlink>
+                        </TextBlock>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="5,10,5,0">
                         <TextBlock Text="Goldberg Status" VerticalAlignment="Center" Margin="0,0,10,0" Width="120"/>
                         <TextBlock Text="{Binding Settings.GoldbergStatus}" Foreground="{Binding Settings.ColorGoldbergStatus}" VerticalAlignment="Center" Margin="10,0,0,0" Width="150"/>
                         <Button MinWidth="80" Content="Import" Command="{Binding ImportGoldberg}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        <Button MinWidth="80" Content="Download" Command="{Binding DownloadGoldbergButton}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
@@ -39,7 +47,6 @@
         <TabItem Header="GreenLuma Settings">
             <ScrollViewer>
                 <StackPanel Orientation="Vertical" Margin="20">
-                    
                     <StackPanel Visibility="{Binding Settings.GreenLumaNotExists, Converter={cv:BooleanToVisibilityConverter}}" Margin="5,5,5,0">
                         <TextBlock Text="Missing Files" Foreground="IndianRed" Margin="0,0,10,0"/>
                         <ItemsControl ItemsSource="{Binding Settings.MissingGreenLumaFiles}">
@@ -52,6 +59,7 @@
                     </StackPanel>
                     <StackPanel Margin="5,15,5,0">
                         <TextBlock Text="General" Margin="5,0,0,10"/>
+                        <CheckBox Content="Check GreenLuma update on application startup." IsChecked="{Binding Settings.CheckGreenLumaUpdate}" Margin="0,0,0,5"/>
                         <CheckBox Content="Check and clean GreenLuma files on application startup." IsChecked="{Binding Settings.CleanGreenLumaStartup}" Margin="0,0,0,5"/>
                         <CheckBox Content="Clean GreenLuma files after game exit." IsChecked="{Binding Settings.CleanGreenLuma}" FontWeight="Bold" Margin="0,0,0,5"/>
                         <ComboBox Visibility="{Binding Settings.CleanGreenLuma, Converter={cv:BooleanToVisibilityConverter}}" SelectedIndex="{Binding Settings.CleanMode}" Margin="0,5,0,5">
@@ -94,8 +102,8 @@
             </ScrollViewer>
         </TabItem>
         <TabItem Header="Goldberg Settings">
+            <ScrollViewer>
             <StackPanel Orientation="Vertical" Margin="20">
-                
                 <StackPanel Visibility="{Binding Settings.GoldbergNotExists, Converter={cv:BooleanToVisibilityConverter}}" Margin="5,5,5,0">
                     <TextBlock Text="Missing Files" Foreground="IndianRed" Margin="0,0,10,0"/>
                     <ItemsControl ItemsSource="{Binding Settings.MissingGoldbergFiles}">
@@ -108,7 +116,8 @@
                 </StackPanel>
                 
                 <StackPanel Margin="5,5,5,0">
-                    <CheckBox Content="Create symbolic link on Goldberg appdata folder" VerticalAlignment="Center" IsChecked="{Binding Settings.SymbolicLinkAppdata}" Margin="0,0,0,10"/>
+                        <CheckBox Content="Check Goldberg update on application startup." VerticalAlignment="Center" IsChecked="{Binding Settings.CheckGoldbergUpdate}" Margin="0,0,0,10"/>
+                        <CheckBox Content="Create symbolic link on Goldberg appdata folder" VerticalAlignment="Center" IsChecked="{Binding Settings.SymbolicLinkAppdata}" Margin="0,0,0,10"/>
                     <CheckBox Content="Open Steam and unlock with last stopped game after exit." VerticalAlignment="Center" IsChecked="{Binding Settings.OpenSteamAfterExit}" Margin="0,0,0,10"/>
                     <CheckBox IsEnabled="{Binding Settings.OpenSteamAfterExit}" Content="Also clean GreenLuma files after Steam Exit." VerticalAlignment="Center" IsChecked="{Binding Settings.GoldbergCleanSteam}" Margin="0,0,0,10"/>
                 </StackPanel>
@@ -159,6 +168,7 @@
                     </StackPanel>
                 </Grid>
             </StackPanel>
+            </ScrollViewer>
         </TabItem>
     </TabControl>
 </UserControl>

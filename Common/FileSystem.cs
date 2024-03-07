@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Playnite.SDK;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,7 +7,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Playnite.SDK;
 
 namespace PluginsCommon
 {
@@ -31,6 +31,50 @@ namespace PluginsCommon
         private static ILogger logger = LogManager.GetLogger();
         private const string longPathPrefix = @"\\?\";
         private const string longPathUncPrefix = @"\\?\UNC\";
+
+        /// <summary>
+        /// Determines the architecture type of the specified executable file.
+        /// </summary>
+        /// <param name="exePath">The path to the executable file.</param>
+        /// <returns>
+        /// 64/32/0.
+        /// NOTE
+        /// 0 means Unknown/null/error.
+        /// </returns>
+        public static string GetArchitectureType(string exePath)
+        {
+            try
+            {
+                using (FileStream fs = new FileStream(exePath, FileMode.Open, FileAccess.Read))
+                {
+                    using (BinaryReader br = new BinaryReader(fs))
+                    {
+                        fs.Seek(0x3C, SeekOrigin.Begin); // Move to the PE header offset
+                        int peOffset = br.ReadInt32(); // Read the PE header offset
+
+                        fs.Seek(peOffset + 4, SeekOrigin.Begin); // Move to the PE signature offset
+                        ushort peSignature = br.ReadUInt16(); // Read the PE signature
+
+                        if (peSignature == 0x014C) // PE32 (32-bit)
+                        {
+                            return "32"; // 32-bit executable
+                        }
+                        else if (peSignature == 0x8664) // PE32+ (64-bit)
+                        {
+                            return "64"; // 64-bit executable
+                        }
+                        else
+                        {
+                            return "0"; // Unknown architecture
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                return "0"; // Error occurred
+            }
+        }
 
         public static bool CreateSymbolicLink(string linkPath, string targetPath)
         {

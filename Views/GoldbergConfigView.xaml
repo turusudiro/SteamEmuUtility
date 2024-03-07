@@ -74,10 +74,12 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Button Grid.Row="0" Content="Open Settings folder" Margin="0,2,0,2" IsEnabled="{Binding SettingsExists}" Command="{Binding DataContext.OpenSettingsPath, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}" CommandParameter="{Binding}"/>
-                                    <CheckBox Content="Run as Admin" Grid.Row="1" Margin="0,2,0,2" IsChecked="{Binding RunAsAdmin}"/>
-                                    <CheckBox Content="Reconfigure Goldberg" Grid.Row="2" Margin="0,2,0,2" IsChecked="{Binding ReconfigureGoldberg}" IsEnabled="{Binding GoldbergExists}"/>
+                                    <CheckBox Content="Patch Steam Stub" Grid.Row="1" Margin="0,2,0,2" IsChecked="{Binding PatchSteamStub}"/>
+                                    <CheckBox Content="Run as Admin" Grid.Row="2" Margin="0,2,0,2" IsChecked="{Binding RunAsAdmin}"/>
+                                    <CheckBox Content="Reconfigure Goldberg" Grid.Row="3" Margin="0,2,0,2" IsChecked="{Binding ReconfigureGoldberg}" IsEnabled="{Binding GoldbergExists}"/>
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>

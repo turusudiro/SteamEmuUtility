@@ -1,4 +1,10 @@
-﻿using System;
+﻿using DownloaderCommon;
+using Playnite.SDK;
+using Playnite.SDK.Events;
+using PluginsCommon;
+using ProcessCommon;
+using SteamCommon;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -7,11 +13,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using Playnite.SDK;
-using Playnite.SDK.Events;
-using PluginsCommon;
-using ProcessCommon;
-using SteamCommon;
 using static GreenLumaCommon.GreenLuma;
 
 namespace GreenLumaCommon
@@ -19,6 +20,41 @@ namespace GreenLumaCommon
     public class GreenLumaTasks
     {
         private static readonly ILogger logger = LogManager.GetLogger();
+
+        public static void CheckForUpdate(IPlayniteAPI PlayniteApi)
+        {
+            if (!GreenLumaFilesExists(out _))
+            {
+                return;
+            }
+            string rawString = HttpDownloader.DownloadString(Url);
+            if (rawString != null && Regex.IsMatch(rawString, @"<title>.*?GreenLuma \d{4} \d.*<\/title>"))
+            {
+                var match = Regex.Match(rawString, @"<title>.*?GreenLuma \d{4} \d.*<\/title>");
+                string result = Regex.Replace(Regex.Replace(match.Value, @"<.*?>", ""), @".*GreenLuma", "").Trim();
+                if (string.IsNullOrEmpty(result))
+                {
+                    return;
+                }
+                var versionInfo = new GreenLumaVersion() { Year = result.Split(' ')[0], Version = result.Split(' ')[1] };
+
+                if (versionInfo.Year == Year && versionInfo.Version == GreenLuma.Version)
+                {
+                    return;
+                }
+                else
+                {
+                    if (PlayniteApi.Dialogs.ShowMessage("GreenLuma : Update available. " +
+                        "Please download the latest version. " +
+                        "Would you like to open it in your web browser now?", "GreenLuma",
+                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        ProcessUtilities.StartUrl(Url);
+                    }
+                }
+            }
+        }
+
         // Create a static CancellationTokenSource
         private static CancellationTokenSource cancellationSource = new CancellationTokenSource();
 
@@ -26,9 +62,9 @@ namespace GreenLumaCommon
         public static CancellationTokenSource Token { get => cancellationSource; set => cancellationSource = value; }
         public static void CleanGreenLumaStealthMode()
         {
-            if (FileSystem.FileExists(Path.Combine(Steam.SteamDirectory, "User32.dll")))
+            if (FileSystem.FileExists(Path.Combine(Steam.SteamDirectory, "user32.dll")))
             {
-                FileSystem.DeleteFile(Path.Combine(Steam.SteamDirectory, "User32.dll"));
+                FileSystem.DeleteFile(Path.Combine(Steam.SteamDirectory, "user32.dll"));
             }
         }
         public static void CleanGreenLumaNormalMode()
@@ -44,17 +80,7 @@ namespace GreenLumaCommon
                 }
                 if (Path.GetFileName(file).Equals("x64launcher.exe") && FileSystem.FileExists(path))
                 {
-                    FileInfo x64steam = new FileInfo(Path.Combine(Steam.SteamDirectory, file));
-                    FileInfo x64greenluma = new FileInfo(Path.Combine(GreenLumaPath, "NormalMode", Path.GetFileName(file)));
-                    if (x64steam.Length == x64greenluma.Length)
-                    {
-                        try
-                        {
-                            x64steam.Delete();
-                            FileSystem.CopyFile(Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe"), Path.Combine(Steam.SteamDirectory, "bin\\x64launcher.exe"), true);
-                        }
-                        catch { }
-                    }
+                    RestoreX64Launcher();
                     continue;
                 }
                 if (FileSystem.FileExists(path))
@@ -102,17 +128,7 @@ namespace GreenLumaCommon
                         }
                         if (Path.GetFileName(file).Equals("x64launcher.exe") && FileSystem.FileExists(path))
                         {
-                            FileInfo x64steam = new FileInfo(Path.Combine(Steam.SteamDirectory, file));
-                            FileInfo x64greenluma = new FileInfo(Path.Combine(GreenLumaPath, "NormalMode", Path.GetFileName(file)));
-                            if (x64steam.Length == x64greenluma.Length)
-                            {
-                                try
-                                {
-                                    x64steam.Delete();
-                                    FileSystem.CopyFile(Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe"), Path.Combine(Steam.SteamDirectory, "bin\\x64launcher.exe"), true);
-                                }
-                                catch { }
-                            }
+                            RestoreX64Launcher();
                             continue;
                         }
                         if (FileSystem.FileExists(path))
@@ -187,7 +203,7 @@ namespace GreenLumaCommon
         /// </summary>
         public static void GreenLumaNormalMode(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi, List<string> appids)
         {
-            if (FileSystem.FileExists(Path.Combine(Steam.SteamDirectory, "User32.dll")))
+            if (FileSystem.FileExists(Path.Combine(Steam.SteamDirectory, "user32.dll")))
             {
                 if (Steam.IsSteamRunning)
                 {
@@ -290,7 +306,7 @@ namespace GreenLumaCommon
         }
         /// <summary>
         /// Copy GreenLuma StealthMode files
-        /// <para>Copy User32.dll file into Steam directory, also create NoQuestion.bin in applist folder </para>
+        /// <para>Copy user32.dll file into Steam directory, also create NoQuestion.bin in applist folder </para>
         /// and run Steam with -inhibitbootstrap if Skip Steam Update on Stealth Mode is True
         /// </summary>
         public static void GreenLumaStealthMode(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi, List<string> appids)
@@ -316,7 +332,7 @@ namespace GreenLumaCommon
                 }
                 CleanGreenLumaNormalMode();
             }
-            else if (FileSystem.FileExists(Path.Combine(Steam.SteamDirectory, "User32.dll")) && Steam.IsSteamRunning && ApplistConfigured(appids))
+            else if (FileSystem.FileExists(Path.Combine(Steam.SteamDirectory, "user32.dll")) && Steam.IsSteamRunning && ApplistConfigured(appids))
             {
                 return;
             }
@@ -369,7 +385,7 @@ namespace GreenLumaCommon
                     GreenLumaGenerator.WriteAppList(appids);
                 }
                 FileSystem.WriteStringToFile(Path.Combine(Steam.SteamDirectory, "applist", stealth), null);
-                FileSystem.CopyFile(User32, Path.Combine(Steam.SteamDirectory, Path.GetFileName(User32)), true);
+                FileSystem.CopyFile(user32, Path.Combine(Steam.SteamDirectory, Path.GetFileName(user32)), true);
             }
             catch (Exception ex)
             {
@@ -393,13 +409,13 @@ namespace GreenLumaCommon
                 ProcessUtilities.StartProcess(Steam.SteamExecutable, $"-inhibitbootstrap -applaunch {args.Game.GameId} {GreenLumaSettings.SteamArgs}", Steam.SteamDirectory);
             }
         }
-        public static void CopyGreenLumaNormalMode()
+        private static void CopyGreenLumaNormalMode()
         {
             FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "DLLInjector.exe"), Path.Combine(Steam.SteamDirectory, "DLLInjector.exe"), true);
-            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2024_x64.dll"), Path.Combine(Steam.SteamDirectory, "GreenLuma_2024_x64.dll"), true);
-            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "GreenLuma_2024_x86.dll"), Path.Combine(Steam.SteamDirectory, "GreenLuma_2024_x86.dll"), true);
-            FileSystem.CreateDirectory(Path.Combine(Steam.SteamDirectory, "GreenLuma2024_Files"));
-            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "AchievementUnlocked.wav"), Path.Combine(Steam.SteamDirectory, "GreenLuma2024_Files", "AchievementUnlocked.wav"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", $"GreenLuma_{GreenLuma.Year}_x64.dll"), Path.Combine(Steam.SteamDirectory, $"GreenLuma_{GreenLuma.Year}_x64.dll"), true);
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", $"GreenLuma_{GreenLuma.Year}_x86.dll"), Path.Combine(Steam.SteamDirectory, $"GreenLuma_{GreenLuma.Year}_x86.dll"), true);
+            FileSystem.CreateDirectory(Path.Combine(Steam.SteamDirectory, $"GreenLuma{GreenLuma.Year}_Files"));
+            FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "AchievementUnlocked.wav"), Path.Combine(Steam.SteamDirectory, $"GreenLuma{GreenLuma.Year}_Files", "AchievementUnlocked.wav"), true);
             FileSystem.CopyFile(Path.Combine(GreenLumaPath, "NormalMode", "x64launcher.exe"), Path.Combine(Steam.SteamDirectory, "bin", "x64launcher.exe"), true);
         }
         public static void CopyGreenLumaStealthMode(IPlayniteAPI PlayniteApi)
@@ -411,7 +427,7 @@ namespace GreenLumaCommon
                     FileSystem.CreateDirectory(Path.Combine(Path.Combine(Steam.SteamDirectory, "applist")));
                 }
                 FileSystem.WriteStringToFile(Path.Combine(Steam.SteamDirectory, "applist", stealth), null);
-                FileSystem.CopyFile(User32, Path.Combine(Steam.SteamDirectory, Path.GetFileName(User32)), true);
+                FileSystem.CopyFile(user32, Path.Combine(Steam.SteamDirectory, Path.GetFileName(user32)), true);
             }
             catch (Exception ex)
             {
@@ -486,6 +502,33 @@ namespace GreenLumaCommon
                 if (new FileInfo(x64steam).Length != new FileInfo(x64backup).Length)
                 {
                     FileSystem.CopyFile(x64steam, x64backup, true);
+                }
+                return Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                return Task.FromException(ex);
+            }
+        }
+        public static Task RestoreX64Launcher()
+        {
+            try
+            {
+                string x64steam = Path.Combine(Steam.SteamDirectory, "bin\\x64launcher.exe");
+                string x64backup = Path.Combine(BackupPath, "Steam\\bin\\x64launcher.exe");
+                if (FileSystem.FileExists(x64steam) && FileSystem.FileExists(x64backup))
+                {
+                    FileInfo x64steaminfo = new FileInfo(x64steam);
+                    FileInfo x64backupinfo = new FileInfo(x64backup);
+                    if (x64steaminfo.Length == x64backupinfo.Length)
+                    {
+                        return Task.CompletedTask;
+                    }
+                    if (x64steaminfo.LastWriteTime < x64backupinfo.LastWriteTime)
+                    {
+                        return Task.CompletedTask;
+                    }
+                    FileSystem.CopyFile(x64steam, x64backup);
                 }
                 return Task.CompletedTask;
             }

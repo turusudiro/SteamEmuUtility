@@ -1,16 +1,50 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using DownloaderCommon;
 using GoldbergCommon.Models;
 using Playnite.SDK;
+using Playnite.SDK.Data;
 using Playnite.SDK.Models;
 using PluginsCommon;
+using SteamEmuUtility;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows;
 using static GoldbergCommon.Goldberg;
 
 namespace GoldbergCommon
 {
     public class GoldbergTasks
     {
+        public static void CheckForUpdate(IPlayniteAPI PlayniteApi, SteamEmuUtilitySettingsViewModel Settings)
+        {
+            string changelogpath = Path.Combine(GoldbergPath, "CHANGELOG.md");
+            if (!FileSystem.FileExists(changelogpath))
+            {
+                return;
+            }
+            string regexPattern = @"\d{4}[\W_][0-9]+[\W_][0-9]+";
+            string url = @"https://api.github.com/repos/otavepto/gbe_fork/releases/latest";
+            string raw = HttpDownloader.DownloadString(url);
+            dynamic json = Serialization.FromJson<object>(raw);
+            string date = json.tag_name;
+            var dateFixed = Regex.Match(date, regexPattern).Value.Replace("_", "/");
+            var dateFileExists = Regex.Match(FileSystem.ReadStringFromFile(changelogpath), regexPattern);
+            if (!string.IsNullOrEmpty(dateFileExists.Value))
+            {
+                if (dateFixed == dateFileExists.Value)
+                {
+                    return;
+                }
+                if (PlayniteApi.Dialogs.ShowMessage("Goldberg : Update available. " +
+                        "Please download the latest version. " +
+                        "Would you like to download it now?", "Goldberg",
+                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    Settings.DownloadGoldberg();
+                }
+            }
+        }
         public static List<GoldbergGame> ConvertGames(IEnumerable<Game> games, IPlayniteAPI PlayniteApi)
         {
             var GoldbergGames = new List<GoldbergGame>();
@@ -19,6 +53,7 @@ namespace GoldbergCommon
                 string steamsettingspath = GameSteamSettingPath(game.GameId);
                 string settingspath = GameSettingsPath(game.GameId);
                 string fullpath = string.Empty;
+                string ColdClientPath = Path.Combine(settingspath, "ColdClientLoader.ini");
                 if (game.CoverImage != null)
                 {
                     fullpath = Path.Combine(PlayniteApi.Database.GetFullFilePath(game.CoverImage));
@@ -41,7 +76,8 @@ namespace GoldbergCommon
                     RunAsAdmin = FileSystem.FileExists(Path.Combine(settingspath, "admin.txt")),
                     SettingsExists = FileSystem.DirectoryExists(settingspath),
                     InstallDirectory = game.InstallDirectory,
-                    GoldbergExists = IsGoldbergExists(game.GameId)
+                    GoldbergExists = IsGoldbergExists(game.GameId),
+                    PatchSteamStub = FileSystem.FileExists(ColdClientPath) ? FileSystem.ReadStringFromFile(ColdClientPath).Contains("extra_dlls") : false,
                 };
                 GoldbergGames.Add(goldbergGame);
             }
@@ -150,48 +186,52 @@ namespace GoldbergCommon
         {
             string goldberggamepath = GameAppdataPath(game);
             string steamuserdatagamepath = GameUserDataSteamPath(game);
-            var userdatappid = Directory.GetDirectories(steamuserdatagamepath, "*", SearchOption.TopDirectoryOnly);
-            if (userdatappid.Count() <= 0)
+            try
             {
-                return true;
-            }
-            if (!FileSystem.DirectoryExists(goldberggamepath))
-            {
-                FileSystem.CreateDirectory(goldberggamepath);
-            }
-            foreach (var dir in userdatappid)
-            {
-                string rootdirectory = Path.GetFileName(dir);
-                string goldbergtarget = Path.Combine(goldberggamepath, rootdirectory);
-                if (FileSystem.DirectoryExists(goldbergtarget))
+                var userdatappid = Directory.GetDirectories(steamuserdatagamepath, "*", SearchOption.TopDirectoryOnly);
+                if (userdatappid.Count() <= 0)
                 {
-                    if (!FileSystem.IsSymbolicLink(goldbergtarget))
+                    return true;
+                }
+                if (!FileSystem.DirectoryExists(goldberggamepath))
+                {
+                    FileSystem.CreateDirectory(goldberggamepath);
+                }
+                foreach (var dir in userdatappid)
+                {
+                    string rootdirectory = Path.GetFileName(dir);
+                    string goldbergtarget = Path.Combine(goldberggamepath, rootdirectory);
+                    if (FileSystem.DirectoryExists(goldbergtarget))
                     {
-                        var dialog = PlayniteApi.Dialogs.ShowMessage($"There's an existing folder {goldbergtarget} for {game.Name}, do you want to overwrite it? (THIS ACTION MAY CAUSE LOSS YOUR SAVEDATA!)", "", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Exclamation);
-                        if (dialog == System.Windows.MessageBoxResult.Yes)
+                        if (!FileSystem.IsSymbolicLink(goldbergtarget))
                         {
-                            try
+                            var dialog = PlayniteApi.Dialogs.ShowMessage($"There's an existing folder {goldbergtarget} for {game.Name}, do you want to overwrite it? (THIS ACTION MAY CAUSE LOSS YOUR SAVEDATA!)", "", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Exclamation);
+                            if (dialog == System.Windows.MessageBoxResult.Yes)
                             {
-                                FileSystem.DeleteDirectory(goldbergtarget);
+                                try
+                                {
+                                    FileSystem.DeleteDirectory(goldbergtarget);
+                                }
+                                catch { continue; }
                             }
-                            catch { continue; }
-                        }
-                        else if (dialog == System.Windows.MessageBoxResult.No)
-                        {
-                            return false;
+                            else if (dialog == System.Windows.MessageBoxResult.No)
+                            {
+                                return false;
+                            }
                         }
                     }
+                    if (FileSystem.DirectoryExists(goldbergtarget) && FileSystem.IsSymbolicLink(goldbergtarget))
+                    {
+                        continue;
+                    }
+                    if (FileSystem.CreateSymbolicLink(goldbergtarget, dir))
+                    {
+                        continue;
+                    }
                 }
-                if (FileSystem.DirectoryExists(goldbergtarget) && FileSystem.IsSymbolicLink(goldbergtarget))
-                {
-                    continue;
-                }
-                if (FileSystem.CreateSymbolicLink(goldbergtarget, dir))
-                {
-                    continue;
-                }
+                return true;
             }
-            return true;
+            catch { return false; }
         }
     }
 }

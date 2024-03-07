@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using GoldbergCommon;
+﻿using GoldbergCommon;
 using Playnite.SDK;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
 using PluginsCommon;
 using ProcessCommon;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using static GoldbergCommon.Goldberg;
 
 namespace SteamEmuUtility.Controller
@@ -47,11 +47,31 @@ namespace SteamEmuUtility.Controller
                 return;
             }
             string installDirectory = Paths.GetFinalPathName(Game.InstallDirectory);
-            if (FileSystem.FileExists(Path.Combine(GameSettingsPath(Game.GameId), "admin.txt")))
+            string GamePath = Path.Combine(GameSettingsPath(Game.GameId));
+            switch (FileSystem.ReadStringFromFile(Path.Combine(GamePath, "Arch.txt")))
             {
-                ProcessUtilities.StartProcess(ColdClientExecutable, true);
+                case "64":
+                    if (FileSystem.FileExists(Path.Combine(GamePath, "admin.txt")))
+                    {
+                        ProcessUtilities.StartProcess(ColdClientExecutable64, true);
+                    }
+                    else { ProcessUtilities.StartProcess(ColdClientExecutable64); }
+                    break;
+                case "32":
+                    if (FileSystem.FileExists(Path.Combine(GamePath, "admin.txt")))
+                    {
+                        ProcessUtilities.StartProcess(ColdClientExecutable32, true);
+                    }
+                    else { ProcessUtilities.StartProcess(ColdClientExecutable32); }
+                    break;
+                default:
+                    if (FileSystem.FileExists(Path.Combine(GamePath, "admin.txt")))
+                    {
+                        ProcessUtilities.StartProcess(ColdClientExecutable64, true);
+                    }
+                    else { ProcessUtilities.StartProcess(ColdClientExecutable64); }
+                    break;
             }
-            else { ProcessUtilities.StartProcess(ColdClientExecutable); }
             if (FileSystem.DirectoryExists(installDirectory))
             {
                 procMon.WatchDirectoryProcesses(installDirectory, false, false);

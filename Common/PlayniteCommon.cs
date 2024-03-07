@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Playnite.SDK.Models;
+﻿using Playnite.SDK.Models;
 using SteamCommon;
+using System;
+using System.Collections.Generic;
 
 namespace PlayniteCommon
 {

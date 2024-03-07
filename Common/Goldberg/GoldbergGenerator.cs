@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using DownloaderCommon;
+﻿using DownloaderCommon;
 using GoldbergCommon.Models;
 using Playnite.SDK;
 using Playnite.SDK.Data;
@@ -13,6 +7,13 @@ using PluginsCommon;
 using SteamCommon;
 using SteamCommon.Models;
 using SteamKit2;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using static GoldbergCommon.Goldberg;
 using static GoldbergCommon.GoldbergTasks;
 
@@ -50,6 +51,7 @@ namespace GoldbergCommon
 
                         var tasks = new List<Task> {
                         Task.Run(() => { GenerateSteamSettings(game); }, progress.CancelToken),
+                        Task.Run(() => { ModifyColdClient(game); }, progress.CancelToken),
                         };
                         if (game.ReconfigureGoldberg || !game.GoldbergExists)
                         {
@@ -328,10 +330,6 @@ namespace GoldbergCommon
             string InstallDirectory = game.InstallDirectory;
             string SettingsPath = GameSettingsPath(game.AppID);
             string coldclient = Path.Combine(SettingsPath, "ColdClientLoader.ini");
-            if (FileSystem.FileExists(coldclient))
-            {
-                return;
-            }
             if (!FileSystem.DirectoryExists(SettingsPath))
             {
                 FileSystem.CreateDirectory(SettingsPath);
@@ -350,9 +348,49 @@ namespace GoldbergCommon
                 $"ExeCommandLine={game.AppInfo.Config.Launch.FirstOrDefault().Value?.Arguments}",
                 $"AppId={game.AppID}",
                 @"SteamClientDll=steamclient.dll",
-                @"SteamClient64Dll=steamclient64.dll"
+                @"SteamClient64Dll=steamclient64.dll",
             };
             FileSystem.WriteStringLinesToFile(coldclient, configs);
+            if (FileSystem.FileExists(Path.Combine(InstallDirectory, game.AppInfo.Config.Launch.FirstOrDefault().Value.Executable)))
+            {
+                // Get Arch info for Game executable
+                string Arch = FileSystem.GetArchitectureType(Path.Combine(InstallDirectory, game.AppInfo.Config.Launch.FirstOrDefault().Value.Executable));
+
+                FileSystem.WriteStringToFileSafe(Path.Combine(SettingsPath, "Arch.txt"), Arch);
+            }
+        }
+        public static void ModifyColdClient(GoldbergGame game)
+        {
+            string SettingsPath = GameSettingsPath(game.AppID);
+            string coldclient = Path.Combine(SettingsPath, "ColdClientLoader.ini");
+            if (!FileSystem.FileExists(coldclient))
+            {
+                return;
+            }
+            if (game.PatchSteamStub)
+            {
+                List<string> configs = new List<string>
+                {
+                    @"[Injection]",
+                    $"DllsToInjectFolder=extra_dlls",
+                };
+                try
+                {
+                    File.AppendAllLines(coldclient, configs, encoding: new UTF8Encoding(false));
+                }
+                catch { }
+            }
+            else
+            {
+                try
+                {
+                    var config = FileSystem.ReadStringLinesFromFile(coldclient);
+                    string[] filter = { "[Injection]", "DllsToInjectFolder=extra_dlls" };
+                    string[] filtered = config.Where(x => !filter.Any(f => x.Contains(f))).ToArray();
+                    File.WriteAllLines(coldclient, filtered, encoding: new UTF8Encoding(false));
+                }
+                catch { }
+            }
         }
         public static void GenerateAchievement(GoldbergGame game, GlobalProgressActionArgs progress, string apikey)
         {

@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Playnite.SDK.Models;
+using ProcessCommon;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.Win32;
-using Playnite.SDK.Models;
-using ProcessCommon;
 
 namespace SteamCommon
 {

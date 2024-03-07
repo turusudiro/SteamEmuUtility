@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Playnite.Native;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Playnite.Native;
 
 namespace PluginsCommon
 {

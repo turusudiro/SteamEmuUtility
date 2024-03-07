@@ -1,8 +1,8 @@
-﻿using System.Net.Http;
-using DownloaderCommon;
+﻿using DownloaderCommon;
 using Newtonsoft.Json;
 using Playnite.SDK;
 using SteamCommon.Models;
+using System.Net.Http;
 
 namespace SteamCommon
 {

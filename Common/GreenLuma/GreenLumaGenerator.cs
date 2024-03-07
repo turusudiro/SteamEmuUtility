@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Playnite.SDK;
+using Playnite.SDK.Models;
+using PluginsCommon;
+using SteamCommon;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Playnite.SDK;
-using Playnite.SDK.Models;
-using PluginsCommon;
-using SteamCommon;
 using static GreenLumaCommon.GreenLuma;
 
 namespace GreenLumaCommon
@@ -22,7 +22,7 @@ namespace GreenLumaCommon
                 "UseFullPathsFromIni = 0",
                 "Exe = Steam.exe",
                 "CommandLine = -inhibitbootstrap",
-                "Dll = GreenLuma_2024_x86.dll",
+                $"Dll = GreenLuma_{GreenLuma.Year}_x86.dll",
                 "WaitForProcessTermination = 1",
                 "EnableFakeParentProcess = 0",
                 "FakeParentProcess = explorer.exe",

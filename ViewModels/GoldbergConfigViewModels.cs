@@ -1,14 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using GoldbergCommon;
+﻿using GoldbergCommon;
 using GoldbergCommon.Models;
 using Playnite.SDK;
 using Playnite.SDK.Models;
 using PluginsCommon;
 using SteamCommon;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 
 namespace SteamEmuUtility.ViewModels

@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using SteamCommon.Models;
+﻿using SteamCommon.Models;
+using System.Collections.Generic;
 
 namespace GoldbergCommon.Models
 {
@@ -15,6 +15,8 @@ namespace GoldbergCommon.Models
 
         private bool _settingsexists;
         public bool SettingsExists { get => _settingsexists; set { _settingsexists = value; OnPropertyChanged(); } }
+        public bool PatchSteamStub { get; set; }
+        public int Architecture { get; set; }
         public bool ReconfigureAchievements { get; set; }
         public bool ReconfigureDLC { get; set; }
         public bool ReconfigureController { get; set; }
@@ -24,7 +26,7 @@ namespace GoldbergCommon.Models
         public bool DisableNetworking { get; set; }
         public bool DisableLANOnly { get; set; }
         public string CustomBroadcastAddress { get; set; }
-        public bool _custombroadcast { get; set; }
+        private bool _custombroadcast { get; set; }
         public bool CustomBroadcast { get => _custombroadcast; set { _custombroadcast = value; OnPropertyChanged(); } }
         public bool DisableOverlaylocalsave { get; set; }
         public bool DisableOverlayFriend { get; set; }
