@@ -330,6 +330,7 @@ namespace GoldbergCommon
             string InstallDirectory = game.InstallDirectory;
             string SettingsPath = GameSettingsPath(game.AppID);
             string coldclient = Path.Combine(SettingsPath, "ColdClientLoader.ini");
+            string exeRegex = @"(?!.*\/).*exe";
             if (!FileSystem.DirectoryExists(SettingsPath))
             {
                 FileSystem.CreateDirectory(SettingsPath);
@@ -338,12 +339,13 @@ namespace GoldbergCommon
             {
                 return;
             }
+            string executable = Regex.Match(game.AppInfo.Config.Launch.FirstOrDefault().Value.Executable, exeRegex).Value;
             InstallDirectory = Path.Combine(InstallDirectory, Path.GetDirectoryName(game.AppInfo.Config.Launch
                     .Where(x => !string.IsNullOrEmpty(x.Value.Executable)).FirstOrDefault().Value.Executable));
             List<string> configs = new List<string>
             {
                 @"[SteamClient]",
-                $"Exe={Path.Combine(InstallDirectory, game.AppInfo.Config.Launch.FirstOrDefault().Value.Executable)}",
+                $"Exe={Path.Combine(InstallDirectory, executable)}",
                 $"ExeRunDir={InstallDirectory}",
                 $"ExeCommandLine={game.AppInfo.Config.Launch.FirstOrDefault().Value?.Arguments}",
                 $"AppId={game.AppID}",
@@ -351,7 +353,7 @@ namespace GoldbergCommon
                 @"SteamClient64Dll=steamclient64.dll",
             };
             FileSystem.WriteStringLinesToFile(coldclient, configs);
-            if (FileSystem.FileExists(Path.Combine(InstallDirectory, game.AppInfo.Config.Launch.FirstOrDefault().Value.Executable)))
+            if (FileSystem.FileExists(Path.Combine(InstallDirectory, executable)))
             {
                 // Get Arch info for Game executable
                 string Arch = FileSystem.GetArchitectureType(Path.Combine(InstallDirectory, game.AppInfo.Config.Launch.FirstOrDefault().Value.Executable));
