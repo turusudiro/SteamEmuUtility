@@ -42,16 +42,6 @@ namespace SteamEmuUtility
                 HasSettings = true
             };
         }
-        public override IEnumerable<SidebarItem> GetSidebarItems()
-        {
-            yield return new SidebarItem
-            {
-                Title = "Update",
-                // Loads icon from plugin's installation path
-                Icon = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "icon.png"),
-                Activated = () => GreenLumaTasks.CheckForUpdate(PlayniteApi)
-            };
-        }
         public override IEnumerable<PlayController> GetPlayActions(GetPlayActionsArgs args)
         {
             if (Steam.IsGameSteamGame(args.Game) && args.Game.Features.Any(x => x.Name.Equals("[SEU] Goldberg")))
