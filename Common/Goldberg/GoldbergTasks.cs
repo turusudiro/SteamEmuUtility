@@ -68,10 +68,12 @@ namespace GoldbergCommon
                     FileSystem.ReadStringFromFile(Path.Combine(steamsettingspath, "custom_broadcasts.txt")).TrimEnd() : string.Empty,
                     DisableLANOnly = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_lan_only.txt")),
                     DisableNetworking = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_networking.txt")),
-                    DisableOverlay = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_overlay.txt")),
+                    EnableOverlay = FileSystem.FileExists(Path.Combine(steamsettingspath, "enable_experimental_overlay.txt")),
                     DisableOverlayAchievement = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_overlay_achievement_notification")),
-                    DisableOverlayFriend = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_overlay_friend_notification.txtdisable_overlay_friend_notification.txt")),
-                    DisableOverlaylocalsave = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_overlay_warning.txt")),
+                    DisableOverlayFriend = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_overlay_friend_notification.txt")),
+                    DelayHook = FileSystem.FileExists(Path.Combine(steamsettingspath, "overlay_hook_delay_sec.txt")),
+                    DelayHookInSec = FileSystem.FileExists(Path.Combine(steamsettingspath, "overlay_hook_delay_sec.txt")) ?
+                    FileSystem.ReadStringFromFile(Path.Combine(steamsettingspath, "overlay_hook_delay_sec.txt")).TrimEnd() : string.Empty,
                     OfflineModeSteam = FileSystem.FileExists(Path.Combine(steamsettingspath, "offline.txt")),
                     RunAsAdmin = FileSystem.FileExists(Path.Combine(settingspath, "admin.txt")),
                     SettingsExists = FileSystem.DirectoryExists(settingspath),
@@ -87,6 +89,7 @@ namespace GoldbergCommon
         {
             string steamsettingspath = GameSteamSettingPath(appid);
             string settingspath = GameSettingsPath(appid);
+            string arch = Path.Combine(settingspath, "Arch.txt");
             string achievements = Path.Combine(steamsettingspath, "achievements.json");
             string dlc = Path.Combine(steamsettingspath, "DLC.txt");
             string controller = Path.Combine(steamsettingspath, "controller");
@@ -94,18 +97,19 @@ namespace GoldbergCommon
             string depots = Path.Combine(steamsettingspath, "depots.txt");
             string buildid = Path.Combine(steamsettingspath, "build_id.txt");
             string supportedlanguages = Path.Combine(steamsettingspath, "supported_languages.txt");
-            if (FileSystem.FileExists(achievements) ||
-                FileSystem.FileExists(dlc) ||
-                Directory.Exists(controller) ||
-                FileSystem.FileExists(coldclient) ||
-                FileSystem.FileExists(depots) ||
-                FileSystem.FileExists(buildid) ||
-                FileSystem.FileExists(supportedlanguages))
+            if (!FileSystem.FileExists(arch) ||
+                !FileSystem.FileExists(achievements) ||
+                !FileSystem.FileExists(dlc) ||
+                !Directory.Exists(controller) ||
+                !FileSystem.FileExists(coldclient) ||
+                !FileSystem.FileExists(depots) ||
+                !FileSystem.FileExists(buildid) ||
+                !FileSystem.FileExists(supportedlanguages))
             {
-                return true; // At least one file or directory exists
+                return false; // At least one file or directory is not exists
             }
 
-            return false; // None of the files or directories exist
+            return true; // all files are present
 
         }
         public static void ResetAchievementFile(IEnumerable<Game> games, IPlayniteAPI PlayniteApi)
