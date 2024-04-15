@@ -10,8 +10,11 @@ namespace GoldbergCommon.Models
         public bool GoldbergExists { get => _goldbergexists; set { _goldbergexists = value; OnPropertyChanged(); } }
         private bool _reconfiguregolberg;
         public bool ReconfigureGoldberg { get => _reconfiguregolberg; set { _reconfiguregolberg = value; OnPropertyChanged(); } }
-        private bool _disableoverlay;
-        public bool DisableOverlay { get => _disableoverlay; set { _disableoverlay = value; OnPropertyChanged(); } }
+        private bool _enableoverlay;
+        public bool EnableOverlay { get => _enableoverlay; set { _enableoverlay = value; OnPropertyChanged(); } }
+        private bool _delayhook;
+        public bool DelayHook { get => _delayhook; set { _delayhook = value; OnPropertyChanged(); } }
+        public string DelayHookInSec { get; set; }
 
         private bool _settingsexists;
         public bool SettingsExists { get => _settingsexists; set { _settingsexists = value; OnPropertyChanged(); } }
@@ -28,7 +31,6 @@ namespace GoldbergCommon.Models
         public string CustomBroadcastAddress { get; set; }
         private bool _custombroadcast { get; set; }
         public bool CustomBroadcast { get => _custombroadcast; set { _custombroadcast = value; OnPropertyChanged(); } }
-        public bool DisableOverlaylocalsave { get; set; }
         public bool DisableOverlayFriend { get; set; }
         public bool DisableOverlayAchievement { get; set; }
         public string Name { get; set; }

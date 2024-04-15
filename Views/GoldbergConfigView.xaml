@@ -35,11 +35,20 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <CheckBox Content="Disable Overlay" Grid.Row="0" IsChecked="{Binding DisableOverlay}"  Margin="0,2,0,2"/>
-                                    <CheckBox IsEnabled="{Binding DisableOverlay, Converter={cv:InverseBooleanConverter}}" Content="Disable Achievement Notification" Grid.Row="1" IsChecked="{Binding DisableOverlayAchievement}" Margin="0,2,0,2"/>
-                                    <CheckBox IsEnabled="{Binding DisableOverlay, Converter={cv:InverseBooleanConverter}}" Content="Disable Friend Notification" Grid.Row="2" IsChecked="{Binding DisableOverlayFriend}" Margin="0,2,0,2"/>
-                                    <CheckBox IsEnabled="{Binding DisableOverlay, Converter={cv:InverseBooleanConverter}}" Content="Disable local_save Warning" Grid.Row="3" IsChecked="{Binding DisableOverlaylocalsave}" Margin="0,2,0,2"/>
+                                    <CheckBox Content="Enable Overlay" Grid.Row="0" IsChecked="{Binding EnableOverlay}"  Margin="0,2,0,2"/>
+                                    <CheckBox IsEnabled="{Binding EnableOverlay}" Content="Disable Achievement Notification" Grid.Row="1" IsChecked="{Binding DisableOverlayAchievement}" Margin="0,2,0,2"/>
+                                    <CheckBox IsEnabled="{Binding EnableOverlay}" Content="Disable Friend Notification" Grid.Row="2" IsChecked="{Binding DisableOverlayFriend}" Margin="0,2,0,2"/>
+                                    <CheckBox IsEnabled="{Binding EnableOverlay}" Content="Overlay Hook Delay in Sec" Grid.Row="3" IsChecked="{Binding DelayHook}" Margin="0,2,0,2"/>
+                                    <TextBox MaxHeight="20" Grid.Row="4" Margin="0,2,0,2" Text="{Binding DelayHookInSec}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="150">
+                                        <TextBox.IsEnabled>
+                                            <MultiBinding Converter="{cv:MultiBooleanAndConverterBothTrue}">
+                                                <Binding Path="EnableOverlay"/>
+                                                <Binding Path="DelayHook"/>
+                                            </MultiBinding>
+                                        </TextBox.IsEnabled>
+                                    </TextBox>
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>

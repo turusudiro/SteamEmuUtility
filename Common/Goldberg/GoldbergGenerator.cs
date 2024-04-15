@@ -202,16 +202,9 @@ namespace GoldbergCommon
             }
             else { FileSystem.DeleteFile(Path.Combine(settingspath, "disable_networking.txt")); }
 
-            if (game.DisableOverlay)
+            if (game.EnableOverlay)
             {
-                FileSystem.DeleteFile(Path.Combine(settingspath, "disable_overlay_achievement_notification.txt"));
-                FileSystem.DeleteFile(Path.Combine(settingspath, "disable_overlay_friend_notification.txt"));
-                FileSystem.DeleteFile(Path.Combine(settingspath, "disable_overlay_warning.txt"));
-                FileSystem.TryWriteText(Path.Combine(settingspath, "disable_overlay.txt"), string.Empty);
-            }
-            else
-            {
-                FileSystem.DeleteFile(Path.Combine(GameSteamSettingPath(game.AppID), "disable_overlay.txt"));
+                FileSystem.TryWriteText(Path.Combine(settingspath, "enable_experimental_overlay.txt"), string.Empty);
                 if (game.DisableOverlayAchievement)
                 {
                     FileSystem.TryWriteText(Path.Combine(settingspath, "disable_overlay_achievement_notification.txt"), string.Empty);
@@ -222,11 +215,18 @@ namespace GoldbergCommon
                     FileSystem.TryWriteText(Path.Combine(settingspath, "disable_overlay_friend_notification.txt"), string.Empty);
                 }
                 else { FileSystem.DeleteFile(Path.Combine(settingspath, "disable_overlay_friend_notification.txt")); }
-                if (game.DisableOverlaylocalsave)
+                if (game.DelayHook)
                 {
-                    FileSystem.TryWriteText(Path.Combine(settingspath, "disable_overlay_warning.txt"), string.Empty);
+                    FileSystem.TryWriteText(Path.Combine(settingspath, "overlay_hook_delay_sec.txt"), game.DelayHookInSec);
                 }
-                else { FileSystem.DeleteFile(Path.Combine(settingspath, "disable_overlay_warning.txt")); }
+                else { FileSystem.DeleteFile(Path.Combine(settingspath, "overlay_hook_delay_sec.txt")); }
+            }
+            else
+            {
+                FileSystem.DeleteFile(Path.Combine(settingspath, "enable_experimental_overlay.txt"));
+                FileSystem.DeleteFile(Path.Combine(settingspath, "disable_overlay_achievement_notification.txt"));
+                FileSystem.DeleteFile(Path.Combine(settingspath, "disable_overlay_friend_notification.txt"));
+                FileSystem.DeleteFile(Path.Combine(settingspath, "overlay_hook_delay_sec.txt"));
             }
 
             if (game.OfflineModeSteam)
