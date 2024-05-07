@@ -1,4 +1,5 @@
-﻿using Playnite.SDK;
+﻿using GoldbergCommon.Models;
+using Playnite.SDK;
 using Playnite.SDK.Models;
 using PluginsCommon;
 using SteamCommon;
@@ -6,6 +7,7 @@ using SteamEmuUtility;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GoldbergCommon
 {
@@ -24,6 +26,22 @@ namespace GoldbergCommon
             {
                 settings = value;
             }
+        }
+        public static ConfigsMain ConfigsMain
+        {
+            get { return new ConfigsMain(); }
+        }
+        public static ConfigsUser ConfigsUser
+        {
+            get { return new ConfigsUser(); }
+        }
+        public static string ConfigsMainIniPath
+        {
+            get { return Path.Combine(GoldbergAppData, "settings", "configs.main.ini"); }
+        }
+        public static string ConfigsUserIniPath
+        {
+            get { return Path.Combine(GoldbergAppData, "settings", "configs.user.ini"); }
         }
         public static string SteamWebAPIKey
         {
@@ -99,82 +117,20 @@ namespace GoldbergCommon
             {
                 try
                 {
-                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Goldberg SteamEmu Saves");
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GSE Saves");
                 }
                 catch { return string.Empty; }
             }
         }
-        public static string AccountName
+        public static void UpdateConfigs(SteamEmuUtilitySettings settings)
         {
-            get
-            {
-                try
-                {
-                    return FileSystem.ReadStringFromFile(Path.Combine(GoldbergAppData, "settings\\account_name.txt"));
-                }
-                catch { return string.Empty; }
-            }
-            set
-            {
-                string filePath = Path.Combine(GoldbergAppData, "settings\\account_name.txt");
-                try
-                {
-                    if (!FileSystem.DirectoryExists(Path.GetDirectoryName(filePath)))
-                    {
-                        FileSystem.CreateDirectory(Path.GetDirectoryName(filePath));
-                    }
-                    FileSystem.WriteStringToFile(filePath, value);
-                }
-                catch { }
-            }
-        }
-        public static string Language
-        {
-            get
-            {
-                try
-                {
-                    return FileSystem.ReadStringFromFile(Path.Combine(GoldbergAppData, "settings\\language.txt"));
-                }
-                catch { return string.Empty; }
-            }
-            set
-            {
-                string filePath = Path.Combine(GoldbergAppData, "settings\\language.txt");
-                try
-                {
-                    if (!FileSystem.DirectoryExists(Path.GetDirectoryName(filePath)))
-                    {
-                        FileSystem.CreateDirectory(Path.GetDirectoryName(filePath));
-                    }
-                    FileSystem.WriteStringToFile(filePath, value);
-                }
-                catch { }
-            }
-        }
-        public static string ListenPort
-        {
-            get
-            {
-                try
-                {
-                    return FileSystem.ReadStringFromFile(Path.Combine(GoldbergAppData, "settings\\listen_port.txt"));
-                }
-                catch { return string.Empty; }
-            }
-            set
-            {
-                string filePath = Path.Combine(GoldbergAppData, "settings\\listen_port.txt");
-                try
-                {
-                    if (!FileSystem.DirectoryExists(Path.GetDirectoryName(filePath)))
-                    {
-                        FileSystem.CreateDirectory(Path.GetDirectoryName(filePath));
-                    }
-                    FileSystem.WriteStringToFile(filePath, value);
-                }
-                catch { }
-            }
+            ConfigsUser.AccountName = settings._goldbergaccountname;
+            ConfigsUser.ID = settings._goldbergusersteamid;
+            ConfigsUser.IP = settings._goldbergcountryip;
+            ConfigsUser.Language = settings._goldberglanguage;
+            ConfigsMain.EnableAccountAvatar = settings._goldbergenableaccountavatar.Value;
+            ConfigsMain.Listen_Port = settings._goldberglistenport;
+            CustomBroadcasts = settings._goldbergcustombroadcasts;
         }
         public static string CustomBroadcasts
         {
@@ -191,36 +147,23 @@ namespace GoldbergCommon
                 string filePath = Path.Combine(GoldbergAppData, "settings\\custom_broadcasts.txt");
                 try
                 {
-                    if (!FileSystem.DirectoryExists(Path.GetDirectoryName(filePath)))
-                    {
-                        FileSystem.CreateDirectory(Path.GetDirectoryName(filePath));
-                    }
-                    FileSystem.WriteStringToFile(filePath, value);
+                    FileSystem.WriteStringToFile(filePath, value, createDirectory: true);
                 }
                 catch { }
             }
         }
-        public static string UserSteamID
+        private static string UserSteamID
         {
             get
             {
-                try
-                {
-                    return FileSystem.ReadStringFromFile(Path.Combine(GoldbergAppData, "settings\\user_steam_id.txt"));
-                }
-                catch { return string.Empty; }
+                return ConfigsUser.ID;
             }
             set
             {
-                string filePath = Path.Combine(GoldbergAppData, "settings\\user_steam_id.txt");
-                try
-                {
-                    FileSystem.WriteStringToFile(filePath, value);
-                }
-                catch { }
+                ConfigsUser.ID = value;
             }
         }
-        public static ulong UserSteamID3
+        private static ulong UserSteamID3
         {
             get
             {
@@ -235,6 +178,49 @@ namespace GoldbergCommon
                     throw new InvalidOperationException("UserSteamID is not a valid ulong.");
                 }
             }
+        }
+        public static bool EnableCloudSave(Game game)
+        {
+            string appid = game.GameId;
+            string goldberggamepath = GameAppdataPath(appid);
+            string steamuserdatagamepath = GameUserDataSteamPath(appid);
+            try
+            {
+                var userdatappid = Directory.GetDirectories(steamuserdatagamepath, "*", SearchOption.TopDirectoryOnly);
+                if (userdatappid.Count() <= 0)
+                {
+                    return false;
+                }
+                foreach (var dir in userdatappid)
+                {
+                    string rootdirectory = Path.GetFileName(dir);
+                    string goldbergtarget = Path.Combine(goldberggamepath, rootdirectory);
+                    if (!FileSystem.DirectoryExists(goldbergtarget))
+                    {
+                        return false;
+                    }
+                    if (!FileSystem.IsSymbolicLink(goldbergtarget))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            catch { return false; }
+        }
+        public static bool UserdataSavesExists(Game game)
+        {
+            string steamuserdatagamepath = GameUserDataSteamPath(game.GameId);
+            try
+            {
+                var userdatappid = Directory.GetDirectories(steamuserdatagamepath, "*", SearchOption.TopDirectoryOnly);
+                if (userdatappid.Count() <= 0)
+                {
+                    return false;
+                }
+                else { return true; }
+            }
+            catch { return false; }
         }
         public static bool ColdClientExists(out List<string> missingFiles)
         {
@@ -261,17 +247,17 @@ namespace GoldbergCommon
             // Return true if there are no missing files, otherwise return false
             return missingFiles.Count == 0;
         }
-        public static string GameUserDataSteamPath(Game game)
+        public static string GameUserDataSteamPath(string appid)
         {
-            return Path.Combine(Steam.SteamDirectory, "userdata", UserSteamID3.ToString(), game.GameId);
+            return Path.Combine(Steam.SteamDirectory, "userdata", UserSteamID3.ToString(), appid);
         }
         public static GameFeature Feature(IPlayniteAPI PlayniteApi)
         {
             return PlayniteApi.Database.Features.Add(goldbergfeature);
         }
-        public static string GameAppdataPath(Game game)
+        public static string GameAppdataPath(string appid)
         {
-            return Path.Combine(GoldbergAppData, game.GameId);
+            return Path.Combine(GoldbergAppData, appid);
         }
         public static string GameSteamSettingPath(string appid)
         {

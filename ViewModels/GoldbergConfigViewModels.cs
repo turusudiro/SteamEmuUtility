@@ -4,7 +4,6 @@ using Playnite.SDK;
 using Playnite.SDK.Models;
 using PluginsCommon;
 using SteamCommon;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -40,36 +39,31 @@ namespace SteamEmuUtility.ViewModels
                 OnPropertyChanged();
             }
         }
+        public RelayCommand<object> GenerateInfo
+        {
+            get => new RelayCommand<object>((a) =>
+            {
+                var game = a as GoldbergGame;
+                if (!InternetCommon.Internet.IsInternetAvailable())
+                {
+                    PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_ConnectionUnavailable"));
+                    return;
+                }
+                GoldbergGenerator.GenerateInfo(game, settings.SteamWebApi, PlayniteApi);
+            });
+        }
+
         public RelayCommand<object> OpenSettingsPath
         {
             get => new RelayCommand<object>((a) =>
             {
                 var appid = (a as GoldbergGame)?.AppID;
-                if (FileSystem.DirectoryExists(Goldberg.GameSettingsPath(appid)))
+                string path = Goldberg.GameSettingsPath(appid);
+                if (!FileSystem.DirectoryExists(path))
                 {
-                    ProcessCommon.ProcessUtilities.StartProcess(Goldberg.GameSettingsPath(appid));
+                    FileSystem.CreateDirectory(path);
                 }
-            });
-        }
-        public RelayCommand<object> GenerateGames
-        {
-            get => new RelayCommand<object>((a) =>
-            {
-                var Games = (a as IList)?.Cast<GoldbergGame>().ToList();
-                if (Games.Count == 0)
-                {
-                    PlayniteApi.Dialogs.ShowErrorMessage("Please choose atleast 1 game.");
-                    return;
-                }
-                GoldbergGenerator.GenerateGoldbergConfig(Games, PlayniteApi, settings.SteamWebApi);
-                Games.ForEach(game =>
-                {
-                    string steamsettingspath = Goldberg.GameSteamSettingPath(game.AppID);
-                    string settingspath = Goldberg.GameSettingsPath(game.AppID);
-                    var x = GoldbergGames.FirstOrDefault(g => g.Equals(game));
-                    x.SettingsExists = FileSystem.DirectoryExists(settingspath);
-                    x.GoldbergExists = GoldbergTasks.IsGoldbergExists(game.AppID);
-                });
+                ProcessCommon.ProcessUtilities.StartProcess(Goldberg.GameSettingsPath(appid));
             });
         }
         private List<Game> selectedSteamGames;

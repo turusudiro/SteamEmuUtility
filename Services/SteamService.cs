@@ -38,7 +38,7 @@ namespace SteamCommon
                 }
                 LoggedOn = true;
             }
-            progress.Text = $"Downloading publisedfileid {publishedfileid}";
+            progress.Text = $"{ResourceProvider.GetString("LOCSEU_Downloading")} publisedfileid {publishedfileid}";
             try
             {
                 PublishedFileID req = new PublishedFileID(publishedfileid);
@@ -114,7 +114,7 @@ namespace SteamCommon
                 }
                 if (!steamClient.IsConnected)
                 {
-                    progress.Text = "Connecting to Steam...";
+                    progress.Text = ResourceProvider.GetString("LOCSEU_SteamConnecting");
                     while (!steamClient.IsConnected)
                     {
                         if (progress.CancelToken.IsCancellationRequested)
@@ -125,7 +125,7 @@ namespace SteamCommon
                         manager.RunWaitCallbacks(TimeSpan.FromSeconds(1));
                     }
                 }
-                progress.Text = "Logging in anonymously";
+                progress.Text = ResourceProvider.GetString("LOCSEU_SteamAnonymousLogging");
 
                 steamUser.LogOnAnonymous(new SteamUser.AnonymousLogOnDetails());
                 manager.RunWaitCallbacks(TimeSpan.FromSeconds(3));
@@ -138,7 +138,7 @@ namespace SteamCommon
         {
             if (callback.Result != EResult.OK)
             {
-                a.Text = $"Unable to connect to Steam: {callback.Result}";
+                a.Text = $"{ResourceProvider.GetString("LOCSEU_SteamUnableToConnect")}: {callback.Result}";
                 return;
             }
         }
@@ -152,7 +152,7 @@ namespace SteamCommon
             attemptReconnect++;
             for (int i = 3; i >= 0; i--)
             {
-                a.Text = $"Disconnected from Steam, reconnecting in {i}...";
+                a.Text = string.Format(ResourceProvider.GetString("LOCSEU_SteamReconnecting"), i);
                 if (a.CancelToken.IsCancellationRequested)
                 {
                     return;
@@ -166,18 +166,17 @@ namespace SteamCommon
         {
             if (callback.Result != EResult.OK)
             {
-                a.Text = $"Unable to logon to Steam: {callback.Result} / {callback.ExtendedResult}";
+                a.Text = $"{ResourceProvider.GetString("LOCSEU_SteamUnableToLogon")}: {callback.Result} / {callback.ExtendedResult}";
 
                 return;
             }
-            a.Text = "Successfully logged on!";
+            a.Text = ResourceProvider.GetString("LOCSEU_SteamLoggedOn");
             LoggedOn = true;
         }
 
         void OnLoggedOff(SteamUser.LoggedOffCallback callback, GlobalProgressActionArgs a)
         {
-            a.Text = $"Logged off of Steam: {callback.Result}";
-            Console.WriteLine("Logged off of Steam: {0}", callback.Result);
+            a.Text = $"{ResourceProvider.GetString("LOCSEU_SteamLoggedOff")}: {callback.Result}";
         }
         public void Dispose()
         {

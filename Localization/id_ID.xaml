@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    
+    <sys:String x:Key="LOCSEU_StartWithGoldberg">Mulai {0} dengan Goldberg</sys:String>
+    
+    <sys:String x:Key="LOCSEU_SteamLoggedOn">Berhasil masuk</sys:String>
+    <sys:String x:Key="LOCSEU_SteamLoggedOff">Dilogout dari Steam</sys:String>
+    <sys:String x:Key="LOCSEU_SteamConnecting">Menghubungkan ke Steam...</sys:String>
+    <sys:String x:Key="LOCSEU_SteamAnonymousLogging">Melakukan login secara anonim</sys:String>
+    <sys:String x:Key="LOCSEU_SteamUnableToConnect">Tidak dapat terhubung ke Steam</sys:String>
+    <sys:String x:Key="LOCSEU_SteamReconnecting">Terputus dari Steam, menyambung kembali di {0}...</sys:String>
+    <sys:String x:Key="LOCSEU_SteamUnableToLogon">Tidak dapat masuk ke Steam...</sys:String>
+    <sys:String x:Key="LOCSEU_DownloadingDLCCache">Mengunduh Cache DLC...</sys:String>
+    <sys:String x:Key="LOCSEU_UpdatingDLCCache">Memperbarui Cache DLC...</sys:String>
+    <sys:String x:Key="LOCSEU_PasswordProtectedFileWrong">Kata Sandi Salah, Masukkan kembali kata sandi</sys:String>
+    <sys:String x:Key="LOCSEU_PasswordProtectedFile">File dilindungi kata sandi, Masukkan kata sandi</sys:String>
+    <sys:String x:Key="LOCSEU_CopiedFile">Tersalin {0} File</sys:String>
+    <sys:String x:Key="LOCSEU_SkippingFile">Melewati {0}</sys:String>
+    <sys:String x:Key="LOCSEU_CopyingFile">Menyalin {0} ke {1}</sys:String>
+    <sys:String x:Key="LOCSEU_TicketFiles">File Tiket</sys:String>
+    <sys:String x:Key="LOCSEU_FileExists">File {0} sudah ada. Apakah Anda ingin menimpanya?</sys:String>
+    <sys:String x:Key="LOCSEU_Error">Kesalahan</sys:String>
+    <sys:String x:Key="LOCSEU_InjectorError">Terjadi kesalahan! Tidak dapat menjalankan Steam dengan injektor!</sys:String>
+    <sys:String x:Key="LOCSEU_SteamWithoutConfiguredApplist">Steam berjalan tanpa applist yang dikonfigurasi, Mulai ulang steam dengan Injektor?</sys:String>
+    <sys:String x:Key="LOCSEU_SteamInjectedDiffMode">Steam diinjeksikan dengan mode yang berbeda, Mulai ulang steam dengan Injektor?</sys:String>
+    <sys:String x:Key="LOCSEU_SteamIsRunning">Steam sedang berjalan, Mulai ulang steam dengan Injektor?</sys:String>
+    <sys:String x:Key="LOCSEU_Error0SteamGame">Pilih setidaknya 1 permainan</sys:String>
+    <sys:String x:Key="LOCSEU_ResetAchievementSuccess">Pengaturan ulang pencapaian berhasil untuk {0} game</sys:String>
+    <sys:String x:Key="LOCSEU_SymbolicDeveloperOffError">Tidak dapat membuat tautan simbolik, pastikan mode pengembang diaktifkan.</sys:String>
+    <sys:String x:Key="LOCSEU_ReplaceAppDataSymbolicWarning" xml:space="preserve">Ada folder {0} yang sudah ada untuk {1}, apakah Anda ingin menimpanya?
+(TINDAKAN INI DAPAT MENYEBABKAN HILANGNYA DATA YANG TERSIMPAN!)</sys:String>
+    <sys:String x:Key="LOCSEU_Missing">Hilang</sys:String>
+    <sys:String x:Key="LOCSEU_Active">Aktif</sys:String>
+    <sys:String x:Key="LOCSEU_ConnectionUnavailable">Tidak dapat membuat info. Silakan periksa koneksi internet Anda</sys:String>
+
+    <sys:String x:Key="LOCSEU_GoldbergErrorRequiredFiles">File Goldberg yang diperlukan tidak ditemukan. Periksa pengaturan Anda</sys:String>
+    <sys:String x:Key="LOCSEU_UpdateAvailable" xml:space="preserve">{0} : Pembaruan tersedia.
+Klik di sini untuk mengunduh versi terbaru.</sys:String>
+    <sys:String x:Key="LOCSEU_DownloadInfo">Mengunduh info untuk {0}</sys:String>
+    <sys:String x:Key="LOCSEU_DownloadFromAppdetails">Mengunduh info dari appdetails untuk {0}</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringAchievements">Konfigurasi {0}: Mencari Prestasi</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringDownloadingAchievements">Konfigurasi {0}: Mengunduh ikon pencapaian {1}</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringController">Mengkonfigurasi {0}: Mengkonfigurasi pengontrol</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringConfiguringController">Mengkonfigurasi {0}: Memeriksa dukungan pengontrol</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringFoundController">Konfigurasi {0}: Menemukan dukungan pengontrol</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringAccessingController">Konfigurasi {0}: Mengakses {1}</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringDepots">Mengkonfigurasi {0}: Mengkonfigurasi depot</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringBuildID">Konfigurasi {0} : Mengkonfigurasi ID Build</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringDLC">Mengonfigurasi {0} DLC : Mengonfigurasi {1}</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringSupportedLang">Mengonfigurasi {0} : Mengonfigurasi bahasa yang didukung</sys:String>
+    <sys:String x:Key="LOCSEU_ColdClientExeOrAppidNotFound">Tidak dapat menemukan informasi yang dibutuhkan untuk ColdClient</sys:String>
+    <sys:String x:Key="LOCSEU_CopyErrorColdClientLoader">Gagal menyalin ColdClientLoader.ini.</sys:String>
+    <sys:String x:Key="LOCSEU_SymlinkErrorSteamSettings" xml:space="preserve">Gagal membuat symlink untuk steam_settings
+pastikan Mode Pengembang diaktifkan.</sys:String>
+
+    <sys:String x:Key="LOCSEU_GeneralLabel">Umum</sys:String>
+    <sys:String x:Key="LOCSEU_Import">Impor</sys:String>
+    <sys:String x:Key="LOCSEU_Download">Unduh</sys:String>
+    <sys:String x:Key="LOCSEU_Downloading">Mengunduh</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaErrorFeature">Mode Normal dan Mode Senyap diaktifkan dalam game ini, pastikan untuk memilih salah satunya</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaErrorFileMissing">File GreenLuma yang dibutuhkan tidak ditemukan. Periksa pengaturan Anda</sys:String>
+    <sys:String x:Key="LOCSEU_GoldbergStatus">Status Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaStatus">Status GreenLuma</sys:String>
+    <sys:String x:Key="LOCSEU_GetApiKey">Dapatkan Kunci API</sys:String>
+    <sys:String x:Key="LOCSEU_SteamWebApiKey">Kunci Steam Web API :</sys:String>
+
+    <sys:String x:Key="LOCSEU_GreenLumaSettingsLabel">Pengaturan GreenLuma</sys:String>
+    <sys:String x:Key="LOCSEU_MissingFiles">File yang hilang</sys:String>
+    <sys:String x:Key="LOCSEU_CheckGLUpdate">Periksa pembaruan GreenLuma pada saat memulai aplikasi</sys:String>
+    <sys:String x:Key="LOCSEU_CheckGLFilesStartup">Periksa dan bersihkan file GreenLuma saat memulai aplikasi</sys:String>
+    <sys:String x:Key="LOCSEU_CleanGLAfterGame">Bersihkan file GreenLuma setelah keluar dari game</sys:String>
+    <sys:String x:Key="LOCSEU_ImmediatelyCleanGL">Segera</sys:String>
+    <sys:String x:Key="LOCSEU_ImmediatelyDescription">Tutup Steam dan bersihkan file segera setelah game ditutup</sys:String>
+    <sys:String x:Key="LOCSEU_ManuallyCleanGL">Keluar dari Steam secara manual oleh pengguna</sys:String>
+    <sys:String x:Key="LOCSEU_ManuallyCleanGLDescription">Bersihkan file setelah pengguna keluar dari Steam secara manual</sys:String>
+    <sys:String x:Key="LOCSEU_RunSteamArgs">Jalankan Steam dengan argumen tambahan</sys:String>
+    <sys:String x:Key="LOCSEU_GLCleanAppCache">Bersihkan Steam AppCache saat memulai permainan</sys:String>
+    <sys:String x:Key="LOCSEU_GLCleanApplistFolderNotEmpty">Bersihkan folder applist di Steam jika tidak kosong</sys:String>
+    <sys:String x:Key="LOCSEU_GLSkipSteamUpdateStealth">Lewati Pembaruan Steam pada Mode Senyap</sys:String>
+    <sys:String x:Key="LOCSEU_InjectAppOwnershipTickets">Masukkan AppOwnershipTickets jika tersedia</sys:String>
+    <sys:String x:Key="LOCSEU_InjectEncryptedAppTickets">Masukkan EncryptedAppTickets jika tersedia</sys:String>
+    <sys:String x:Key="LOCSEU_GLDelay">Tunggu hingga DLLInjector/Steam memulai/berakhir, dengan penundaan {0} milidetik</sys:String>
+    <sys:String x:Key="LOCSEU_AttemptDLLInjector">Coba Mulai Ulang DLLInjector jika gagal</sys:String>
+    <sys:String x:Key="LOCSEU_DontRestartDLLInjector">Jangan mulai ulang</sys:String>
+    <sys:String x:Key="LOCSEU_RestartOnceDLLInjector">Mulai ulang sekali</sys:String>
+    <sys:String x:Key="LOCSEU_RestartTwiceDLLInjector">Mulai ulang dua kali</sys:String>
+
+    <sys:String x:Key="LOCSEU_GoldbergSettingsLabel">Pengaturan Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_CheckGBUpdate">Periksa pembaruan Goldberg pada saat memulai aplikasi</sys:String>
+    <sys:String x:Key="LOCSEU_OpenSteamUnlockLastGame">Buka Steam dan buka game yang terakhir dihentikan setelah keluar</sys:String>
+    <sys:String x:Key="LOCSEU_GBCleanGreenLumaExit">Juga bersihkan file GreenLuma setelah Keluar dari Steam</sys:String>
+    <sys:String x:Key="LOCSEU_Avatar">Avatar</sys:String>
+    <sys:String x:Key="LOCSEU_Change">Ganti</sys:String>
+    <sys:String x:Key="LOCSEU_AvatarEnable">Aktifkan Avatar Akun</sys:String>
+    <sys:String x:Key="LOCSEU_AccountName">Nama Akun</sys:String>
+    <sys:String x:Key="LOCSEU_Language">Bahasa</sys:String>
+    <sys:String x:Key="LOCSEU_ListenPort">Dengar Port</sys:String>
+    <sys:String x:Key="LOCSEU_Broadcasts">Broadcast</sys:String>
+    <sys:String x:Key="LOCSEU_UserSteamID">ID Steam Pengguna</sys:String>
+    <sys:String x:Key="LOCSEU_CountryIP">IP Negara</sys:String>
+
+    <sys:String x:Key="LOCSEU_GameOnly">Hanya Game</sys:String>
+    <sys:String x:Key="LOCSEU_DLCOnly">Hanya DLC</sys:String>
+    <sys:String x:Key="LOCSEU_GameAndDLC">Game dan DLC</sys:String>
+    <sys:String x:Key="LOCSEU_NormalMode">Mode Normal</sys:String>
+    <sys:String x:Key="LOCSEU_StealthMode">Mode Senyap</sys:String>
+    <sys:String x:Key="LOCSEU_EnableGoldberg">Aktifkan Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_DisableGoldberg">Nonaktifkan Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_EnableGreenLuma">Aktifkan GreenLuma</sys:String>
+    <sys:String x:Key="LOCSEU_DisableGreenLuma">Nonaktifkan GreenLuma</sys:String>
+    <sys:String x:Key="LOCSEU_MenuUnlockAll">Buka semua game Steam yang terinstal</sys:String>
+    <sys:String x:Key="LOCSEU_MenuUnlockAllClean">Buka semua game Steam yang diinstal dan bersihkan</sys:String>
+    <sys:String x:Key="LOCSEU_GodMode">Mode Dewa</sys:String>
+    <sys:String x:Key="LOCSEU_LoadTickets">Muat Tiket</sys:String>
+    <sys:String x:Key="LOCSEU_GoldbergConfigGenerator">Generator Konfigurasi Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_AddGoldberg">Menambahkan {0} permainan Fitur Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_AddGreenLumaNormal">Menambahkan {0} permainan Fitur Mode Normal</sys:String>
+    <sys:String x:Key="LOCSEU_AddGreenLumaStealth">Menambahkan {0} permainan Fitur Mode Senyap</sys:String>
+    <sys:String x:Key="LOCSEU_RemoveGoldbergFeature">Menghapus {0} permainan Fitur Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_RemoveGreenlumaFeature">Menghapus {0} permainan Fitur GreenLuma</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateGreenluma">Hasilkan {0} Info DLC permainan untuk GreenLuma</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateGoldberg">Hasilkan {0} Configurasi permainan untuk Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_ResetAchievement">Atur Ulang {0} permainan Pencapaian Untuk Goldberg dan Achievement Watcher</sys:String>
+    
+    <sys:String x:Key="LOCSEU_OpenGoldbergGenerator">Buka generator konfigurasi Goldberg untuk {0} permainan</sys:String>
+    <sys:String x:Key="LOCSEU_ListGame">Daftar Permainan</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayLabel">Overlay (Hamparan)</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayEnable">Aktifkan Overlay</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayEnableTooltip">Mengaktifkan overlay eksperimental, dapat menyebabkan kegagalan</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayDisableAchievement">Nonaktifkan Notifikasi Pencapaian</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayDisableAchievementTooltip">Menonaktifkan notifikasi pencapaian</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayDisableFriend">Nonaktifkan Notifikasi Teman</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayDisableFriendTooltip">Nonaktifkan undangan teman dan notifikasi pesan</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayHookDelayInSec">Tunda Penyambungan dalam Detik (standar 0)</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayHookDelayInSecTooltip">jumlah waktu untuk menunggu sebelum mencoba mendeteksi dan menghubungkan renderer (DirectX, OpenGL, dll...)</sys:String>
+    <sys:String x:Key="LOCSEU_NetworkingLabel">Jaringan</sys:String>
+    <sys:String x:Key="LOCSEU_CustomBroadcast">Broadcast Kustom</sys:String>
+    <sys:String x:Key="LOCSEU_CustomBroadcastTooltip">Atur ips khusus (atau domain) yang akan digunakan emulator untuk mengirim paket siaran</sys:String>
+    <sys:String x:Key="LOCSEU_DisableLANOnly">Nonaktifkan LAN Saja</sys:String>
+    <sys:String x:Key="LOCSEU_DisableLANOnlyTooltip">Mencegah menghubungkan API jaringan OS dan mengizinkan permintaan eksternal apa pun</sys:String>
+    <sys:String x:Key="LOCSEU_DisableNetworking">Nonaktifkan Jaringan</sys:String>
+    <sys:String x:Key="LOCSEU_DisableNetworkingTooltip">Menonaktifkan semua fungsi antarmuka jaringan steam</sys:String>
+    <sys:String x:Key="LOCSEU_OfflineMode">Mode Offline Steam</sys:String>
+    <sys:String x:Key="LOCSEU_OfflineModeTooltip">Menganggap steam sedang berjalan dalam mode offline</sys:String>
+    <sys:String x:Key="LOCSEU_OtherLabel">Lainnya</sys:String>
+    <sys:String x:Key="LOCSEU_OpenSettingsFolder">Buka folder Pengaturan</sys:String>
+    <sys:String x:Key="LOCSEU_OpenSettingsFolderTooltip">Buka folder Pengaturan di mana semua pengaturan game yang terkait untuk GSE disimpan</sys:String>
+    <sys:String x:Key="LOCSEU_PatchSteamStub">Patch Steam Stub</sys:String>
+    <sys:String x:Key="LOCSEU_PatchSteamStubTooltip" xml:space="preserve">Mencoba patch Stub drm di memori, terutama untuk varian yang lebih baru
+tetapi juga bisa digunakan pada beberapa varian yang lebih lama</sys:String>
+    <sys:String x:Key="LOCSEU_RunAsAdmin">Jalankan sebagai Admin</sys:String>
+    <sys:String x:Key="LOCSEU_RunAsAdminTooltip">Coba jalankan permainan sebagai Admin</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfo">Buat Info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoTooltip">Buat Info untuk Goldberg Emu seperti Pencapaian, ColdClient.ini, Pengaturan Kontroler, DLC, dll.</sys:String>
+    <sys:String x:Key="LOCSEU_Game">Permainan</sys:String>
+    <sys:String x:Key="LOCSEU_UnlockAllDLC">Buka Semua DLC</sys:String>
+    <sys:String x:Key="LOCSEU_UnlockAllDLCTooltip" xml:space="preserve">Haruskah emu melaporkan semua DLC sebagai terbuka,
+beberapa permainan memeriksa DLC &quot;tersembunyi&quot;,
+oleh karena itu ini harus dinonaktifkan dalam kasus tersebut</sys:String>
+    <sys:String x:Key="LOCSEU_EnableCloudSave">Aktifkan Penyimpanan Cloud</sys:String>
+    <sys:String x:Key="LOCSEU_EnableCloudSaveTooltip" xml:space="preserve">Aktifkan Penyimpanan Cloud ke Akun Steam
+Ini akan membuat folder tautan simbolis dari folder steam userdata/(appid) Anda ke dalam folder GSE Saves
+SteamID di Goldberg harus sama dengan SteamID di Steam untuk penyimpanan yang ingin Anda simpan
+GUNAKAN DENGAN HATI-HATI</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoConfirmation" xml:space="preserve">Melanjutkan tindakan ini akan menggantikan konfigurasi yang ada jika ada.
+Apakah Anda yakin ingin melanjutkan?</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateAllInfo">Buat Semua Info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoAchievement">Buat Info pencapaian</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoBuildID">Buat Info ID dibangun</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoColdClient">Buat Info ColdClient</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoController">Buat Info kontroler</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoDepots">Buat Info depot-depot</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoDLC">Buat Info DLC</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoSupportedLang">Buat Info Bahasa yang didukung</sys:String>
+    <sys:String x:Key="LOCSEU_ExeCommandLine">Baris perintah untuk eksekusi</sys:String>
+
+</ResourceDictionary>

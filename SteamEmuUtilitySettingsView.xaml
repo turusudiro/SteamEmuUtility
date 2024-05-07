@@ -9,165 +9,232 @@
              d:DesignHeight="400" d:DesignWidth="600">
 
     <TabControl>
-        <TabItem Header="General">
+        <TabItem Header="{DynamicResource LOCSEU_GeneralLabel}">
             <ScrollViewer>
-                <StackPanel Orientation="Vertical" Margin="20">
-                    <StackPanel Orientation="Horizontal" Margin="5,15,5,0">
-                        <TextBlock Text="Steam Web API Key" Margin="0,0,15,10" VerticalAlignment="Center"/>
-                        <PasswordBox steam:PasswordBoxAssistant.BindPassword="True" steam:PasswordBoxAssistant.BoundPassword="{Binding Settings.SteamWebApi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=150}" Margin="0,0,0,10" Width="160" VerticalAlignment="Center"/>
-                        <TextBlock Margin="10,0,15,10" VerticalAlignment="Center">
-                            <Hyperlink NavigateUri="https://steamcommunity.com/dev/apikey"
-                                   Command="{Binding OpenURL}"
-                                   CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource Self}}">
-                                <Run Text="Get API Key"/>
-                            </Hyperlink>
-                        </TextBlock>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="5,10,5,0">
-                        <TextBlock Text="GreenLuma Status" VerticalAlignment="Center" Margin="0,0,10,0" Width="120"/>
-                        <TextBlock Text="{Binding Settings.GreenLumaStatus}" Foreground="{Binding Settings.ColorGreenLumaStatus}" VerticalAlignment="Center" Margin="10,0,0,0" Width="150"/>
-                        <Button MinWidth="80" Content="Import" Command="{Binding ImportGreenLuma}" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                        <TextBlock Margin="17,0,0,0" VerticalAlignment="Center">
-                            <Hyperlink NavigateUri="https://cs.rin.ru/forum/viewtopic.php?f=29&amp;t=103709"
-                                   Command="{Binding OpenURL}"
-                                   CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource Self}}">
-                                <Run Text="Download"/>
-                            </Hyperlink>
-                        </TextBlock>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="5,10,5,0">
-                        <TextBlock Text="Goldberg Status" VerticalAlignment="Center" Margin="0,0,10,0" Width="120"/>
-                        <TextBlock Text="{Binding Settings.GoldbergStatus}" Foreground="{Binding Settings.ColorGoldbergStatus}" VerticalAlignment="Center" Margin="10,0,0,0" Width="150"/>
-                        <Button MinWidth="80" Content="Import" Command="{Binding ImportGoldberg}" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                        <Button MinWidth="80" Content="Download" Command="{Binding DownloadGoldbergButton}" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                    </StackPanel>
-                </StackPanel>
-            </ScrollViewer>
-        </TabItem>
-        <TabItem Header="GreenLuma Settings">
-            <ScrollViewer>
-                <StackPanel Orientation="Vertical" Margin="20">
-                    <StackPanel Visibility="{Binding Settings.GreenLumaNotExists, Converter={cv:BooleanToVisibilityConverter}}" Margin="5,5,5,0">
-                        <TextBlock Text="Missing Files" Foreground="IndianRed" Margin="0,0,10,0"/>
-                        <ItemsControl ItemsSource="{Binding Settings.MissingGreenLumaFiles}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding}" Margin="0,5,10,0" Foreground="IndianRed"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                    <StackPanel Margin="5,15,5,0">
-                        <TextBlock Text="General" Margin="5,0,0,10"/>
-                        <CheckBox Content="Check GreenLuma update on application startup." IsChecked="{Binding Settings.CheckGreenLumaUpdate}" Margin="0,0,0,5"/>
-                        <CheckBox Content="Check and clean GreenLuma files on application startup." IsChecked="{Binding Settings.CleanGreenLumaStartup}" Margin="0,0,0,5"/>
-                        <CheckBox Content="Clean GreenLuma files after game exit." IsChecked="{Binding Settings.CleanGreenLuma}" FontWeight="Bold" Margin="0,0,0,5"/>
-                        <ComboBox Visibility="{Binding Settings.CleanGreenLuma, Converter={cv:BooleanToVisibilityConverter}}" SelectedIndex="{Binding Settings.CleanMode}" Margin="0,5,0,5">
-                            <ComboBoxItem>
-                                <StackPanel>
-                                    <TextBlock Text="Immediately" FontWeight="Bold" Margin="5,5,0,5"/>
-                                    <TextBlock Text="Close Steam and clean files as soon as the game close." Margin="5,0,0,5"/>
-                                </StackPanel>
-                            </ComboBoxItem>
-                            <ComboBoxItem>
-                                <StackPanel>
-                                    <TextBlock Text="Manually exit Steam by user" FontWeight="Bold" Margin="5,5,0,5"/>
-                                    <TextBlock Text="Clean files after user exit Steam manually." Margin="5,0,0,5"/>
-                                </StackPanel>
-                            </ComboBoxItem>
-                        </ComboBox>
-                        <CheckBox Content="Run Steam with additional argument" IsChecked="{Binding Settings.EnableSteamArgs}" Margin="0,0,0,10"/>
-                        <TextBox IsEnabled="{Binding Settings.EnableSteamArgs}" Text="{Binding Settings.SteamArgs}" Margin="0,0,0,10"/>
-                        <CheckBox Content="Clean Steam AppCache on starting game" IsChecked="{Binding Settings.CleanAppCache}" Margin="0,0,0,10"/>
-                        <CheckBox Content="Clean applist folder on Steam if it's not empty" IsChecked="{Binding Settings.CleanApplist}" Margin="0,0,0,10"/>
-                    </StackPanel>
-                    <StackPanel Margin="5,10,5,0">
-                        <TextBlock Text="Stealth Mode" Margin="5,0,0,10"/>
-                        <CheckBox Content="Skip Steam Update on Stealth Mode" IsChecked="{Binding Settings.SkipUpdateStealth}" Margin="0,0,0,10"/>
-                    </StackPanel>
-                    <StackPanel Margin="5,10,5,0">
-                        <TextBlock Text="Normal Mode" Margin="5,0,0,10"/>
-                        <CheckBox Content="Inject AppOwnershipTickets if there available" IsChecked="{Binding Settings.InjectAppOwnership}" Margin="0,0,0,10"/>
-                        <CheckBox Content="Inject EncryptedAppTickets if there available" IsChecked="{Binding Settings.InjectEncryptedApp}" Margin="0,0,0,10"/>
-                        <TextBlock Text="{Binding Settings.MillisecondsToWait, StringFormat='Wait for the DLLInjector/Steam to start/exit, with a delay of {0} milliseconds'}" Margin="0,0,0,10"/>
-                        <Slider Value="{Binding Settings.MillisecondsToWait}" Minimum="500" Maximum="3000" IsSnapToTickEnabled="True" TickFrequency="500" Width="140" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-                        <TextBlock Text="Attempt to Restart DLLInjector if it fails." Margin="0,0,0,10"/>
-                        <ComboBox SelectedIndex="{Binding Settings.MaxAttemptDLLInjector}" Width="150" HorizontalAlignment="Left" Margin="0,0,0,10">
-                            <ComboBoxItem Content="Do not Restart"/>
-                            <ComboBoxItem Content="Restart once"/>
-                            <ComboBoxItem Content="Restart twice"/>
-                        </ComboBox>
-                    </StackPanel>
-                </StackPanel>
-            </ScrollViewer>
-        </TabItem>
-        <TabItem Header="Goldberg Settings">
-            <ScrollViewer>
-            <StackPanel Orientation="Vertical" Margin="20">
-                <StackPanel Visibility="{Binding Settings.GoldbergNotExists, Converter={cv:BooleanToVisibilityConverter}}" Margin="5,5,5,0">
-                    <TextBlock Text="Missing Files" Foreground="IndianRed" Margin="0,0,10,0"/>
-                    <ItemsControl ItemsSource="{Binding Settings.MissingGoldbergFiles}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" Margin="0,5,10,0" Foreground="IndianRed"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-                
-                <StackPanel Margin="5,5,5,0">
-                        <CheckBox Content="Check Goldberg update on application startup." VerticalAlignment="Center" IsChecked="{Binding Settings.CheckGoldbergUpdate}" Margin="0,0,0,10"/>
-                        <CheckBox Content="Create symbolic link on Goldberg appdata folder" VerticalAlignment="Center" IsChecked="{Binding Settings.SymbolicLinkAppdata}" Margin="0,0,0,10"/>
-                    <CheckBox Content="Open Steam and unlock with last stopped game after exit." VerticalAlignment="Center" IsChecked="{Binding Settings.OpenSteamAfterExit}" Margin="0,0,0,10"/>
-                    <CheckBox IsEnabled="{Binding Settings.OpenSteamAfterExit}" Content="Also clean GreenLuma files after Steam Exit." VerticalAlignment="Center" IsChecked="{Binding Settings.GoldbergCleanSteam}" Margin="0,0,0,10"/>
-                </StackPanel>
-                <StackPanel Orientation="Vertical" Margin="5,0,0,5">
-                    <TextBlock Text="Goldberg Settings" Margin="5,5,0,10" FontWeight="Bold"/>
-                </StackPanel>
-                <Grid Margin="5,5,5,5">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition Width="auto"/>
-                    </Grid.ColumnDefinitions>
+                <Grid Margin="20">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Margin="2">
-                        <TextBlock Text="Avatar" Margin="0,0,0,10" HorizontalAlignment="Center"/>
-                        <Ellipse Width="125" Height="125" Margin="0,0,0,10">
-                            <Ellipse.Fill>
-                                <ImageBrush ImageSource="{Binding Settings.AvatarImage}" Stretch="UniformToFill"/>
-                            </Ellipse.Fill>
-                        </Ellipse>
-                        <Button Content="Change" Command="{Binding ChangeAvatar}" Width="80" Height="30" HorizontalAlignment="Center"/>
+                    <StackPanel Margin="0,0,0,7" Grid.Row="0">
+                        <CheckBox Content="{DynamicResource LOCSEU_CheckGLUpdate}" IsChecked="{Binding Settings.CheckGreenLumaUpdate}" Margin="0,0,0,7"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_CheckGBUpdate}" VerticalAlignment="Center" IsChecked="{Binding Settings.CheckGoldbergUpdate}"/>
+                        <Separator Margin="0,15,0,0"/>
                     </StackPanel>
-                    <StackPanel Margin="10,20,0,0" Grid.Column="1">
-                        <StackPanel Orientation="Horizontal" Margin="2">
-                            <TextBlock Text="Account Name" Margin="0,0,15,10" VerticalAlignment="Center" Width="100"/>
-                            <TextBox Text="{Binding Settings.GoldbergAccountName}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="2">
-                            <TextBlock Text="Language" Margin="0,0,15,10" VerticalAlignment="Center" Width="100"/>
-                            <TextBox Text="{Binding Settings.GoldbergLanguage}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="2">
-                            <TextBlock Text="Listen Port" Margin="0,0,15,10" VerticalAlignment="Center" Width="100"/>
-                            <TextBox Text="{Binding Settings.GoldbergListenPort}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="2">
-                            <TextBlock Text="Broadcasts" Margin="0,0,15,10" VerticalAlignment="Center" Width="100"/>
-                            <TextBox Text="{Binding Settings.GoldbergCustomBroadcasts}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center" AcceptsReturn="True"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="2">
-                            <TextBlock Text="User Steam ID" Margin="0,0,15,10" VerticalAlignment="Center" Width="100"/>
-                            <TextBox Text="{Binding Settings.GoldbergUserSteamID}" Margin="0,0,0,10" Width="300" VerticalAlignment="Center"/>
-                        </StackPanel> 
+                    <StackPanel Margin="0,7,0,7" Grid.Row="1">
+                        <TextBlock Text="{DynamicResource LOCSEU_SteamWebApiKey}" Margin="0,0,0,7" VerticalAlignment="Center"/>
+                        <DockPanel>
+                            <PasswordBox MinWidth="250" MaxWidth="350" Margin="0,0,15,0" steam:PasswordBoxAssistant.BindPassword="True" steam:PasswordBoxAssistant.BoundPassword="{Binding Settings.SteamWebApi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=150}" VerticalAlignment="Center"/>
+                            <TextBlock VerticalAlignment="Center">
+                            <Hyperlink NavigateUri="https://steamcommunity.com/dev/apikey"
+                                    Command="{Binding OpenURL}"
+                                    CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource Self}}">
+                                <Run Text="{DynamicResource LOCSEU_GetApiKey}"/>
+                            </Hyperlink>
+                            </TextBlock>
+                        </DockPanel>
+                        <Separator Margin="0,15,0,0"/>
+
                     </StackPanel>
+                    <Grid Margin="0,5,0,5" Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{DynamicResource LOCSEU_GreenLumaStatus}" VerticalAlignment="Center" Grid.Column="0" Margin="0,0,15,0"/>
+                        <TextBlock Text="{Binding Settings.GreenLumaStatus}" VerticalAlignment="Center" Grid.Column="1">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Settings.GreenLumaReady}" Value="True">
+                                            <Setter Property="Foreground" Value="LimeGreen"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Settings.GreenLumaReady}" Value="False">
+                                            <Setter Property="Foreground" Value="IndianRed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <DockPanel Grid.Column="2">
+                            <Button Content="{DynamicResource LOCSEU_Import}" Command="{Binding ImportGreenLuma}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                            <TextBlock VerticalAlignment="Center" Margin="5,0,0,0" HorizontalAlignment="Center">
+                                <Hyperlink NavigateUri="https://cs.rin.ru/forum/viewtopic.php?f=29&amp;t=103709"
+                                        Command="{Binding OpenURL}"
+                                        CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource Self}}">
+                                    <Run Text="{DynamicResource LOCSEU_Download}"/>
+                                </Hyperlink>
+                            </TextBlock>
+                        </DockPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Visibility="{Binding Settings.GreenLumaNotExists, Converter={cv:BooleanToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding Settings.MissingGreenLumaFiles}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Foreground="IndianRed"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Grid>
+                    <Separator Grid.Row="3" Margin="0,5,0,5"/>
+                    <Grid Margin="0,7,0,7" Grid.Row="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{DynamicResource LOCSEU_GoldbergStatus}" VerticalAlignment="Center" Grid.Column="0" Margin="0,0,15,0"/>
+                        <TextBlock Text="{Binding Settings.GoldbergStatus}" Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Settings.GoldbergReady}" Value="True">
+                                            <Setter Property="Foreground" Value="LimeGreen"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Settings.GoldbergReady}" Value="False">
+                                            <Setter Property="Foreground" Value="IndianRed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <DockPanel Grid.Column="2">
+                            <Button Content="{DynamicResource LOCSEU_Import}" Command="{Binding ImportGoldberg}" VerticalAlignment="Center"/>
+                            <Button Content="{DynamicResource LOCSEU_Download}" Command="{Binding DownloadGoldbergButton}" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                        </DockPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,0" Visibility="{Binding Settings.GoldbergNotExists, UpdateSourceTrigger=PropertyChanged, Converter={cv:BooleanToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding Settings.MissingGoldbergFiles}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Foreground="IndianRed"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Grid>
                 </Grid>
-            </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+        <TabItem Header="{DynamicResource LOCSEU_GreenLumaSettingsLabel}">
+            <ScrollViewer>
+                <StackPanel Orientation="Vertical" Margin="20">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource LOCSEU_GeneralLabel}" FontWeight="Bold" Margin="5,0,0,10"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_CheckGLFilesStartup}" IsChecked="{Binding Settings.CleanGreenLumaStartup}" Margin="0,0,0,5"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_CleanGLAfterGame}" IsChecked="{Binding Settings.CleanGreenLuma}" Margin="0,0,0,5"/>
+                        <ComboBox Visibility="{Binding Settings.CleanGreenLuma, Converter={cv:BooleanToVisibilityConverter}}" SelectedIndex="{Binding Settings.CleanMode}" Margin="0,5,0,5">
+                            <ComboBoxItem>
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource LOCSEU_Immediately}" FontWeight="Bold" Margin="5,5,0,5"/>
+                                    <TextBlock Text="{DynamicResource LOCSEU_ImmediatelyDescription}" Margin="5,0,0,5"/>
+                                </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource LOCSEU_ManuallyCleanGL}" FontWeight="Bold" Margin="5,5,0,5"/>
+                                    <TextBlock Text="{DynamicResource LOCSEU_ManuallyCleanGLDescription}" Margin="5,0,0,5"/>
+                                </StackPanel>
+                            </ComboBoxItem>
+                        </ComboBox>
+                        <CheckBox Content="{DynamicResource LOCSEU_RunSteamArgs}" IsChecked="{Binding Settings.EnableSteamArgs}" Margin="0,0,0,10"/>
+                        <TextBox IsEnabled="{Binding Settings.EnableSteamArgs}" Text="{Binding Settings.SteamArgs}" Margin="0,0,0,10"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GLCleanAppCache}" IsChecked="{Binding Settings.CleanAppCache}" Margin="0,0,0,10"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GLCleanApplistFolderNotEmpty}" IsChecked="{Binding Settings.CleanApplist}" Margin="0,0,0,10"/>
+                    </StackPanel>
+                    <Separator/>
+                    <StackPanel Margin="5,10,5,0">
+                        <TextBlock Text="{DynamicResource LOCSEU_StealthMode}" FontWeight="Bold" Margin="5,0,0,10"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GLSkipSteamUpdateStealth}" IsChecked="{Binding Settings.SkipUpdateStealth}" Margin="0,0,0,10"/>
+                    </StackPanel>
+                    <Separator/>
+                    <StackPanel Margin="5,10,5,0">
+                        <TextBlock Text="{DynamicResource LOCSEU_NormalMode}" FontWeight="Bold" Margin="5,0,0,10"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_InjectAppOwnershipTickets}" IsChecked="{Binding Settings.InjectAppOwnership}" Margin="0,0,0,10"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_InjectEncryptedAppTickets}" IsChecked="{Binding Settings.InjectEncryptedApp}" Margin="0,0,0,10"/>
+                        <TextBlock Text="{Binding Settings.MillisecondsToWaitText}" Margin="0,0,0,10"/>
+                        <Slider Value="{Binding Settings.MillisecondsToWait}" Minimum="500" Maximum="3000" IsSnapToTickEnabled="True" TickFrequency="500" Width="140" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+                        <TextBlock Text="{DynamicResource LOCSEU_AttemptDLLInjector}" Margin="0,0,0,10"/>
+                        <ComboBox SelectedIndex="{Binding Settings.MaxAttemptDLLInjector}" HorizontalAlignment="Left" Margin="0,0,0,10">
+                            <ComboBoxItem Content="{DynamicResource LOCSEU_DontRestartDLLInjector}"/>
+                            <ComboBoxItem Content="{DynamicResource LOCSEU_RestartOnceDLLInjector}"/>
+                            <ComboBoxItem Content="{DynamicResource LOCSEU_RestartTwiceDLLInjector}"/>
+                        </ComboBox>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+        <TabItem Header="{DynamicResource LOCSEU_GoldbergSettingsLabel}">
+            <ScrollViewer>
+                <StackPanel Orientation="Vertical" Margin="20">
+                    <StackPanel>
+                        <CheckBox Content="{DynamicResource LOCSEU_OpenSteamUnlockLastGame}" VerticalAlignment="Center" IsChecked="{Binding Settings.OpenSteamAfterExit}" Margin="0,0,0,10"/>
+                        <CheckBox IsEnabled="{Binding Settings.OpenSteamAfterExit}" Content="{DynamicResource LOCSEU_GBCleanGreenLumaExit}" VerticalAlignment="Center" IsChecked="{Binding Settings.GoldbergCleanSteam}" Margin="0,0,0,10"/>
+                    </StackPanel>
+                    <Separator/>
+                    <StackPanel Orientation="Vertical" Margin="5,0,0,5">
+                        <TextBlock Text="{DynamicResource LOCSEU_GoldbergSettingsLabel}" Margin="5,5,0,10" FontWeight="Bold"/>
+                    </StackPanel>
+                    <Grid Margin="5,5,5,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Margin="2" Grid.Column="0">
+                            <TextBlock Text="{DynamicResource LOCSEU_Avatar}" Margin="0,0,0,10" HorizontalAlignment="Center"/>
+                            <Ellipse Width="125" Height="125" Margin="0,0,0,10">
+                                <Ellipse.Fill>
+                                    <ImageBrush ImageSource="{Binding Settings.AvatarImage}" Stretch="UniformToFill"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <Button Content="{DynamicResource LOCSEU_Change}" Command="{Binding ChangeAvatar}" HorizontalAlignment="Center"/>
+                            <CheckBox Content="{DynamicResource LOCSEU_AvatarEnable}" Margin="0,10,0,2" IsChecked="{Binding Settings.GoldbergEnableAccountAvatar}"/>
+                        </StackPanel>
+                        <Grid Margin="10,0,0,0" Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{DynamicResource LOCSEU_AccountName}" Grid.Column="0" Margin="0,0,0,10" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding Settings.GoldbergAccountName}" Grid.Column="1" Margin="5,0,0,10" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource LOCSEU_UserSteamID}" Grid.Column="0" Grid.Row="1" Margin="0,0,5,10" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding Settings.GoldbergUserSteamID}" Grid.Column="1" Grid.Row="1" Margin="5,0,0,10" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource LOCSEU_Language}" Grid.Column="0" Grid.Row="2" Margin="0,0,5,10" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding Settings.GoldbergLanguage}" Grid.Column="1" Grid.Row="2" Margin="5,0,0,10" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource LOCSEU_ListenPort}" Grid.Column="0" Grid.Row="3" Margin="0,0,5,10" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding Settings.GoldbergListenPort}" Grid.Column="1" Grid.Row="3" Margin="5,0,0,10" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource LOCSEU_Broadcasts}" Grid.Column="0" Grid.Row="4" Margin="0,0,5,10" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding Settings.GoldbergCustomBroadcasts}" Grid.Column="1" Grid.Row="4" Margin="5,0,0,10" VerticalAlignment="Center" AcceptsReturn="True"/>
+                            <TextBlock Text="{DynamicResource LOCSEU_CountryIP}" Grid.Column="0" Grid.Row="5" Margin="0,0,5,10" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding Settings.GoldbergCountryIP}" Grid.Column="1" Grid.Row="5" Margin="5,0,0,10" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Grid>
+                </StackPanel>
             </ScrollViewer>
         </TabItem>
     </TabControl>

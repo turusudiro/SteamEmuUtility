@@ -25,7 +25,7 @@ namespace SteamCommon
             }
             foreach (var appid in appids)
             {
-                progressOptions.Text = $"Downloading info from appdetails for {appid}";
+                progressOptions.Text = string.Format(ResourceProvider.GetString("LOCSEU_DownloadFromAppdetails"), appid);
                 var response = HttpDownloader.DownloadString($"{apiUrl}{appid}");
                 if (response.Length > 0)
                 {

@@ -13,7 +13,7 @@ namespace SteamCommon
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
-            progress.Text = $"downloading info for AppID {appid}";
+            progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_DownloadInfo"), appid);
             var response = HttpDownloader.DownloadString(Uri + appid, progress.CancelToken);
             if (response.Length > 0)
             {
@@ -34,7 +34,7 @@ namespace SteamCommon
         }
         public static AppIdInfo GetAppInfo(string appid, GlobalProgressActionArgs progress)
         {
-            progress.Text = $"Downloading info for AppID {appid}";
+            progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_DownloadInfo"), appid);
             var client = new HttpClient();
             client.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
             var response = HttpDownloader.DownloadString(Uri + appid);

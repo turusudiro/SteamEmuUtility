@@ -40,6 +40,9 @@
     <Reference Include="Gameloop.Vdf.JsonConverter, Version=0.1.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Gameloop.Vdf.JsonConverter.0.1.1\lib\net45\Gameloop.Vdf.JsonConverter.dll</HintPath>
     </Reference>
+    <Reference Include="INIFileParser, Version=2.5.2.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
+      <HintPath>packages\ini-parser.2.5.2\lib\net20\INIFileParser.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -76,8 +79,10 @@
     <Compile Include="Common\Extensions\ProcessExtensions.cs" />
     <Compile Include="Common\Extensions\StringExtensions.cs" />
     <Compile Include="Common\FileSystem.cs" />
+    <Compile Include="Common\Goldberg\Configs\ConfigsCommon.cs" />
     <Compile Include="Common\Goldberg\GoldbergCommon.cs" />
     <Compile Include="Common\Goldberg\GoldbergGenerator.cs" />
+    <Compile Include="Common\Goldberg\Models\Configs.cs" />
     <Compile Include="Common\Goldberg\Models\GoldbergGame.cs" />
     <Compile Include="Common\Goldberg\GoldbergTasks.cs" />
     <Compile Include="Common\GreenLuma\GreenLumaCommon.cs" />
@@ -103,6 +108,7 @@
     <Compile Include="Common\Steam\Models\AppDetails.cs" />
     <Compile Include="Common\Steam\Models\AppInfo.cs" />
     <Compile Include="Common\Steam\Models\AppList.cs" />
+    <Compile Include="Common\Web\InternetConnectionChecker.cs" />
     <Compile Include="PlayController\GoldbergController.cs" />
     <Compile Include="Common\Goldberg\ParseController.cs" />
     <Compile Include="Services\SteamService.cs" />
@@ -125,6 +131,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Localization\*.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Localization\id_ID.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -76,52 +76,81 @@ namespace PluginsCommon
             }
         }
 
+        public static Process DeleteSymbolicLink(string linkPath, string targetPath)
+        {
+            var targetdirectory = FixPathLength(targetPath);
+            var linkdirectory = FixPathLength(linkPath);
+            //var linkdirectoryparent = Path.GetDirectoryName(linkdirectory);
+            ProcessStartInfo psi = new ProcessStartInfo("cmd.exe")
+            {
+                RedirectStandardInput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+
+            Process process = new Process { StartInfo = psi };
+            process.Start();
+
+            using (StreamWriter sw = process.StandardInput)
+            {
+                if (sw.BaseStream.CanWrite)
+                {
+                    sw.WriteLine($"mklink /d \"{linkdirectory}\" \"{targetdirectory}\"");
+                }
+            }
+
+            return process;
+        }
+
+        /// <summary>
+        /// Create a <c>Symlink</c> and return false if it's failed.
+        /// </summary>
+        /// <param name="linkPath">the path that will be created</param>
+        /// <param name="targetPath">the path (relative or absolute) that the new symbolic link refers to (the source folder that want to link)</param>
         public static bool CreateSymbolicLink(string linkPath, string targetPath)
         {
             var targetdirectory = FixPathLength(targetPath);
             var linkdirectory = FixPathLength(linkPath);
-            if (!Directory.Exists(targetdirectory) && !File.Exists(targetdirectory))
+            var linkdirectoryparent = Path.GetDirectoryName(linkdirectory);
+            if (!DirectoryExists(linkdirectoryparent))
             {
-                Directory.CreateDirectory(targetdirectory);
-                logger.Debug("Target path does not exist. Creating...");
+                CreateDirectory(linkdirectoryparent);
             }
 
-            if (Directory.Exists(linkdirectory) || File.Exists(linkdirectory))
+            // Run mklink command
+            ProcessStartInfo psi = new ProcessStartInfo("cmd.exe")
             {
-                logger.Debug("Symbolic link path already exists.");
-                return false;
-            }
+                RedirectStandardInput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
 
-            try
+            Process process = new Process { StartInfo = psi };
+            process.Start();
+
+            using (StreamWriter sw = process.StandardInput)
             {
-                // Run mklink command
-                ProcessStartInfo psi = new ProcessStartInfo("cmd.exe")
+                if (sw.BaseStream.CanWrite)
                 {
-                    RedirectStandardInput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true
-                };
-
-                Process process = new Process { StartInfo = psi };
-                process.Start();
-
-                using (StreamWriter sw = process.StandardInput)
-                {
-                    if (sw.BaseStream.CanWrite)
-                    {
-                        sw.WriteLine($"mklink {(Directory.Exists(targetdirectory) ? "/D" : "")} \"{linkdirectory}\" \"{targetdirectory}\"");
-                    }
+                    sw.WriteLine($"mklink /d \"{linkdirectory}\" \"{targetdirectory}\"");
                 }
-
-                process.WaitForExit();
-                return true;
             }
-            catch (Exception ex)
+
+            process.WaitForExit();
+            string errorMessage = process.StandardError.ReadToEnd();
+            if (!errorMessage.IsNullOrWhiteSpace())
             {
-                logger.Debug($"Error creating symbolic link: {ex.Message}");
                 return false;
             }
+            return true;
+        }
+        private static Process DeleteSymbolicLink(string path)
+        {
+            return ProcessCommon.ProcessUtilities.StartProcessHidden("cmd.exe", $"/c rd \"{path}\"");
         }
         public static bool IsSymbolicLink(string path)
         {
@@ -229,8 +258,13 @@ namespace PluginsCommon
             File.Delete(path);
         }
 
-        public static void CreateFile(string path)
+        public static void CreateFile(string path, bool createDirectory = false)
         {
+            if (createDirectory)
+            {
+                string dir = Path.GetDirectoryName(path);
+                Directory.CreateDirectory(dir);
+            }
             path = FixPathLength(path);
             File.Create(path).Dispose();
         }
@@ -290,6 +324,11 @@ namespace PluginsCommon
             path = FixPathLength(path);
             if (Directory.Exists(path))
             {
+                if (IsSymbolicLink(path))
+                {
+                    DeleteSymbolicLink(path).WaitForExit(500);
+                    return;
+                }
                 Directory.Delete(path, true);
             }
         }
@@ -470,9 +509,14 @@ namespace PluginsCommon
             }
         }
 
-        public static void WriteStringToFile(string path, string content, bool useUtf8 = false)
+        public static void WriteStringToFile(string path, string content, bool useUtf8 = false, bool createDirectory = false)
         {
             path = FixPathLength(path);
+            if (createDirectory)
+            {
+                string dir = Path.GetDirectoryName(path);
+                Directory.CreateDirectory(dir);
+            }
             PrepareSaveFile(path);
             if (useUtf8)
             {

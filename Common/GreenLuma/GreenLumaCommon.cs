@@ -8,8 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace GreenLumaCommon
 {
@@ -262,29 +260,25 @@ namespace GreenLumaCommon
         }
         public static bool GreenLumaFilesExists(out List<string> missingFiles)
         {
-            missingFiles = new List<string>();
-            try
+            var GreenLumaFiles = new List<string>()
             {
-                var files = Directory.GetFiles(GreenLumaPath, "*", SearchOption.AllDirectories).Select(x => Path.GetFileName(x));
-                var FilesToCheck = new List<string>
+                $"{GreenLumaPath}\\NormalMode\\AchievementUnlocked.wav",
+                $"{GreenLumaPath}\\NormalMode\\DLLInjector.exe",
+                $"{GreenLumaPath}\\NormalMode\\GreenLuma_2024_x64.dll",
+                $"{GreenLumaPath}\\NormalMode\\GreenLuma_2024_x86.dll",
+                $"{GreenLumaPath}\\NormalMode\\x64launcher.exe",
+                $"{GreenLumaPath}\\StealthMode\\user32.dll",
+            };
+            missingFiles = new List<string>();
+
+            foreach (string file in GreenLumaFiles)
+            {
+                if (!FileSystem.FileExists(file))
                 {
-                "DLLInjector.exe",
-                "x64launcher.exe",
-                "AchievementUnlocked.wav",
-                $"GreenLuma_{GreenLuma.Year}_x64.dll",
-                $"GreenLuma_{GreenLuma.Year}_x86.dll",
-                "user32.dll"
-                };
-                foreach (string file in FilesToCheck)
-                {
-                    if (!files.Any(infoFile => Regex.IsMatch(infoFile, file, RegexOptions.IgnoreCase)))
-                    {
-                        // If the file doesn't exist, add it to the list of missing files
-                        missingFiles.Add(file);
-                    }
+                    // If the file doesn't exist, add it to the list of missing files
+                    missingFiles.Add(Path.GetFileName(file));
                 }
             }
-            catch (Exception ex) { missingFiles.Add(ex.Message); }
 
             // Return true if there are no missing files, otherwise return false
             return missingFiles.Count == 0;

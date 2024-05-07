@@ -5,10 +5,10 @@ using Playnite.SDK.Data;
 using Playnite.SDK.Models;
 using PluginsCommon;
 using SteamEmuUtility;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
 using static GoldbergCommon.Goldberg;
 
@@ -16,34 +16,33 @@ namespace GoldbergCommon
 {
     public class GoldbergTasks
     {
-        public static void CheckForUpdate(IPlayniteAPI PlayniteApi, SteamEmuUtilitySettingsViewModel Settings)
+        public static void CheckForUpdate(IPlayniteAPI PlayniteApi, SteamEmuUtilitySettingsViewModel Settings, SteamEmuUtility.SteamEmuUtility plugin)
         {
-            string changelogpath = Path.Combine(GoldbergPath, "CHANGELOG.md");
-            if (!FileSystem.FileExists(changelogpath))
+            string verPath = Path.Combine(GoldbergPath, "Version.txt");
+            if (!FileSystem.FileExists(verPath))
             {
                 return;
             }
-            string regexPattern = @"\d{4}[\W_][0-9]+[\W_][0-9]+";
             string url = @"https://api.github.com/repos/otavepto/gbe_fork/releases/latest";
             string raw = HttpDownloader.DownloadString(url);
             dynamic json = Serialization.FromJson<object>(raw);
-            string date = json.tag_name;
-            var dateFixed = Regex.Match(date, regexPattern).Value.Replace("_", "/");
-            var dateFileExists = Regex.Match(FileSystem.ReadStringFromFile(changelogpath), regexPattern);
-            if (!string.IsNullOrEmpty(dateFileExists.Value))
+            DateTime jsonDate = json.published_at;
+            string jsonVer = $"{jsonDate.Year}/{jsonDate.Month}/{jsonDate.Day}";
+            string ver = FileSystem.ReadStringFromFile(verPath);
+            if (!string.IsNullOrEmpty(ver))
             {
-                if (dateFixed == dateFileExists.Value)
+                if (jsonVer.Equals(ver))
                 {
                     return;
                 }
-                if (PlayniteApi.Dialogs.ShowMessage("Goldberg : Update available. " +
-                        "Please download the latest version. " +
-                        "Would you like to download it now?", "Goldberg",
-                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                {
-                    Settings.DownloadGoldberg();
-                }
+                PlayniteApi.Notifications.Add(new NotificationMessage(plugin.Id.ToString(), string.Format(ResourceProvider.GetString("LOCSEU_UpdateAvailable"), "Goldberg"),
+                    NotificationType.Info, () => Settings.DownloadGoldberg()));
             }
+        }
+        public static GoldbergGame ConvertGame(Game game, IPlayniteAPI PlayniteApi)
+        {
+            var goldbergGame = ConvertGames(new List<Game> { game }, PlayniteApi);
+            return goldbergGame.FirstOrDefault();
         }
         public static List<GoldbergGame> ConvertGames(IEnumerable<Game> games, IPlayniteAPI PlayniteApi)
         {
@@ -58,59 +57,21 @@ namespace GoldbergCommon
                 {
                     fullpath = Path.Combine(PlayniteApi.Database.GetFullFilePath(game.CoverImage));
                 }
-                var goldbergGame = new GoldbergGame
+                var goldbergGame = new GoldbergGame(settingspath, steamsettingspath, PlayniteApi)
                 {
                     Name = game.Name,
-                    CoverImage = fullpath,
                     AppID = game.GameId,
-                    CustomBroadcast = FileSystem.FileExists(Path.Combine(steamsettingspath, "custom_broadcasts.txt")),
-                    CustomBroadcastAddress = FileSystem.FileExists(Path.Combine(steamsettingspath, "custom_broadcasts.txt")) ?
-                    FileSystem.ReadStringFromFile(Path.Combine(steamsettingspath, "custom_broadcasts.txt")).TrimEnd() : string.Empty,
-                    DisableLANOnly = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_lan_only.txt")),
-                    DisableNetworking = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_networking.txt")),
-                    EnableOverlay = FileSystem.FileExists(Path.Combine(steamsettingspath, "enable_experimental_overlay.txt")),
-                    DisableOverlayAchievement = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_overlay_achievement_notification")),
-                    DisableOverlayFriend = FileSystem.FileExists(Path.Combine(steamsettingspath, "disable_overlay_friend_notification.txt")),
-                    DelayHook = FileSystem.FileExists(Path.Combine(steamsettingspath, "overlay_hook_delay_sec.txt")),
-                    DelayHookInSec = FileSystem.FileExists(Path.Combine(steamsettingspath, "overlay_hook_delay_sec.txt")) ?
-                    FileSystem.ReadStringFromFile(Path.Combine(steamsettingspath, "overlay_hook_delay_sec.txt")).TrimEnd() : string.Empty,
-                    OfflineModeSteam = FileSystem.FileExists(Path.Combine(steamsettingspath, "offline.txt")),
-                    RunAsAdmin = FileSystem.FileExists(Path.Combine(settingspath, "admin.txt")),
-                    SettingsExists = FileSystem.DirectoryExists(settingspath),
-                    InstallDirectory = game.InstallDirectory,
-                    GoldbergExists = IsGoldbergExists(game.GameId),
-                    PatchSteamStub = FileSystem.FileExists(ColdClientPath) ? FileSystem.ReadStringFromFile(ColdClientPath).Contains("extra_dlls") : false,
+                    Game = game,
+                    ConfigsAppIniPath = Path.Combine(steamsettingspath, "configs.app.ini"),
+                    ConfigsApp = new ConfigsApp(Path.Combine(steamsettingspath, "configs.app.ini")),
+                    ConfigsOverlay = new ConfigsOverlay(Path.Combine(steamsettingspath, "configs.overlay.ini")),
+                    ConfigsMain = new ConfigsMain(Path.Combine(steamsettingspath, "configs.main.ini")),
+                    ConfigsColdClientLoader = new ConfigsColdClientLoader(ColdClientPath),
+                    ConfigsEmu = new ConfigsEmu(Path.Combine(settingspath, "configs.emu.ini")),
                 };
                 GoldbergGames.Add(goldbergGame);
             }
             return GoldbergGames;
-        }
-        public static bool IsGoldbergExists(string appid)
-        {
-            string steamsettingspath = GameSteamSettingPath(appid);
-            string settingspath = GameSettingsPath(appid);
-            string arch = Path.Combine(settingspath, "Arch.txt");
-            string achievements = Path.Combine(steamsettingspath, "achievements.json");
-            string dlc = Path.Combine(steamsettingspath, "DLC.txt");
-            string controller = Path.Combine(steamsettingspath, "controller");
-            string coldclient = Path.Combine(settingspath, "ColdClientLoader.ini");
-            string depots = Path.Combine(steamsettingspath, "depots.txt");
-            string buildid = Path.Combine(steamsettingspath, "build_id.txt");
-            string supportedlanguages = Path.Combine(steamsettingspath, "supported_languages.txt");
-            if (!FileSystem.FileExists(arch) ||
-                !FileSystem.FileExists(achievements) ||
-                !FileSystem.FileExists(dlc) ||
-                !Directory.Exists(controller) ||
-                !FileSystem.FileExists(coldclient) ||
-                !FileSystem.FileExists(depots) ||
-                !FileSystem.FileExists(buildid) ||
-                !FileSystem.FileExists(supportedlanguages))
-            {
-                return false; // At least one file or directory is not exists
-            }
-
-            return true; // all files are present
-
         }
         public static void ResetAchievementFile(IEnumerable<Game> games, IPlayniteAPI PlayniteApi)
         {
@@ -120,7 +81,7 @@ namespace GoldbergCommon
             {
                 foreach (var game in games)
                 {
-                    string AchievementGameJSONPath = Path.Combine(GameAppdataPath(game), "achievements.json");
+                    string AchievementGameJSONPath = Path.Combine(GameAppdataPath(game.GameId), "achievements.json");
                     string AchievementDBPath = Path.Combine(AchievementWatcherAppData, "steam_cache", "data", $"{game.GameId}.db");
                     try
                     {
@@ -131,111 +92,142 @@ namespace GoldbergCommon
                     catch { }
                 }
             }, progress);
-            PlayniteApi.Dialogs.ShowMessage($"Achievement reset successful for {count} games.");
+            PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_ResetAchievementSuccess"), count));
         }
-        public static bool InjectJob(Game game, IPlayniteAPI PlayniteApi, out string message, string apikey)
+        public static bool InjectJob(GoldbergGame game, IPlayniteAPI PlayniteApi, out string message, string apikey)
         {
-            message = string.Empty;
-            if (!CopyColdClientIni(game, PlayniteApi, apikey))
+            if (game.ConfigsEmu.Architecture == string.Empty && !game.ConfigsColdClientLoader.IgnoreLoaderArchDifference)
             {
-                message = "Cannot copy coldclient, make sure to generate config first.";
+                if (!InternetCommon.Internet.IsInternetAvailable())
+                {
+                    message = ResourceProvider.GetString("LOCSEU_ConnectionUnavailable");
+                    return false;
+                }
+                game.GenerateArchitecture = true;
+                GoldbergGenerator.GenerateInfo(game, apikey, PlayniteApi);
+                if (!game.ConfigsEmu.Architecture.Equals("64") || !game.ConfigsEmu.Architecture.Equals("32"))
+                {
+                    game.ConfigsColdClientLoader.IgnoreLoaderArchDifference = true;
+                }
+            }
+            if (!CopyColdClientIni(game, PlayniteApi, out message, apikey))
+            {
                 return false;
             }
-            if (!CreateSymbolicSteamSettings(game))
+            bool SettingsExists = FileSystem.DirectoryExists(GameSteamSettingPath(game.AppID));
+            if (SettingsExists)
             {
-                message = "Cannot create symlink for steam_settings.";
-                return false;
-            }
-            if (GoldbergSettings.SymbolicLinkAppdata && !CreateSymbolicSteamToAppdata(game, PlayniteApi))
-            {
-                message = "Cannot create symlink for Goldberg appdarta.";
-                return false;
+                if (!CreateSymbolicSteamSettings(game.Game))
+                {
+                    message = ResourceProvider.GetString("LOCSEU_SymlinkErrorSteamSettings");
+                    return false;
+                }
             }
             return true;
         }
-        public static bool CopyColdClientIni(Game game, IPlayniteAPI PlayniteApi, string apikey)
+        private static bool CopyColdClientIni(GoldbergGame game, IPlayniteAPI PlayniteApi, out string message, string apikey)
         {
-            if (!FileSystem.FileExists(Path.Combine(GameSettingsPath(game.GameId), "ColdClientLoader.ini")))
+            if (!FileSystem.FileExists(Path.Combine(GameSettingsPath(game.AppID), "ColdClientLoader.ini"))
+                || game.ConfigsColdClientLoader.Exe.IsNullOrWhiteSpace()
+                || game.ConfigsColdClientLoader.AppId.IsNullOrWhiteSpace())
             {
-                List<Game> games = new List<Game> { game };
-                GoldbergGenerator.GenerateGoldbergConfig(games, PlayniteApi, apikey);
+                if (!InternetCommon.Internet.IsInternetAvailable())
+                {
+                    message = ResourceProvider.GetString("LOCSEU_ConnectionUnavailable");
+                    return false;
+                }
+                game.GenerateColdClient = true;
+                GoldbergGenerator.GenerateInfo(game, apikey, PlayniteApi);
             }
-            try
+            if (!game.ConfigsColdClientLoader.Exe.IsNullOrWhiteSpace()
+                && !game.ConfigsColdClientLoader.AppId.IsNullOrWhiteSpace())
             {
-                FileSystem.CopyFile($"{GameSettingsPath(game.GameId)}\\ColdClientLoader.ini", ColdClientIni, true);
+                if (FileSystem.CopyFile($"{GameSettingsPath(game.AppID)}\\ColdClientLoader.ini", ColdClientIni, true))
+                {
+                    message = string.Empty;
+                    return true;
+                }
+                else
+                {
+                    message = ResourceProvider.GetString("LOCSEU_CopyErrorColdClientLoader");
+                    return false;
+                }
+            }
+            else
+            {
+                message = ResourceProvider.GetString("LOCSEU_ColdClientExeOrAppidNotFound");
+                return false;
+            }
+        }
+        private static bool CreateSymbolicSteamSettings(Game game)
+        {
+            if (FileSystem.DirectoryExists(SteamSettingsPath))
+            {
+                FileSystem.DeleteDirectory(SteamSettingsPath);
+            }
+            if (FileSystem.CreateSymbolicLink(SteamSettingsPath, GameSteamSettingPath(game.GameId)))
+            {
                 return true;
             }
-            catch { return false; }
-        }
-        public static bool CreateSymbolicSteamSettings(Game game)
-        {
-            try
+            else
             {
-                if (FileSystem.DirectoryExists(GameSteamSettingPath(game.GameId)))
+                return false;
+            }
+        }
+        public static bool SetSymbolicSteamToAppdata(Game game, IPlayniteAPI PlayniteApi, bool Enable = true)
+        {
+            string goldberggamepath = GameAppdataPath(game.GameId);
+            string steamuserdatagamepath = GameUserDataSteamPath(game.GameId);
+            if (!Enable)
+            {
+                var savesPath = Directory.GetDirectories(GameAppdataPath(game.GameId), "*", SearchOption.TopDirectoryOnly);
+                foreach (var dir in savesPath)
                 {
-                    if (FileSystem.DirectoryExists(SteamSettingsPath))
+                    if (FileSystem.IsSymbolicLink(dir))
                     {
-                        FileSystem.DeleteDirectory(SteamSettingsPath);
-                    }
-                    if (FileSystem.CreateSymbolicLink(SteamSettingsPath, GameSteamSettingPath(game.GameId)))
-                    {
-                        return true;
+                        FileSystem.DeleteDirectory(dir);
                     }
                 }
-                return true;
+                return false;
             }
-            catch { return false; }
-        }
-        public static bool CreateSymbolicSteamToAppdata(Game game, IPlayniteAPI PlayniteApi)
-        {
-            string goldberggamepath = GameAppdataPath(game);
-            string steamuserdatagamepath = GameUserDataSteamPath(game);
             try
             {
                 var userdatappid = Directory.GetDirectories(steamuserdatagamepath, "*", SearchOption.TopDirectoryOnly);
-                if (userdatappid.Count() <= 0)
-                {
-                    return true;
-                }
-                if (!FileSystem.DirectoryExists(goldberggamepath))
-                {
-                    FileSystem.CreateDirectory(goldberggamepath);
-                }
                 foreach (var dir in userdatappid)
                 {
                     string rootdirectory = Path.GetFileName(dir);
                     string goldbergtarget = Path.Combine(goldberggamepath, rootdirectory);
                     if (FileSystem.DirectoryExists(goldbergtarget))
                     {
-                        if (!FileSystem.IsSymbolicLink(goldbergtarget))
+                        var dialog = PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_ReplaceAppDataSymbolicWarning"), goldbergtarget, game.Name),
+                            "Steam Emu Utility", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+                        if (dialog == MessageBoxResult.Yes)
                         {
-                            var dialog = PlayniteApi.Dialogs.ShowMessage($"There's an existing folder {goldbergtarget} for {game.Name}, do you want to overwrite it? (THIS ACTION MAY CAUSE LOSS YOUR SAVEDATA!)", "", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Exclamation);
-                            if (dialog == System.Windows.MessageBoxResult.Yes)
+                            string backupPath = Path.Combine(GameSettingsPath(game.GameId), "Saves", Goldberg.ConfigsUser.ID, Path.GetFileName(goldbergtarget));
+                            FileSystem.CopyDirectory(goldbergtarget, backupPath);
+                            try
                             {
-                                try
-                                {
-                                    FileSystem.DeleteDirectory(goldbergtarget);
-                                }
-                                catch { continue; }
+                                FileSystem.DeleteDirectory(goldbergtarget);
                             }
-                            else if (dialog == System.Windows.MessageBoxResult.No)
-                            {
-                                return false;
-                            }
+                            catch { continue; }
+                        }
+                        else if (dialog == MessageBoxResult.No)
+                        {
+                            return false;
                         }
                     }
-                    if (FileSystem.DirectoryExists(goldbergtarget) && FileSystem.IsSymbolicLink(goldbergtarget))
+                    if (!FileSystem.CreateSymbolicLink(goldbergtarget, dir))
                     {
-                        continue;
-                    }
-                    if (FileSystem.CreateSymbolicLink(goldbergtarget, dir))
-                    {
-                        continue;
+                        PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_SymbolicDeveloperOffError"));
+                        return false;
                     }
                 }
                 return true;
             }
-            catch { return false; }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

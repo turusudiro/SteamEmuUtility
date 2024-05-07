@@ -2,4 +2,177 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
+    <sys:String x:Key="LOCSEU_StartWithGoldberg">Start {0} with Goldberg</sys:String>
+    
+    <sys:String x:Key="LOCSEU_SteamLoggedOn">Successfully logged on</sys:String>
+    <sys:String x:Key="LOCSEU_SteamLoggedOff">Logged off of Steam</sys:String>
+    <sys:String x:Key="LOCSEU_SteamConnecting">Connecting to Steam...</sys:String>
+    <sys:String x:Key="LOCSEU_SteamAnonymousLogging">Logging in anonymously</sys:String>
+    <sys:String x:Key="LOCSEU_SteamUnableToConnect">Unable to connect to Steam</sys:String>
+    <sys:String x:Key="LOCSEU_SteamReconnecting">Disconnected from Steam, reconnecting in {0}...</sys:String>
+    <sys:String x:Key="LOCSEU_SteamUnableToLogon">Unable to logon to Steam...</sys:String>
+    <sys:String x:Key="LOCSEU_DownloadingDLCCache">Downloading DLC Cache...</sys:String>
+    <sys:String x:Key="LOCSEU_UpdatingDLCCache">Updating DLC Cache...</sys:String>
+    <sys:String x:Key="LOCSEU_PasswordProtectedFileWrong">Wrong Password, Please re-enter the password</sys:String>
+    <sys:String x:Key="LOCSEU_PasswordProtectedFile">File is password-protected, Please enter the password</sys:String>
+    <sys:String x:Key="LOCSEU_CopiedFile">Copied {0} Files</sys:String>
+    <sys:String x:Key="LOCSEU_SkippingFile">Skipping {0}</sys:String>
+    <sys:String x:Key="LOCSEU_CopyingFile">Copying {0} to {1}</sys:String>
+    <sys:String x:Key="LOCSEU_TicketFiles">Tickets Files</sys:String>
+    <sys:String x:Key="LOCSEU_FileExists">The file {0} already exists. Do you want to overwrite it?</sys:String>
+    <sys:String x:Key="LOCSEU_Error">Error</sys:String>
+    <sys:String x:Key="LOCSEU_InjectorError">An Error occured! Cannot run Steam with injector!</sys:String>
+    <sys:String x:Key="LOCSEU_SteamWithoutConfiguredApplist">Steam is running without configured applist, Restart steam with Injector?</sys:String>
+    <sys:String x:Key="LOCSEU_SteamInjectedDiffMode">Steam is injected with different mode, Restart steam with Injector?</sys:String>
+    <sys:String x:Key="LOCSEU_SteamIsRunning">Steam is running, Restart steam with Injector?</sys:String>
+    <sys:String x:Key="LOCSEU_Error0SteamGame">Select at least 1 game</sys:String>
+    <sys:String x:Key="LOCSEU_ResetAchievementSuccess">Achievement reset successful for {0} games</sys:String>
+    <sys:String x:Key="LOCSEU_SymbolicDeveloperOffError">Unable to create symbolic links, make sure developer mode is enabled.</sys:String>
+    <sys:String x:Key="LOCSEU_ReplaceAppDataSymbolicWarning" xml:space="preserve">There is an existing {0} for {1}, do you want to overwrite it?
+(THIS ACTION MAY CAUSE LOSS OF SAVED DATA!)</sys:String>
+    <sys:String x:Key="LOCSEU_Missing">Missing</sys:String>
+    <sys:String x:Key="LOCSEU_Active">Active</sys:String>
+    <sys:String x:Key="LOCSEU_ConnectionUnavailable">Unable to generate info. Please check your internet connection</sys:String>
+
+    <sys:String x:Key="LOCSEU_GoldbergErrorRequiredFiles">Required Goldberg file not found. Check your settings</sys:String>
+    <sys:String x:Key="LOCSEU_UpdateAvailable" xml:space="preserve">{0} : Update available.
+Click here to download the latest version.</sys:String>
+    <sys:String x:Key="LOCSEU_DownloadInfo">Downloading info for {0}</sys:String>
+    <sys:String x:Key="LOCSEU_DownloadFromAppdetails">Downloading info from appdetails for {0}</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringAchievements">Configuring {0} : Searching Achievements</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringDownloadingAchievements">Configuring {0} : Downloading {1} achievement icon</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringController">Configuring {0} : Configuring controller</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringCheckingController">Configuring {0} : Checking controller support</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringFoundController">Configuring {0} : Found controller support</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringAccessingController">Configuring {0} : Accessing {1}</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringDepots">Configuring {0} : Configuring Configuring depots</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringBuildID">Configuring {0} : Configuring Build ID</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringDLC">Configuring {0} DLC : Configuring {1}</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringSupportedLang">Configuring {0} : Configuring supported languages</sys:String>
+    <sys:String x:Key="LOCSEU_ColdClientExeOrAppidNotFound">Unable to find required information for ColdClient</sys:String>
+    <sys:String x:Key="LOCSEU_CopyErrorColdClientLoader">Failed to copy ColdClientLoader.ini.</sys:String>
+    <sys:String x:Key="LOCSEU_SymlinkErrorSteamSettings" xml:space="preserve">Failed creating a symlink for steam_settings
+make sure Developer Mode is enabled.</sys:String>
+
+    <sys:String x:Key="LOCSEU_GeneralLabel">General</sys:String>
+    <sys:String x:Key="LOCSEU_Import">Import</sys:String>
+    <sys:String x:Key="LOCSEU_Download">Download</sys:String>
+    <sys:String x:Key="LOCSEU_Downloading">Downloading</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaErrorFeature">Normal Mode and Stealth Mode are enabled in this game, please make sure to choose one</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaErrorFileMissing">Required GreenLuma files not found. Check your settings</sys:String>
+    <sys:String x:Key="LOCSEU_GoldbergStatus">Goldberg Status</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaStatus">GreenLuma Status</sys:String>
+    <sys:String x:Key="LOCSEU_GetApiKey">Get API Key</sys:String>
+    <sys:String x:Key="LOCSEU_SteamWebApiKey">Steam Web API Key :</sys:String>
+    
+    <sys:String x:Key="LOCSEU_GreenLumaSettingsLabel">GreenLuma Settings</sys:String>
+    <sys:String x:Key="LOCSEU_MissingFiles">Missing Files</sys:String>
+    <sys:String x:Key="LOCSEU_CheckGLUpdate">Check GreenLuma update on application startup</sys:String>
+    <sys:String x:Key="LOCSEU_CheckGLFilesStartup">Check and clean GreenLuma files on application startup</sys:String>
+    <sys:String x:Key="LOCSEU_CleanGLAfterGame">Clean GreenLuma files after game exit</sys:String>
+    <sys:String x:Key="LOCSEU_ImmediatelyCleanGL">Immediately</sys:String>
+    <sys:String x:Key="LOCSEU_ImmediatelyDescription">Close Steam and clean files as soon as the game close</sys:String>
+    <sys:String x:Key="LOCSEU_ManuallyCleanGL">Manually exit Steam by user</sys:String>
+    <sys:String x:Key="LOCSEU_ManuallyCleanGLDescription">Clean files after user exit Steam manually</sys:String>
+    <sys:String x:Key="LOCSEU_RunSteamArgs">Run Steam with additional argument</sys:String>
+    <sys:String x:Key="LOCSEU_GLCleanAppCache">Clean Steam AppCache on starting game</sys:String>
+    <sys:String x:Key="LOCSEU_GLCleanApplistFolderNotEmpty">Clean applist folder on Steam if it's not empty</sys:String>
+    <sys:String x:Key="LOCSEU_GLSkipSteamUpdateStealth">Skip Steam Update on Stealth Mode</sys:String>
+    <sys:String x:Key="LOCSEU_InjectAppOwnershipTickets">Inject AppOwnershipTickets if there available</sys:String>
+    <sys:String x:Key="LOCSEU_InjectEncryptedAppTickets">Inject EncryptedAppTickets if there available</sys:String>
+    <sys:String x:Key="LOCSEU_GLDelay">Wait for the DLLInjector/Steam to start/exit, with a delay of {0} milliseconds</sys:String>
+    <sys:String x:Key="LOCSEU_AttemptDLLInjector">Attempt to Restart DLLInjector if it fails</sys:String>
+    <sys:String x:Key="LOCSEU_DontRestartDLLInjector">Do not Restart</sys:String>
+    <sys:String x:Key="LOCSEU_RestartOnceDLLInjector">Restart once</sys:String>
+    <sys:String x:Key="LOCSEU_RestartTwiceDLLInjector">Restart twice</sys:String>
+
+    <sys:String x:Key="LOCSEU_GoldbergSettingsLabel">Goldberg Settings</sys:String>
+    <sys:String x:Key="LOCSEU_CheckGBUpdate">Check Goldberg update on application startup</sys:String>
+    <sys:String x:Key="LOCSEU_OpenSteamUnlockLastGame">Open Steam and unlock with last stopped game after exit</sys:String>
+    <sys:String x:Key="LOCSEU_GBCleanGreenLumaExit">Also clean GreenLuma files after Steam Exit</sys:String>
+    <sys:String x:Key="LOCSEU_Avatar">Avatar</sys:String>
+    <sys:String x:Key="LOCSEU_Change">Change</sys:String>
+    <sys:String x:Key="LOCSEU_AvatarEnable">Enable Account Avatar</sys:String>
+    <sys:String x:Key="LOCSEU_AccountName">Account Name</sys:String>
+    <sys:String x:Key="LOCSEU_Language">Language</sys:String>
+    <sys:String x:Key="LOCSEU_ListenPort">Listen Port</sys:String>
+    <sys:String x:Key="LOCSEU_Broadcasts">Broadcasts</sys:String>
+    <sys:String x:Key="LOCSEU_UserSteamID">User Steam ID</sys:String>
+    <sys:String x:Key="LOCSEU_CountryIP">Country IP</sys:String>
+
+    <sys:String x:Key="LOCSEU_GameOnly">Game Only</sys:String>
+    <sys:String x:Key="LOCSEU_DLCOnly">DLC Only</sys:String>
+    <sys:String x:Key="LOCSEU_GameAndDLC">Game and DLC</sys:String>
+    <sys:String x:Key="LOCSEU_NormalMode">Normal Mode</sys:String>
+    <sys:String x:Key="LOCSEU_StealthMode">Stealth Mode</sys:String>
+    <sys:String x:Key="LOCSEU_EnableGoldberg">Enable Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_DisableGoldberg">Disable Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_EnableGreenLuma">Enable GreenLuma</sys:String>
+    <sys:String x:Key="LOCSEU_DisableGreenLuma">Disable GreenLuma</sys:String>
+    <sys:String x:Key="LOCSEU_MenuUnlockAll">Unlock all installed Steam games</sys:String>
+    <sys:String x:Key="LOCSEU_MenuUnlockAllClean">Unlock all installed Steam games and clean</sys:String>
+    <sys:String x:Key="LOCSEU_GodMode">God Mode</sys:String>
+    <sys:String x:Key="LOCSEU_LoadTickets">Load Tickets</sys:String>
+    <sys:String x:Key="LOCSEU_GoldbergConfigGenerator">Goldberg Config Generator</sys:String>
+    <sys:String x:Key="LOCSEU_AddGoldberg">Added {0} games Goldberg Features</sys:String>
+    <sys:String x:Key="LOCSEU_AddGreenLumaNormal">Added {0} games Normal Mode Features</sys:String>
+    <sys:String x:Key="LOCSEU_AddGreenLumaStealth">Added {0} games Stealth Mode Features</sys:String>
+    <sys:String x:Key="LOCSEU_RemoveGoldbergFeature">Removed {0} games Goldberg Features</sys:String>
+    <sys:String x:Key="LOCSEU_RemoveGreenlumaFeature">Removed {0} games Greenluma Features</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateGreenluma">Generate {0} Games DLC Info for GreenLuma</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateGoldberg">Generate {0} Games config for Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_ResetAchievement">Reset {0} Games Achievements for Goldberg and Achievement Watcher</sys:String>
+    
+    <sys:String x:Key="LOCSEU_OpenGoldbergGenerator">Open Goldberg config generator for {0} Games</sys:String>
+    <sys:String x:Key="LOCSEU_ListGame">List Games</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayLabel">Overlay</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayEnable">Enable Overlay</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayEnableTooltip">Enable the experimental overlay, might cause crashes</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayDisableAchievement">Disable Achievement Notification</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayDisableAchievementTooltip">Disable the achievements notifications</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayDisableFriend">Disable Friend Notification</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayDisableFriendTooltip">Disable friends invitations and messages notifications</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayHookDelayInSec">Hook Delay in Sec (default 0)</sys:String>
+    <sys:String x:Key="LOCSEU_OverlayHookDelayInSecTooltip">amount of time to wait before attempting to detect and hook the renderer (DirectX, OpenGL, etc...)</sys:String>
+    <sys:String x:Key="LOCSEU_NetworkingLabel">Networking</sys:String>
+    <sys:String x:Key="LOCSEU_CustomBroadcast">Custom Broadcast</sys:String>
+    <sys:String x:Key="LOCSEU_CustomBroadcastTooltip">Set custom ips (or domains) which the emulator will send broadcast packets to</sys:String>
+    <sys:String x:Key="LOCSEU_DisableLANOnly">Disable LAN Only</sys:String>
+    <sys:String x:Key="LOCSEU_DisableLANOnlyTooltip">Prevent hooking OS networking APIs and allow any external requests</sys:String>
+    <sys:String x:Key="LOCSEU_DisableNetworking">Disable Networking</sys:String>
+    <sys:String x:Key="LOCSEU_DisableNetworkingTooltip">Disable all steam networking interface functionality</sys:String>
+    <sys:String x:Key="LOCSEU_OfflineMode">Offline Mode Steam</sys:String>
+    <sys:String x:Key="LOCSEU_OfflineModeTooltip">Pretend steam is running in offline mode</sys:String>
+    <sys:String x:Key="LOCSEU_OtherLabel">Other</sys:String>
+    <sys:String x:Key="LOCSEU_OpenSettingsFolder">Open Settings folder</sys:String>
+    <sys:String x:Key="LOCSEU_OpenSettingsFolderTooltip">Open Settings folder where all related game settings for GSE stored</sys:String>
+    <sys:String x:Key="LOCSEU_PatchSteamStub">Patch Steam Stub</sys:String>
+    <sys:String x:Key="LOCSEU_PatchSteamStubTooltip" xml:space="preserve">Attempt to patch the Stub drm in memory, mainly for newer variants
+but it also works on some of the older ones</sys:String>
+    <sys:String x:Key="LOCSEU_RunAsAdmin">Run as Admin</sys:String>
+    <sys:String x:Key="LOCSEU_RunAsAdminTooltip">Try to run the game as Admin</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfo">Generate Info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoTooltip">Generate Info for Goldberg Emu such as Achievements, ColdClient.ini, Controller Settings, DLC, etc.</sys:String>
+    <sys:String x:Key="LOCSEU_Game">Game</sys:String>
+    <sys:String x:Key="LOCSEU_UnlockAllDLC">Unlock All DLC</sys:String>
+    <sys:String x:Key="LOCSEU_UnlockAllDLCTooltip" xml:space="preserve">Should the emu report all DLCs as unlocked,
+some games check for "hidden" DLCs,
+hence this should be set to disabled in that case</sys:String>
+    <sys:String x:Key="LOCSEU_EnableCloudSave">Enable Cloud Saving</sys:String>
+    <sys:String x:Key="LOCSEU_EnableCloudSaveTooltip" xml:space="preserve">Enable Cloud Saving to Steam Account
+This will create symbolic link folder from your steam userdata/(appid) folder into GSE Saves folder
+The SteamID on Goldberg must match the SteamID on Steam for the save you want to store
+USE IT WITH CAUTION</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoConfirmation" xml:space="preserve">Proceeding with this action will replace the existing configurations if they exist.
+Are you sure you want to continue?</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateAllInfo">Generate all info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoAchievement">Generate achievement info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoBuildID">Generate build ID info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoColdClient">Generate ColdClient info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoController">Generate controller info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoDepots">Generate depots info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoDLC">Generate DLC info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoSupportedLang">Generate supported language info</sys:String>
+    <sys:String x:Key="LOCSEU_ExeCommandLine">Command line to execute</sys:String>
+
 </ResourceDictionary>

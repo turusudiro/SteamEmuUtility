@@ -3,102 +3,114 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:local="clr-namespace:SteamEmuUtility.Views"
-	xmlns:lv="clr-namespace:XamlCommon"
-	xmlns:cv="clr-namespace:ConvertersCommon"
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="830">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"/>
+    </UserControl.Resources>
     <DockPanel Margin="20">
-        <ListView Height="580" VirtualizingPanel.ScrollUnit="Pixel" x:Name="SelectedGames" Width="Auto" DockPanel.Dock="Top" Margin="0,5,0,0" ItemsSource="{Binding GoldbergGames}" HorizontalAlignment="Left" lv:ColumnResizeBehavior.DisableColumnResize="True">
-            <ListView.View>
-                <GridView AllowsColumnReorder="False">
-                    <GridViewColumn Header="Game" Width="160">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Grid Height="120" VerticalAlignment="Top" Margin="0,10,0,10">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-                                    <Image VerticalAlignment="Center" Grid.Row="0" Source="{Binding CoverImage}" Width="70" Height="70" Stretch="UniformToFill"  RenderOptions.BitmapScalingMode="HighQuality" Margin="0,5,10,5"></Image>
-                                    <TextBlock Grid.Row="1" Text="{Binding Name}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                                </Grid>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="Overlay" Width="Auto">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Grid Height="120" VerticalAlignment="Top">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <CheckBox Content="Enable Overlay" Grid.Row="0" IsChecked="{Binding EnableOverlay}"  Margin="0,2,0,2"/>
-                                    <CheckBox IsEnabled="{Binding EnableOverlay}" Content="Disable Achievement Notification" Grid.Row="1" IsChecked="{Binding DisableOverlayAchievement}" Margin="0,2,0,2"/>
-                                    <CheckBox IsEnabled="{Binding EnableOverlay}" Content="Disable Friend Notification" Grid.Row="2" IsChecked="{Binding DisableOverlayFriend}" Margin="0,2,0,2"/>
-                                    <CheckBox IsEnabled="{Binding EnableOverlay}" Content="Overlay Hook Delay in Sec" Grid.Row="3" IsChecked="{Binding DelayHook}" Margin="0,2,0,2"/>
-                                    <TextBox MaxHeight="20" Grid.Row="4" Margin="0,2,0,2" Text="{Binding DelayHookInSec}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="150">
-                                        <TextBox.IsEnabled>
-                                            <MultiBinding Converter="{cv:MultiBooleanAndConverterBothTrue}">
-                                                <Binding Path="EnableOverlay"/>
-                                                <Binding Path="DelayHook"/>
-                                            </MultiBinding>
-                                        </TextBox.IsEnabled>
-                                    </TextBox>
-                                </Grid>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="Networking" Width="Auto">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Grid Height="120" VerticalAlignment="Top">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <CheckBox Grid.Row="0" Margin="0,2,0,2" IsChecked="{Binding CustomBroadcast}">
-                                        <TextBlock Text="Custom Broadcast" TextTrimming="WordEllipsis"/>
-                                    </CheckBox>
-                                    <TextBox IsEnabled="{Binding CustomBroadcast}" MaxHeight="20" Grid.Row="1" Margin="0,2,0,2" Text="{Binding CustomBroadcastAddress}" VerticalAlignment="Center" HorizontalAlignment="Left" Width="150"/>
-                                    <CheckBox Content="Disable LAN Only" Grid.Row="2" Margin="0,2,0,2" IsChecked="{Binding DisableLANOnly}"/>
-                                    <CheckBox Content="Disable Networking" Grid.Row="3" Margin="0,2,0,2" IsChecked="{Binding DisableNetworking}"/>
-                                    <CheckBox Content="Offline Mode Steam" Grid.Row="4" Margin="0,2,0,2" IsChecked="{Binding OfflineModeSteam}"/>
-                                </Grid>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="Other" Width="Auto">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Grid Height="120">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <Button Grid.Row="0" Content="Open Settings folder" Margin="0,2,0,2" IsEnabled="{Binding SettingsExists}" Command="{Binding DataContext.OpenSettingsPath, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}" CommandParameter="{Binding}"/>
-                                    <CheckBox Content="Patch Steam Stub" Grid.Row="1" Margin="0,2,0,2" IsChecked="{Binding PatchSteamStub}"/>
-                                    <CheckBox Content="Run as Admin" Grid.Row="2" Margin="0,2,0,2" IsChecked="{Binding RunAsAdmin}"/>
-                                    <CheckBox Content="Reconfigure Goldberg" Grid.Row="3" Margin="0,2,0,2" IsChecked="{Binding ReconfigureGoldberg}" IsEnabled="{Binding GoldbergExists}"/>
-                                </Grid>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
-        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
-            <Button Margin="5" Content="Apply All" Command="{Binding GenerateGames}" CommandParameter="{Binding GoldbergGames}"/>
-            <Button Margin="5" Content="Apply Selected" Command="{Binding GenerateGames}" CommandParameter="{Binding SelectedItems, ElementName=SelectedGames}"/>
-        </StackPanel>
+        <DockPanel>
+            <TextBlock Text="{DynamicResource LOCSEU_ListGame}" Margin="0,0,0,10" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
+            <ListBox x:Name="Game" ItemsSource="{Binding GoldbergGames}" IsSynchronizedWithCurrentItem="True" Width="180">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" Style="{StaticResource BaseTextBlockStyle}">
+                            <TextBlock.ToolTip>
+                                <ToolTip Content="{Binding Name}" />
+                            </TextBlock.ToolTip>
+                        </TextBlock>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+        
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <Grid Margin="5,0,10,0" DataContext="{Binding SelectedItem, ElementName=Game}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Column="0" Grid.Row="0" Margin="10,0,10,10">
+                    <TextBlock Text="{DynamicResource LOCSEU_OverlayLabel}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,2,0,5"/>
+                    <Separator Margin="0,5,0,5"/>
+                    <CheckBox Content="{DynamicResource LOCSEU_OverlayEnable}" ToolTip="{DynamicResource LOCSEU_OverlayEnableTooltip}" IsChecked="{Binding ConfigsOverlay.EnableOverlay}" Margin="0,2,0,2"/>
+                    <CheckBox Content="{DynamicResource LOCSEU_OverlayDisableAchievement}" ToolTip="{DynamicResource LOCSEU_OverlayDisableAchievementTooltip}" IsEnabled="{Binding ConfigsOverlay.EnableOverlay}" IsChecked="{Binding ConfigsOverlay.DisableOverlayAchievement}"/>
+                    <CheckBox Content="{DynamicResource LOCSEU_OverlayDisableFriend}" ToolTip="{DynamicResource LOCSEU_OverlayDisableFriendTooltip}" IsEnabled="{Binding ConfigsOverlay.EnableOverlay}" IsChecked="{Binding ConfigsOverlay.DisableOverlayFriend}" Margin="0,2,0,2"/>
+                    <TextBlock Text="{DynamicResource LOCSEU_OverlayHookDelayInSec}" IsEnabled="{Binding ConfigsOverlay.EnableOverlay}" Margin="2,2,0,2"/>
+                    <TextBox Text="{Binding ConfigsOverlay.DelayHookInSec, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource LOCSEU_OverlayHookDelayInSecTooltip}" IsEnabled="{Binding ConfigsOverlay.EnableOverlay}" MaxHeight="20" Margin="2,2,0,2" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                </StackPanel>
+                <StackPanel Grid.Column="0" Grid.Row="1" Margin="10,0,10,10">
+                    <TextBlock Text="{DynamicResource LOCSEU_NetworkingLabel}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,2,0,5"/>
+                    <Separator Margin="0,5,0,5"/>
+                    <CheckBox Content="{DynamicResource LOCSEU_CustomBroadcast}" ToolTip="{DynamicResource LOCSEU_CustomBroadcastTooltip}" Margin="0,2,0,2" IsChecked="{Binding CustomBroadcast}"/>
+                    <TextBox Text="{Binding CustomBroadcastAddress, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CustomBroadcast}" MaxHeight="20" Margin="0,2,0,2" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                    <CheckBox Content="{DynamicResource LOCSEU_DisableLANOnly}" ToolTip="{DynamicResource LOCSEU_DisableLANOnlyTooltip}" Margin="0,2,0,2" IsChecked="{Binding ConfigsMain.DisableLANOnly}"/>
+                    <CheckBox Content="{DynamicResource LOCSEU_DisableNetworking}" ToolTip="{DynamicResource LOCSEU_DisableNetworkingTooltip}" Margin="0,2,0,2" IsChecked="{Binding ConfigsMain.DisableNetworking}"/>
+                    <CheckBox Content="{DynamicResource LOCSEU_OfflineMode}" ToolTip="{DynamicResource LOCSEU_OfflineModeTooltip}" Margin="0,2,0,2" IsChecked="{Binding ConfigsMain.OfflineModeSteam}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Grid.Row="0" Margin="10,0,10,10">
+                    <TextBlock Text="{DynamicResource LOCSEU_OtherLabel}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,2,0,5"/>
+                    <Separator Margin="0,5,0,5"/>
+                    <Button Content="{DynamicResource LOCSEU_OpenSettingsFolder}" ToolTip="{DynamicResource LOCSEU_OpenSettingsFolderTooltip}" Margin="0,2,0,2" 
+                            Command="{Binding DataContext.OpenSettingsPath, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
+                            CommandParameter="{Binding}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <CheckBox Content="{DynamicResource LOCSEU_PatchSteamStub}" ToolTip="{DynamicResource LOCSEU_PatchSteamStubTooltip}" Margin="0,2,0,2" IsChecked="{Binding ConfigsColdClientLoader.PatchSteamStub}"/>
+                    <CheckBox Content="{DynamicResource LOCSEU_RunAsAdmin}" ToolTip="{DynamicResource LOCSEU_RunAsAdminTooltip}" Margin="0,2,0,2" IsChecked="{Binding ConfigsEmu.RunAsAdmin}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Grid.Row="1" Margin="10,0,10,10">
+                    <TextBlock Text="{DynamicResource LOCSEU_Game}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,2,0,5"/>
+                    <Separator Margin="0,5,0,5"/>
+                    <CheckBox Content="{DynamicResource LOCSEU_UnlockAllDLC}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding ConfigsApp.UnlockAll}"/>
+                    <CheckBox Content="{DynamicResource LOCSEU_EnableCloudSave}" ToolTip="{DynamicResource LOCSEU_EnableCloudSaveTooltip}" Margin="0,2,0,2" IsChecked="{Binding EnableCloudSave}" IsEnabled="{Binding UserdataSavesExists}"/>
+                    <TextBlock Text="{DynamicResource LOCSEU_ExeCommandLine}" Margin="2,2,0,2"/>
+                    <TextBox Text="{Binding ConfigsColdClientLoader.ExeCommandLine, UpdateSourceTrigger=PropertyChanged}" ToolTip="{DynamicResource LOCSEU_OverlayHookDelayInSecTooltip}" MaxHeight="20" Margin="2,2,0,2" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                </StackPanel>
+                <Grid Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Margin="10,0,10,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+                        <TextBlock Text="Goldberg" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,2,0,5"/>
+                        <Separator Margin="0,5,0,5"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="0">
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoAchievement}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateAchievements}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoBuildID}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateBuildID}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoColdClient}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateColdClient}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoController}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateController}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1">
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoDepots}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateDepots}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoDLC}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateDLC}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoSupportedLang}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" IsChecked="{Binding GenerateSupportedLanguages}" Margin="0,2,0,2"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateAllInfo}" IsChecked="{Binding GenerateAllInfo}"/>
+                        <Button Content="{DynamicResource LOCSEU_GenerateInfo}" ToolTip="{DynamicResource LOCSEU_GenerateInfoTooltip}" Margin="0,2,0,2" 
+                        Command="{Binding DataContext.GenerateInfo, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}" 
+                        CommandParameter="{Binding}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    
+                </Grid>
+            </Grid>
+        </ScrollViewer>
+        
     </DockPanel>
 </UserControl>

@@ -42,7 +42,24 @@ namespace ProcessCommon
         {
             return StartProcess(path, arguments, string.Empty, asAdmin);
         }
+        public static Process StartProcessHidden(string path, string arguments)
+        {
+            var startupPath = path;
+            if (path.Contains(".."))
+            {
+                startupPath = Path.GetFullPath(path);
+            }
 
+            var info = new ProcessStartInfo(startupPath)
+            {
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                Arguments = arguments,
+                WorkingDirectory = new FileInfo(startupPath).Directory.FullName
+            };
+
+            return Process.Start(info);
+        }
         public static Process StartProcess(string path, string arguments, string workDir, bool asAdmin = false)
         {
             logger.Debug($"Starting process: {path}, {arguments}, {workDir}, {asAdmin}");
@@ -118,6 +135,7 @@ namespace ProcessCommon
 
             return process; // All attempts failed
         }
+
         public static int StartProcessWait(string path, string arguments, string workDir, bool noWindow = false)
         {
             logger.Debug($"Starting process: {path}, {arguments}, {workDir}");

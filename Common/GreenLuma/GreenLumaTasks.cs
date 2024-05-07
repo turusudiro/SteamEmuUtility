@@ -21,7 +21,7 @@ namespace GreenLumaCommon
     {
         private static readonly ILogger logger = LogManager.GetLogger();
 
-        public static void CheckForUpdate(IPlayniteAPI PlayniteApi)
+        public static void CheckForUpdate(IPlayniteAPI PlayniteApi, SteamEmuUtility.SteamEmuUtility plugin)
         {
             if (!GreenLumaFilesExists(out _))
             {
@@ -44,13 +44,8 @@ namespace GreenLumaCommon
                 }
                 else
                 {
-                    if (PlayniteApi.Dialogs.ShowMessage("GreenLuma : Update available. " +
-                        "Please download the latest version. " +
-                        "Would you like to open it in your web browser now?", "GreenLuma",
-                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                    {
-                        ProcessUtilities.StartUrl(Url);
-                    }
+                    PlayniteApi.Notifications.Add(new NotificationMessage(plugin.Id.ToString(), string.Format(ResourceProvider.GetString("LOCSEU_UpdateAvailable"), "GreenLuma"),
+                    NotificationType.Info, () => ProcessUtilities.StartUrl(Url)));
                 }
             }
         }
@@ -207,7 +202,8 @@ namespace GreenLumaCommon
             {
                 if (Steam.IsSteamRunning)
                 {
-                    if (PlayniteApi.Dialogs.ShowMessage("Steam is injected with different mode! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                    if (PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOCSEU_SteamInjectedDiffMode"),
+                        ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     {
                         Token.Cancel();
                         Token.Dispose();
@@ -231,7 +227,8 @@ namespace GreenLumaCommon
             }
             else if (Steam.IsSteamRunning && !ApplistConfigured(appids))
             {
-                if (PlayniteApi.Dialogs.ShowMessage("Steam is running without configured applist! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                if (PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOCSEU_SteamWithoutConfiguredApplist"),
+                    ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     Token.Cancel();
                     while (Steam.IsSteamRunning)
@@ -248,7 +245,8 @@ namespace GreenLumaCommon
             }
             else if (Steam.IsSteamRunning)
             {
-                if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                if (PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOCSEU_SteamIsRunning"),
+                    ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     Token.Cancel();
                     while (Steam.IsSteamRunning)
@@ -299,7 +297,8 @@ namespace GreenLumaCommon
             catch (Exception ex) { PlayniteApi.Dialogs.ShowErrorMessage(ex.Message); args.CancelStartup = true; return; }
             if (!StartInjector(args, GreenLumaSettings.MaxAttemptDLLInjector, GreenLumaSettings.MillisecondsToWait))
             {
-                PlayniteApi.Dialogs.ShowMessage("An Error occured! Cannot run Steam with injector!", "ERROR!", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOCSEU_InjectorError"),
+                    ResourceProvider.GetString("LOCSEU_Error"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                 args.CancelStartup = true;
                 return;
             }
@@ -315,7 +314,8 @@ namespace GreenLumaCommon
             {
                 if (Steam.IsSteamRunning || IsDLLInjectorRunning)
                 {
-                    if (PlayniteApi.Dialogs.ShowMessage("Steam is injected with different mode! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                    if (PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOCSEU_SteamInjectedDiffMode"),
+                        ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     {
                         Token.Cancel();
                         while (Steam.IsSteamRunning)
@@ -338,7 +338,8 @@ namespace GreenLumaCommon
             }
             else if (Steam.IsSteamRunning && !ApplistConfigured(appids))
             {
-                if (PlayniteApi.Dialogs.ShowMessage("Steam is running without configured applist! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                if (PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOCSEU_SteamWithoutConfiguredApplist"),
+                    ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     Token.Cancel();
                     while (Steam.IsSteamRunning)
@@ -355,7 +356,8 @@ namespace GreenLumaCommon
             }
             else if (Steam.IsSteamRunning)
             {
-                if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                if (PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("Steam is running, Restart steam with Injector?"),
+                    ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     Token.Cancel();
                     while (Steam.IsSteamRunning)
@@ -438,7 +440,8 @@ namespace GreenLumaCommon
         {
             if (Steam.IsSteamRunning)
             {
-                if (PlayniteApi.Dialogs.ShowMessage("Steam is running! Restart steam with Injector?", "ERROR!", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.Yes)
+                if (PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOCSEU_SteamIsRunning"),
+                    ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     Token.Cancel();
                     while (Steam.IsSteamRunning)
@@ -573,7 +576,7 @@ namespace GreenLumaCommon
         }
         public static void LoadTicket(IPlayniteAPI PlayniteApi)
         {
-            var files = PlayniteApi.Dialogs.SelectFiles("Tickets Files|EncryptedTicket.*;Ticket.*");
+            var files = PlayniteApi.Dialogs.SelectFiles($"{ResourceProvider.GetString("LOCSEU_TicketFiles")}|EncryptedTicket.*;Ticket.*");
             if (files == null)
             {
                 return;
@@ -603,13 +606,14 @@ namespace GreenLumaCommon
                 foreach (string file in AppOwnershipTickets)
                 {
                     string destinationFile = Path.Combine(AppOwnershipTicketsPath, Path.GetFileName(file));
-                    progress.Text = "Copying " + Path.GetFileName(file) + " to " + destinationFile;
+                    progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_CopyingFile"), Path.GetFileName(file), destinationFile);
                     progress.CurrentProgressValue++;
                     if (FileSystem.FileExists(destinationFile))
                     {
-                        if (PlayniteApi.Dialogs.ShowMessage($"The file {Path.GetFileName(file)} already exists. Do you want to overwrite it?", "Steam Emu Utility", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Information) == System.Windows.MessageBoxResult.No)
+                        if (PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_FileExists"), Path.GetFileName(file)),
+                            "Steam Emu Utility", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.No)
                         {
-                            progress.Text = "Skipping " + Path.GetFileName(file);
+                            progress.Text += string.Format(ResourceProvider.GetString("LOCSEU_SkippingFile"), Path.GetFileName(file));
                             progress.CurrentProgressValue++;
                             continue;
                         }
@@ -619,13 +623,13 @@ namespace GreenLumaCommon
                 foreach (string file in EncryptedAppTickets)
                 {
                     string destinationFile = Path.Combine(EncryptedAppTicketsPath, Path.GetFileName(file));
-                    progress.Text = "Copying " + Path.GetFileName(file) + " to " + destinationFile;
+                    progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_CopyingFile"), Path.GetFileName(file), destinationFile);
                     progress.CurrentProgressValue++;
                     if (FileSystem.FileExists(destinationFile))
                     {
-                        if (PlayniteApi.Dialogs.ShowMessage($"The file {Path.GetFileName(file)} already exists. Do you want to overwrite it?", "Steam Emu Utility", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Information) == System.Windows.MessageBoxResult.No)
+                        if (PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_FileExists"), Path.GetFileName(file)), "Steam Emu Utility", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Information) == System.Windows.MessageBoxResult.No)
                         {
-                            progress.Text = "Skipping " + Path.GetFileName(file);
+                            progress.Text += string.Format(ResourceProvider.GetString("LOCSEU_SkippingFile"), Path.GetFileName(file));
                             progress.CurrentProgressValue++;
                             continue;
                         }
@@ -635,15 +639,15 @@ namespace GreenLumaCommon
             }, progressOptions);
             if (availableAppOwnership && !availableEncryptedApp)
             {
-                PlayniteApi.Dialogs.ShowMessage($"Copied {AppOwnershipTickets.Count} AppOwnershipTickets");
+                PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_CopiedFile"), AppOwnershipTickets.Count));
             }
             else if (availableEncryptedApp && !availableAppOwnership)
             {
-                PlayniteApi.Dialogs.ShowMessage($"Copied {EncryptedAppTickets.Count} EncryptedAppTickets");
+                PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_CopiedFile"), EncryptedAppTickets.Count));
             }
             else if (availableEncryptedApp && availableAppOwnership)
             {
-                PlayniteApi.Dialogs.ShowMessage($"Copied {AppOwnershipTickets.Count} AppOwnershipTickets and {EncryptedAppTickets.Count} EncryptedAppTickets");
+                PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_CopiedFile"), AppOwnershipTickets.Count + EncryptedAppTickets.Count));
             }
         }
     }

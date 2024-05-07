@@ -43,7 +43,7 @@ namespace SteamCommon
         public static void UpdateCache(string pluginpath, GlobalProgressActionArgs progressOptions, string apikey)
         {
             progressOptions.IsIndeterminate = true;
-            progressOptions.Text = "Updating DLC Cache...";
+            progressOptions.Text = ResourceProvider.GetString("LOCSEU_UpdatingDLCCache");
             var client = new HttpClient();
             client.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
             string path = Path.Combine(pluginpath, "Common", "DLCCache.json");
@@ -96,7 +96,7 @@ namespace SteamCommon
         public static void GenerateCache(string pluginpath, GlobalProgressActionArgs progressOptions, string apikey)
         {
             progressOptions.IsIndeterminate = true;
-            progressOptions.Text = "Downloading DLC Cache...";
+            progressOptions.Text = ResourceProvider.GetString("LOCSEU_DownloadingDLCCache");
             var client = new HttpClient();
             client.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
             string path = Path.Combine(pluginpath, "Common", "DLCCache.json");
