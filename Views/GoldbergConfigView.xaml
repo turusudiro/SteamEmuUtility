@@ -91,19 +91,19 @@
                         <Separator Margin="0,5,0,5"/>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="0">
-                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoAchievement}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateAchievements}"/>
-                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoBuildID}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateBuildID}"/>
-                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoColdClient}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateColdClient}"/>
-                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoController}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateController}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoAchievement}" ToolTip="{DynamicResource LOCSEU_GenerateInfoAchievementTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateAchievements}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoBuildID}" ToolTip="{DynamicResource LOCSEU_GenerateInfoBuildIDTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateBuildID}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoColdClient}" ToolTip="{DynamicResource LOCSEU_GenerateInfoColdClientTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateColdClient}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoController}" ToolTip="{DynamicResource LOCSEU_GenerateInfoControllerTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateController}"/>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="1">
-                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoDepots}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateDepots}"/>
-                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoDLC}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateDLC}"/>
-                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoSupportedLang}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" IsChecked="{Binding GenerateSupportedLanguages}" Margin="0,2,0,2"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoDepots}" ToolTip="{DynamicResource LOCSEU_GenerateInfoDepotsTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateDepots}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoDLC}" ToolTip="{DynamicResource LOCSEU_GenerateInfoDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateDLC}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoSupportedLang}" ToolTip="{DynamicResource LOCSEU_GenerateInfoSupportedLangTooltip}" IsChecked="{Binding GenerateSupportedLanguages}" Margin="0,2,0,2"/>
                     </StackPanel>
                     <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
-                        <CheckBox Content="{DynamicResource LOCSEU_GenerateAllInfo}" IsChecked="{Binding GenerateAllInfo}"/>
-                        <Button Content="{DynamicResource LOCSEU_GenerateInfo}" ToolTip="{DynamicResource LOCSEU_GenerateInfoTooltip}" Margin="0,2,0,2" 
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateAllInfo}" ToolTip="{DynamicResource LOCSEU_GenerateAllInfoTooltip}" IsChecked="{Binding GenerateAllInfo}"/>
+                        <Button Content="{DynamicResource LOCSEU_GenerateInfo}" Margin="0,2,0,2" 
                         Command="{Binding DataContext.GenerateInfo, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}" 
                         CommandParameter="{Binding}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </StackPanel>
