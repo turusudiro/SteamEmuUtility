@@ -167,13 +167,24 @@ GUNAKAN DENGAN HATI-HATI</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoConfirmation" xml:space="preserve">Melanjutkan tindakan ini akan menggantikan konfigurasi yang ada jika ada.
 Apakah Anda yakin ingin melanjutkan?</sys:String>
     <sys:String x:Key="LOCSEU_GenerateAllInfo">Buat Semua Info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateAllInfoTooltip">Buat semua info aplikasi/game yang tersedia</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoAchievement">Buat Info pencapaian</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoAchievementTooltip" xml:space="preserve">Buat info pencapaian dan unduh semua gambar pencapaian
+yang tersedia terkait dengan pencapaian</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoBuildID">Buat Info ID dibangun</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoBuildIDTooltip">Buat info build ID agar aplikasi/game dapat menampilkan build ID yang benar</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoColdClient">Buat Info ColdClient</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoColdClientTooltip" xml:space="preserve">Buat file ColdClient.ini untuk memberi tahu plugin cara meluncurkan aplikasi/game
+seperti arsitektur aplikasi/game, jalur peluncur, dll</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoController">Buat Info kontroler</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoControllerTooltip" xml:space="preserve">Buat info kontroler untuk memberi tahu emulator tentang cara menangani
+setiap set aksi, tombol mana yang ditautkan ke nama aksi yang mana</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoDepots">Buat Info depot-depot</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoDepotsTooltip">Beberapa game mungkin menggunakan id depot untuk melihat apakah dlc sudah terinstal</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoDLC">Buat Info DLC</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoDLCTooltip">Buat semua info DLC yang tersedia untuk memberi tahu emulator DLC mana yang harus dibuka</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoSupportedLang">Buat Info Bahasa yang didukung</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoSupportedLangTooltip">Buat semua info bahasa yang didukung untuk aplikasi/game</sys:String>
     <sys:String x:Key="LOCSEU_ExeCommandLine">Baris perintah untuk eksekusi</sys:String>
 
 </ResourceDictionary>

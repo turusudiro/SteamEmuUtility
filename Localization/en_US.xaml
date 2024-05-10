@@ -166,13 +166,24 @@ USE IT WITH CAUTION</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoConfirmation" xml:space="preserve">Proceeding with this action will replace the existing configurations if they exist.
 Are you sure you want to continue?</sys:String>
     <sys:String x:Key="LOCSEU_GenerateAllInfo">Generate all info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateAllInfoTooltip">Generate all available app/game info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoAchievement">Generate achievement info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoAchievementTooltip" xml:space="preserve">Generate achievement info and downloadall available achievement 
+images related to achievement</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoBuildID">Generate build ID info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoBuildIDTooltip">Generate build ID info to allow the app/game to show the correct build ID</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoColdClient">Generate ColdClient info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoColdClientTooltip" xml:space="preserve">Generate ColdClient.ini file to tell the plugin how to launch the app/game
+such as app/game architecture, launch path, etc</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoController">Generate controller info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoControllerTooltip" xml:space="preserve">Generate controller info to tell the emulator on how to handle
+each action set, which button is linked to which action name</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoDepots">Generate depots info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoDepotsTooltip">Some games might use depot ids to see if dlcs are installed</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoDLC">Generate DLC info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoDLCTooltip">Generate all available DLC info to tell the emulator which DLC should be unlocked</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoSupportedLang">Generate supported language info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoSupportedLangTooltip">Generate all supported language info for app/game</sys:String>
     <sys:String x:Key="LOCSEU_ExeCommandLine">Command line to execute</sys:String>
 
 </ResourceDictionary>
