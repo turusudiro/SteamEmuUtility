@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -413,14 +414,14 @@ namespace SteamEmuUtility
             {
                 if (InternetCommon.Internet.IsInternetAvailable())
                 {
-                    GoldbergTasks.CheckForUpdate(PlayniteApi, settings, this);
+                    Task.Run(() => GoldbergTasks.CheckForUpdate(PlayniteApi, settings, this));
                 }
             }
             if (settings.Settings.CheckGreenLumaUpdate)
             {
                 if (InternetCommon.Internet.IsInternetAvailable())
                 {
-                    GreenLumaTasks.CheckForUpdate(PlayniteApi, this);
+                    Task.Run(() => GreenLumaTasks.CheckForUpdate(PlayniteApi, this));
                 }
             }
             if (settings.Settings.CleanGreenLumaStartup)
