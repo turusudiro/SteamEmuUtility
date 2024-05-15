@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using Playnite.SDK;
 using SteamCommon.Models;
-using System.Net.Http;
 
 namespace SteamCommon
 {
@@ -11,8 +10,6 @@ namespace SteamCommon
         private const string Uri = "https://api.steamcmd.net/v1/info/";
         public static AppInfo GetAppInfo(string appid, GlobalProgressActionArgs progress, AppInfo appinfo = null)
         {
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
             progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_DownloadInfo"), appid);
             var response = HttpDownloader.DownloadString(Uri + appid, progress.CancelToken);
             if (response.Length > 0)
@@ -35,9 +32,7 @@ namespace SteamCommon
         public static AppIdInfo GetAppInfo(string appid, GlobalProgressActionArgs progress)
         {
             progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_DownloadInfo"), appid);
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
-            var response = HttpDownloader.DownloadString(Uri + appid);
+            var response = HttpDownloader.DownloadString(Uri + appid, progress.CancelToken);
             if (response.Length > 0)
             {
                 var appinforesult = JsonConvert.DeserializeObject<AppInfo>(response);

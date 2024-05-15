@@ -74,7 +74,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\ColumnResizeBehavior.cs" />
     <Compile Include="Common\Converters.cs" />
     <Compile Include="Common\Extensions\ProcessExtensions.cs" />
     <Compile Include="Common\Extensions\StringExtensions.cs" />
@@ -131,11 +130,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Localization\*.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Localization\id_ID.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
