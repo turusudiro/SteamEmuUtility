@@ -767,6 +767,7 @@ namespace SteamEmuUtility
                 List<string> gl = new List<string>
                 {
                     "DLLInjector.exe",
+                    "DLLInjector.ini",
                     "x64launcher.exe",
                     "AchievementUnlocked.wav",
                     @"GreenLuma_\d{4}_x64.dll",
@@ -776,7 +777,6 @@ namespace SteamEmuUtility
                 };
 
                 var files = extractor.ArchiveFileData.Where(x => gl.Any(file => Regex.IsMatch(x.FileName, file, RegexOptions.IgnoreCase)));
-                //var files = extractor.ArchiveFileData.Where(x => gl.Any(file => x.FileName.Contains(file)) || Regex.IsMatch(x.FileName, regexPattern, RegexOptions.IgnoreCase));
                 string kosong = string.Empty;
                 foreach (var item in files)
                 {
