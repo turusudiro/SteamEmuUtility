@@ -1,4 +1,5 @@
-﻿using Playnite.SDK;
+﻿using IniParser;
+using Playnite.SDK;
 using Playnite.SDK.Models;
 using PluginsCommon;
 using SteamCommon;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using static GreenLumaCommon.GreenLuma;
 
@@ -13,61 +15,89 @@ namespace GreenLumaCommon
 {
     public class GreenLumaGenerator
     {
+        public static string DefaultInjectorConfig
+        {
+            get
+            {
+                return $@"[DllInjector]
+AllowMultipleInstancesOfDLLInjector = 0
+UseFullPathsFromIni = 0
+
+# Exe to start
+Exe = Steam.exe
+CommandLine = -inhibitbootstrap
+
+# Dll to inject
+Dll = GreenLuma_{Year}_x86.dll
+
+# Wait for started exe to close before exiting the DllInjector process.
+WaitForProcessTermination = 1
+
+# Set a fake parent process
+# EnableMitigationsOnChildProcess must be disabled for this.
+EnableFakeParentProcess = 0
+FakeParentProcess = explorer.exe
+
+# Enable security mitigations on child process.
+EnableMitigationsOnChildProcess = 0
+
+DEP = 1
+SEHOP = 1
+HeapTerminate = 1
+ForceRelocateImages = 1
+BottomUpASLR = 1
+HighEntropyASLR = 1
+RelocationsRequired = 1
+StrictHandleChecks = 0
+Win32kSystemCallDisable = 0
+ExtensionPointDisable = 1
+CFG = 1
+CFGExportSuppression = 1
+StrictCFG = 1
+DynamicCodeDisable = 0
+DynamicCodeAllowOptOut = 0
+BlockNonMicrosoftBinaries = 0
+FontDisable = 1
+NoRemoteImages = 1
+NoLowLabelImages = 1
+PreferSystem32 = 0
+RestrictIndirectBranchPrediction = 1
+SpeculativeStoreBypassDisable = 0
+ShadowStack = 0
+ContextIPValidation = 0
+BlockNonCETEHCONT = 0
+BlockFSCTL = 0
+
+# Number to files to create
+CreateFiles = 0
+
+# Name of the file(s) to create
+FileToCreate_1 =
+FileToCreate_2 =
+
+#Patch an x86 exe to enable IMAGE_FILE_LARGE_ADDRESS_AWARE
+Use4GBPatch = 0
+FileToPatch_1 = ";
+            }
+        }
+
         public static void CreateDLLInjectorIni()
         {
-            List<string> injectorConfig = new List<string>
+            string path = Path.Combine(Steam.SteamDirectory, "DLLInjector.ini");
+            if (!FileSystem.FileExists(path))
             {
-                "[DllInjector]",
-                "AllowMultipleInstancesOfDLLInjector = 0",
-                "UseFullPathsFromIni = 0",
-                "Exe = Steam.exe",
-                "CommandLine = -inhibitbootstrap",
-                $"Dll = GreenLuma_{GreenLuma.Year}_x86.dll",
-                "WaitForProcessTermination = 1",
-                "EnableFakeParentProcess = 0",
-                "FakeParentProcess = explorer.exe",
-                "EnableMitigationsOnChildProcess = 0",
-                "DEP = 1",
-                "SEHOP = 1",
-                "HeapTerminate = 1",
-                "ForceRelocateImages = 1",
-                "BottomUpASLR = 1",
-                "HighEntropyASLR = 1",
-                "RelocationsRequired = 1",
-                "StrictHandleChecks = 0",
-                "Win32kSystemCallDisable = 0",
-                "ExtensionPointDisable = 1",
-                "CFG = 1",
-                "CFGExportSuppression = 1",
-                "StrictCFG = 1",
-                "DynamicCodeDisable = 0",
-                "DynamicCodeAllowOptOut = 0",
-                "BlockNonMicrosoftBinaries = 0",
-                "FontDisable = 1",
-                "NoRemoteImages = 1",
-                "NoLowLabelImages = 1",
-                "PreferSystem32 = 0",
-                "RestrictIndirectBranchPrediction = 1",
-                "SpeculativeStoreBypassDisable = 0",
-                "ShadowStack = 0",
-                "ContextIPValidation = 0",
-                "BlockNonCETEHCONT = 0",
-                "CreateFiles = 0",
-                "FileToCreate_1 =",
-                "FileToCreate_2 =",
-                "Use4GBPatch = 0",
-                "FileToPatch_1 ="
-            };
+                FileSystem.WriteStringToFile(path, DefaultInjectorConfig);
+            }
             if (GreenLumaSettings.EnableSteamArgs)
             {
-                int index = injectorConfig.FindIndex(line => line.StartsWith("CommandLine"));
-                if (index != -1)
-                {
-                    // Modify the line with the new value
-                    injectorConfig[index] = $"CommandLine = -inhibitbootstrap {GreenLumaSettings.SteamArgs}";
-                }
+                var parser = new FileIniDataParser();
+                parser.Parser.Configuration.CommentString = "#";
+                var data = parser.ReadFile(path);
+                string section = "DllInjector";
+                string key = "CommandLine";
+                data.Sections[section][key] = "-inhibitbootstrap" + " " + GreenLumaSettings.SteamArgs;
+                parser.WriteFile(path, data, new UTF8Encoding());
             }
-            FileSystem.WriteStringLinesToFile(Path.Combine(Steam.SteamDirectory, "DLLInjector.ini"), injectorConfig);
         }
         /// <summary>
         /// Create txt files in applist Steam directory
