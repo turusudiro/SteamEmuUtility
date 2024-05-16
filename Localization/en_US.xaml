@@ -25,6 +25,7 @@
     <sys:String x:Key="LOCSEU_SteamWithoutConfiguredApplist">Steam is running without configured applist, Restart steam with Injector?</sys:String>
     <sys:String x:Key="LOCSEU_SteamInjectedDiffMode">Steam is injected with different mode, Restart steam with Injector?</sys:String>
     <sys:String x:Key="LOCSEU_SteamIsRunning">Steam is running, Restart steam with Injector?</sys:String>
+    <sys:String x:Key="LOCSEU_SteamIsRunningNotification">GreenLuma : Steam is running, waiting steam to exit for clean up GreenLuma files</sys:String>
     <sys:String x:Key="LOCSEU_Error0SteamGame">Select at least 1 game</sys:String>
     <sys:String x:Key="LOCSEU_ResetAchievementSuccess">Achievement reset successful for {0} games</sys:String>
     <sys:String x:Key="LOCSEU_SymbolicDeveloperOffError">Unable to create symbolic links, make sure developer mode is enabled.</sys:String>

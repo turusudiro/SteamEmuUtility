@@ -427,7 +427,17 @@ namespace SteamEmuUtility
             if (settings.Settings.CleanGreenLumaStartup)
             {
                 GreenLumaTasks.Token = new CancellationTokenSource();
-                _ = GreenLumaTasks.CleanGreenLuma();
+                if (Steam.IsSteamRunning)
+                {
+                    string idNotification = Id.ToString() + "clean GreenLuma startup";
+                    PlayniteApi.Notifications.Add(new NotificationMessage(idNotification, string.Format(ResourceProvider.GetString("LOCSEU_SteamIsRunningNotification"), "GreenLuma"),
+                    NotificationType.Info));
+                    GreenLumaTasks.CleanGreenLuma().ContinueWith(t => { PlayniteApi.Notifications.Remove(idNotification); });
+                }
+                else
+                {
+                    GreenLumaTasks.CleanGreenLuma();
+                }
             }
         }
         public override ISettings GetSettings(bool firstRunSettings)

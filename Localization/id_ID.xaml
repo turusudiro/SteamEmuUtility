@@ -26,6 +26,7 @@
     <sys:String x:Key="LOCSEU_SteamWithoutConfiguredApplist">Steam berjalan tanpa applist yang dikonfigurasi, Mulai ulang steam dengan Injektor?</sys:String>
     <sys:String x:Key="LOCSEU_SteamInjectedDiffMode">Steam diinjeksikan dengan mode yang berbeda, Mulai ulang steam dengan Injektor?</sys:String>
     <sys:String x:Key="LOCSEU_SteamIsRunning">Steam sedang berjalan, Mulai ulang steam dengan Injektor?</sys:String>
+    <sys:String x:Key="LOCSEU_SteamIsRunningNotification">GreenLuma : Steam sedang berjalan, menunggu steam tertutup untuk membersihkan file GreenLuma</sys:String>
     <sys:String x:Key="LOCSEU_Error0SteamGame">Pilih setidaknya 1 permainan</sys:String>
     <sys:String x:Key="LOCSEU_ResetAchievementSuccess">Pengaturan ulang pencapaian berhasil untuk {0} game</sys:String>
     <sys:String x:Key="LOCSEU_SymbolicDeveloperOffError">Tidak dapat membuat tautan simbolik, pastikan mode pengembang diaktifkan.</sys:String>
