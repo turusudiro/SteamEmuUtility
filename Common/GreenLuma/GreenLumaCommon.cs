@@ -152,7 +152,7 @@ namespace GreenLumaCommon
             {
                 foreach (var file in GreenLumaFilesNormalMode)
                 {
-                    if (file.Equals("AppOwnershipTickets") || file.Equals("EncryptedAppTickets"))
+                    if (file.Equals("AppOwnershipTickets") || file.Equals("EncryptedAppTickets") || file.Equals($"GreenLuma_{Year}.log") || file.Equals($"GreenLuma{Year}.txt"))
                     {
                         continue;
                     }
