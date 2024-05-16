@@ -134,7 +134,6 @@ namespace GoldbergCommon
             if (game.AppInfo?.Depots?.depots?.Keys?.Count >= 1)
             {
                 IEnumerable<string> depots = game.AppInfo.Depots.depots.Keys;
-                //FileSystem.WriteStringLinesToFile(Path.Combine(path, "depots.txt"), depots);
                 FileSystem.WriteStringLinesToFile(Path.Combine(path, "depots.txt"), depots.OrderBy(x => int.Parse(x)));
             }
         }

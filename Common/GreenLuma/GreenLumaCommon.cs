@@ -66,31 +66,31 @@ namespace GreenLumaCommon
         public static List<string> GreenLumaFilesNormalMode = new List<string>()
         {
         "bin\\x64launcher.exe",
-        $"GreenLuma{GreenLuma.Year}.txt",
-        $"GreenLuma{GreenLuma.Year}_Files",
-        $"GreenLuma{GreenLuma.Year}_Files\\AchievementUnlocked.wav",
+        $"GreenLuma{Year}.txt",
+        $"GreenLuma{Year}_Files",
+        $"GreenLuma{Year}_Files\\AchievementUnlocked.wav",
         "DLLInjector.exe",
         "DLLInjector.ini",
-        $"GreenLuma_{GreenLuma.Year}_x64.dll",
-        $"GreenLuma_{GreenLuma.Year}_x86.dll",
+        $"GreenLuma_{Year}_x64.dll",
+        $"GreenLuma_{Year}_x86.dll",
         "AppOwnershipTickets",
         "EncryptedAppTickets",
-        $"GreenLuma_{GreenLuma.Year}.log"
+        $"GreenLuma_{Year}.log"
         };
         public static List<string> GreenLumaFiles = new List<string>
         {
         "bin\\x64launcher.exe",
-        $"GreenLuma{GreenLuma.Year}_Files\\AchievementUnlocked.wav",
+        $"GreenLuma{Year}_Files\\AchievementUnlocked.wav",
         "DLLInjector.exe",
         "DLLInjector.ini",
-        $"GreenLuma_{GreenLuma.Year}_x64.dll",
-        $"GreenLuma_{GreenLuma.Year}_x86.dll",
-        $"GreenLumaSettings_{GreenLuma.Year}.exe",
-        $"GreenLuma_{GreenLuma.Year}.log",
+        $"GreenLuma_{Year}_x64.dll",
+        $"GreenLuma_{Year}_x86.dll",
+        $"GreenLumaSettings_{Year}.exe",
+        $"GreenLuma_{Year}.log",
         "Applist.log",
         "user32.dll",
         "applist",
-        $"GreenLuma{GreenLuma.Year}_Files",
+        $"GreenLuma{Year}_Files",
         "AppOwnershipTickets",
         "EncryptedAppTickets"
         };
@@ -157,7 +157,7 @@ namespace GreenLumaCommon
                         continue;
                     }
                     string path = Path.Combine(Steam.SteamDirectory, file);
-                    if (file.Equals($"GreenLuma{GreenLuma.Year}_Files"))
+                    if (file.Equals($"GreenLuma{Year}_Files"))
                     {
                         if (!FileSystem.DirectoryExists(path))
                         {
@@ -248,22 +248,13 @@ namespace GreenLumaCommon
                 return null;
             }
         }
-        static string GetRelativePath(string basePath, string targetPath)
-        {
-            Uri baseUri = new Uri($"{basePath}\\");
-            Uri targetUri = new Uri(targetPath);
-            logger.Debug(baseUri.ToString());
-            logger.Debug(targetUri.ToString());
-            Uri relativeUri = baseUri.MakeRelativeUri(targetUri);
-            string relativePath = Uri.UnescapeDataString(relativeUri.ToString());
-            return relativePath.Replace('/', '\\');
-        }
         public static bool GreenLumaFilesExists(out List<string> missingFiles)
         {
             var GreenLumaFiles = new List<string>()
             {
                 $"{GreenLumaPath}\\NormalMode\\AchievementUnlocked.wav",
                 $"{GreenLumaPath}\\NormalMode\\DLLInjector.exe",
+                $"{GreenLumaPath}\\NormalMode\\DLLInjector.ini",
                 $"{GreenLumaPath}\\NormalMode\\GreenLuma_2024_x64.dll",
                 $"{GreenLumaPath}\\NormalMode\\GreenLuma_2024_x86.dll",
                 $"{GreenLumaPath}\\NormalMode\\x64launcher.exe",
