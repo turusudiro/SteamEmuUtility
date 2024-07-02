@@ -6,6 +6,50 @@ namespace GoldbergCommon.Configs
 {
     public static class ConfigsCommon
     {
+        public static bool ContainsKey(string path, string section, string key)
+        {
+            var parser = new FileIniDataParser();
+            parser.Parser.Configuration.CommentString = "#";
+            parser.Parser.Configuration.AssigmentSpacer = "";
+            if (!FileSystem.FileExists(path))
+            {
+                return false;
+            }
+
+            var data = parser.ReadFile(path);
+
+            if (!data.Sections.ContainsSection(section))
+            {
+                return false;
+            }
+
+            return data[section].ContainsKey(key);
+        }
+        public static void RemoveSection(string path, string section)
+        {
+            var parser = new FileIniDataParser();
+            parser.Parser.Configuration.CommentString = "#";
+            parser.Parser.Configuration.AssigmentSpacer = "";
+            if (!FileSystem.FileExists(path))
+            {
+                return;
+            }
+
+            var data = parser.ReadFile(path);
+
+            if (!data.Sections.ContainsSection(section))
+            {
+                return;
+            }
+
+            data[section].RemoveAllKeys();
+
+            try
+            {
+                parser.WriteFile(path, data, new UTF8Encoding());
+            }
+            catch { }
+        }
         public static void SerializeConfigs(string value, string path, string section, string key)
         {
             var parser = new FileIniDataParser();
