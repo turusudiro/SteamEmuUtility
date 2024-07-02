@@ -1,0 +1,107 @@
+﻿<UserControl x:Class="SteamEmuUtility.Views.ManageDlcView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SteamEmuUtility.Views"
+             xmlns:cv="clr-namespace:ConvertersCommon"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="600">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"/>
+        <Style x:Key="CenterDataGridHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Visibility="{Binding IsProgressBarVisible, Converter={cv:BooleanToVisibilityConverter}}">
+            <TextBlock Text="{Binding ProgressText}" Margin="0,0,0,5"/>
+            <ProgressBar Height="10" Width="100" HorizontalAlignment="Left" IsIndeterminate="{Binding IsIndeterminate}" Minimum="0" Maximum="100" 
+             Value="{Binding ProgressPercentage}" Margin="0,0,0,5"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" x:Name="DLC" ItemsSource="{Binding DLCList}" AutoGenerateColumns="False" IsReadOnly="True" 
+                  HeadersVisibility="Column" CanUserResizeColumns="False" CanUserResizeRows="False">
+
+            <DataGrid.Columns>
+                <!-- Enable Column -->
+                <DataGridTemplateColumn Header="Enable" Width="1*">
+                    <DataGridTemplateColumn.HeaderStyle>
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding DataContext.EnableAll, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}" 
+                                          Margin="0,0,0,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource LOCSEU_Enable}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding Enable, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Image Column -->
+                <DataGridTemplateColumn Width="2*" HeaderStyle="{StaticResource CenterDataGridHeader}">
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{DynamicResource LOCSEU_Image}" HorizontalAlignment="Right"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding Image}" VerticalAlignment="Center" Height="87"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Appid Column -->
+                <DataGridTextColumn Header="Appid" Binding="{Binding Appid}" Width="1*" HeaderStyle="{StaticResource CenterDataGridHeader}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="FontSize" Value="20"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- Name Column -->
+                <DataGridTextColumn Header="{DynamicResource LOCSEU_Name}" Binding="{Binding Name}" Width="5*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="FontSize" Value="20"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Enable}" Value="False">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Enable}" Value="True">
+                            <Setter Property="Opacity" Value="1"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+        <DockPanel Grid.Row="2" Margin="0,5,0,0">
+            <Button Content="{DynamicResource LOCSEU_Refresh}" Command="{Binding Refresh}" VerticalAlignment="Center" Margin="0,0,0,0" HorizontalAlignment="Center"/>
+        </DockPanel>
+    </Grid>
+</UserControl>
