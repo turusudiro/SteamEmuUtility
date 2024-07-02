@@ -1,96 +1,113 @@
 ﻿using GoldbergCommon.Configs;
 using System.Collections.Generic;
+using System.IO;
 
 
 namespace GoldbergCommon.Models
 {
-
     public partial class ConfigsEmu
     {
-        private string path;
+        public string IniPath { get; }
+
         private const string SectionMain = "Main";
-        public ConfigsEmu(string path)
+        public ConfigsEmu(string iniDirectory)
         {
-            this.path = path;
+            IniPath = Path.Combine(iniDirectory, "configs.emu.ini");
         }
         public string Architecture
         {
-            get { return (string)ConfigsCommon.GetValue(path, SectionMain, "Architecture", ""); }
+            get { return (string)ConfigsCommon.GetValue(IniPath, SectionMain, "Architecture", string.Empty); }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionMain, "Architecture");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionMain, "Architecture");
             }
         }
         public bool RunAsAdmin
         {
-            get { return (bool)ConfigsCommon.GetValue(path, SectionMain, "RunAsAdmin", false); }
+            get { return (bool)ConfigsCommon.GetValue(IniPath, SectionMain, "RunAsAdmin", false); }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionMain, "RunAsAdmin");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionMain, "RunAsAdmin");
+            }
+        }
+        public bool UnlockOnlySelectedDLC
+        {
+            get { return (bool)ConfigsCommon.GetValue(IniPath, SectionMain, "UnlockOnlySelectedDLC", false); }
+            set
+            {
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionMain, "UnlockOnlySelectedDLC");
+            }
+        }
+        public bool CloudSaveAvailable
+        {
+            get { return (bool)ConfigsCommon.GetValue(IniPath, SectionMain, "CloudSaveAvailable", false); }
+            set
+            {
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionMain, "CloudSaveAvailable");
             }
         }
     }
 
     public partial class ConfigsColdClientLoader
     {
-        private string path;
+        public string IniPath { get; }
+
         private const string SectionInjection = "Injection";
         private const string SectionSteamClient = "SteamClient";
-        public ConfigsColdClientLoader(string path)
+        public ConfigsColdClientLoader(string iniDirectory)
         {
-            this.path = path;
+            IniPath = Path.Combine(iniDirectory, "ColdClientLoader.ini");
         }
         public string Exe
         {
-            get { return (string)ConfigsCommon.GetValue(path, SectionSteamClient, "Exe", ""); }
+            get { return (string)ConfigsCommon.GetValue(IniPath, SectionSteamClient, "Exe", string.Empty); }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionSteamClient, "Exe");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionSteamClient, "Exe");
             }
         }
         public string ExeRunDir
         {
-            //get { return (string)ConfigsCommon.GetValue(path, SectionSteamClient, "ExeRunDir", ""); }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionSteamClient, "ExeRunDir");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionSteamClient, "ExeRunDir");
             }
         }
         public string ExeCommandLine
         {
-            get { return (string)ConfigsCommon.GetValue(path, SectionSteamClient, "ExeCommandLine", string.Empty); }
+            get { return (string)ConfigsCommon.GetValue(IniPath, SectionSteamClient, "ExeCommandLine", string.Empty); }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionSteamClient, "ExeCommandLine");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionSteamClient, "ExeCommandLine");
             }
         }
-        public string AppId
+        public string Appid
         {
-            get { return (string)ConfigsCommon.GetValue(path, SectionSteamClient, "AppId", ""); }
+            get { return (string)ConfigsCommon.GetValue(IniPath, SectionSteamClient, "AppId", string.Empty); }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionSteamClient, "AppId");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionSteamClient, "AppId");
             }
         }
         public string SteamClientDll
         {
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionSteamClient, "SteamClientDll");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionSteamClient, "SteamClientDll");
             }
         }
         public string SteamClient64Dll
         {
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionSteamClient, "SteamClient64Dll");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionSteamClient, "SteamClient64Dll");
             }
         }
         public bool PatchSteamStub
         {
             get
             {
-                string KeyValue = (string)ConfigsCommon.GetValue(path, SectionInjection, "DllsToInjectFolder", string.Empty);
+                string KeyValue = (string)ConfigsCommon.GetValue(IniPath, SectionInjection, "DllsToInjectFolder", string.Empty);
                 if (KeyValue.Equals("extra_dlls"))
                 {
                     return true;
@@ -101,64 +118,62 @@ namespace GoldbergCommon.Models
             {
                 if (value)
                 {
-                    ConfigsCommon.SerializeConfigs("extra_dlls", path, SectionInjection, "DllsToInjectFolder");
+                    ConfigsCommon.SerializeConfigs("extra_dlls", IniPath, SectionInjection, "DllsToInjectFolder");
                 }
-                else { ConfigsCommon.SerializeConfigs("", path, SectionInjection, "DllsToInjectFolder"); }
+                else { ConfigsCommon.SerializeConfigs(string.Empty, IniPath, SectionInjection, "DllsToInjectFolder"); }
             }
         }
         public bool IgnoreLoaderArchDifference
         {
             get
             {
-                return (bool)ConfigsCommon.GetValue(path, SectionInjection, "IgnoreLoaderArchDifference", false);
+                return (bool)ConfigsCommon.GetValue(IniPath, SectionInjection, "IgnoreLoaderArchDifference", false);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionInjection, "IgnoreLoaderArchDifference");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionInjection, "IgnoreLoaderArchDifference");
             }
         }
     }
 
     public partial class ConfigsApp
     {
-        private string path;
-        public ConfigsApp(string path)
+        public string IniPath { get; }
+
+        public ConfigsApp(string iniDirectory)
         {
-            this.path = path;
+            IniPath = Path.Combine(iniDirectory, "configs.app.ini");
         }
         public string buildid
         {
             get
             {
-                string Value = ConfigsCommon.GetValue(path, "app::general", "build_id");
+                string Value = ConfigsCommon.GetValue(IniPath, "app::general", "build_id");
                 return Value?.ToString() ?? string.Empty;
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, "app::general", "build_id");
+                ConfigsCommon.SerializeConfigs(value, IniPath, "app::general", "build_id");
             }
         }
         public bool UnlockAll
         {
             get
             {
-                return (bool)ConfigsCommon.GetValue(path, "app::dlcs", "unlock_all", false);
+                return (bool)ConfigsCommon.GetValue(IniPath, "app::dlcs", "unlock_all", false);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, "app::dlcs", "unlock_all");
+                ConfigsCommon.SerializeConfigs(value, IniPath, "app::dlcs", "unlock_all");
             }
         }
-        private Dictionary<string, string> _dlc;
         public Dictionary<string, string> DLC
         {
-            get => _dlc;
             set
             {
-                _dlc = value;
-                foreach (var dlc in DLC)
+                foreach (var dlc in value)
                 {
-                    ConfigsCommon.SerializeConfigs(dlc.Value, path, "app::dlcs", dlc.Key);
+                    ConfigsCommon.SerializeConfigs(dlc.Value, IniPath, "app::dlcs", dlc.Key);
                 }
             }
         }
@@ -166,174 +181,176 @@ namespace GoldbergCommon.Models
 
     public partial class ConfigsMain
     {
-        private string SectionConnectivity = "main::connectivity";
-        private string path;
-        public ConfigsMain()
+        public string IniPath { get; }
+
+        private const string SectionConnectivity = "main::connectivity";
+        public ConfigsMain(string iniDirectory)
         {
-            path = Goldberg.ConfigsMainIniPath;
-        }
-        public ConfigsMain(string path)
-        {
-            this.path = path;
+            IniPath = Path.Combine(iniDirectory, "configs.main.ini");
         }
         public bool EnableAccountAvatar
         {
             get
             {
-                return (bool)ConfigsCommon.GetValue(path, "main::general", "enable_account_avatar", false);
+                return (bool)ConfigsCommon.GetValue(IniPath, "main::general", "enable_account_avatar", false);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, "main::general", "enable_account_avatar");
+                ConfigsCommon.SerializeConfigs(value, IniPath, "main::general", "enable_account_avatar");
             }
         }
         public string Listen_Port
         {
             get
             {
-                return (string)ConfigsCommon.GetValue(path, SectionConnectivity, "listen_port", 47584);
+                return (string)ConfigsCommon.GetValue(IniPath, SectionConnectivity, "listen_port", 47584);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionConnectivity, "listen_port");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionConnectivity, "listen_port");
             }
         }
         public bool DisableLANOnly
         {
             get
             {
-                return (bool)ConfigsCommon.GetValue(path, SectionConnectivity, "disable_lan_only", false);
+                return (bool)ConfigsCommon.GetValue(IniPath, SectionConnectivity, "disable_lan_only", false);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionConnectivity, "disable_lan_only");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionConnectivity, "disable_lan_only");
             }
         }
         public bool DisableNetworking
         {
             get
             {
-                return (bool)ConfigsCommon.GetValue(path, SectionConnectivity, "disable_networking", false);
+                return (bool)ConfigsCommon.GetValue(IniPath, SectionConnectivity, "disable_networking", false);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionConnectivity, "disable_networking");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionConnectivity, "disable_networking");
             }
         }
         public bool OfflineModeSteam
         {
             get
             {
-                return (bool)ConfigsCommon.GetValue(path, SectionConnectivity, "offline", false);
+                return (bool)ConfigsCommon.GetValue(IniPath, SectionConnectivity, "offline", false);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionConnectivity, "offline");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionConnectivity, "offline");
             }
         }
     }
     public partial class ConfigsOverlay
     {
+        public string IniPath { get; }
+
         private string SectionGeneral = "overlay::general";
-        private string path;
-        public ConfigsOverlay(string path)
+        public ConfigsOverlay(string iniDirectory)
         {
-            this.path = path;
+            IniPath = Path.Combine(iniDirectory, "configs.overlay.ini");
         }
         public bool EnableOverlay
         {
             get
             {
-                return (bool)ConfigsCommon.GetValue(path, SectionGeneral, "enable_experimental_overlay", false);
+                return (bool)ConfigsCommon.GetValue(IniPath, SectionGeneral, "enable_experimental_overlay", false);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionGeneral, "enable_experimental_overlay");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionGeneral, "enable_experimental_overlay");
             }
         }
         public bool DisableOverlayAchievement
         {
             get
             {
-                return (bool)ConfigsCommon.GetValue(path, SectionGeneral, "disable_achievement_notification", false);
+                return (bool)ConfigsCommon.GetValue(IniPath, SectionGeneral, "disable_achievement_notification", false);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionGeneral, "disable_achievement_notification");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionGeneral, "disable_achievement_notification");
             }
         }
         public bool DisableOverlayFriend
         {
             get
             {
-                return (bool)ConfigsCommon.GetValue(path, SectionGeneral, "disable_friend_notification", false);
+                return (bool)ConfigsCommon.GetValue(IniPath, SectionGeneral, "disable_friend_notification", false);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionGeneral, "disable_friend_notification");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionGeneral, "disable_friend_notification");
             }
         }
         public string DelayHookInSec
         {
             get
             {
-                return (string)ConfigsCommon.GetValue(path, SectionGeneral, "hook_delay_sec", 0);
+                return (string)ConfigsCommon.GetValue(IniPath, SectionGeneral, "hook_delay_sec", 0);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionGeneral, "hook_delay_sec");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionGeneral, "hook_delay_sec");
             }
         }
     }
 
     public partial class ConfigsUser
     {
+        public string IniPath { get; }
+
         private string SectionGeneral = "user::general";
-        private string path = Goldberg.ConfigsUserIniPath;
+        public ConfigsUser(string iniDirectory)
+        {
+            IniPath = Path.Combine(iniDirectory, "configs.user.ini");
+        }
         public string AccountName
         {
             get
             {
-                return (string)ConfigsCommon.GetValue(path, SectionGeneral, "account_name", "gse orca");
+                return (string)ConfigsCommon.GetValue(IniPath, SectionGeneral, "account_name", "gse orca");
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionGeneral, "account_name");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionGeneral, "account_name");
             }
         }
         public string ID
         {
             get
             {
-                return (string)ConfigsCommon.GetValue(path, SectionGeneral, "account_steamid", 76561197960287930);
+                return (string)ConfigsCommon.GetValue(IniPath, SectionGeneral, "account_steamid", 76561197960287930);
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionGeneral, "account_steamid");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionGeneral, "account_steamid");
             }
         }
         public string Language
         {
             get
             {
-                return (string)ConfigsCommon.GetValue(path, SectionGeneral, "language", "english");
+                return (string)ConfigsCommon.GetValue(IniPath, SectionGeneral, "language", "english");
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionGeneral, "language");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionGeneral, "language");
             }
         }
         public string IP
         {
             get
             {
-                return (string)ConfigsCommon.GetValue(path, SectionGeneral, "ip_country", "US");
+                return (string)ConfigsCommon.GetValue(IniPath, SectionGeneral, "ip_country", "US");
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, path, SectionGeneral, "ip_country");
+                ConfigsCommon.SerializeConfigs(value, IniPath, SectionGeneral, "ip_country");
             }
         }
-
     }
 }

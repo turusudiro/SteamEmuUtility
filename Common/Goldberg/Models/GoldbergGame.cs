@@ -1,4 +1,4 @@
-﻿using Playnite.SDK;
+﻿using GoldbergCommon.Configs;
 using Playnite.SDK.Models;
 using PluginsCommon;
 using SteamCommon.Models;
@@ -9,49 +9,31 @@ namespace GoldbergCommon.Models
 {
     public partial class GoldbergGame : ObservableObject
     {
-        private string path;
-        private readonly IPlayniteAPI PlayniteApi;
-        private string steampath;
-        public GoldbergGame(string path, string steampath, IPlayniteAPI api)
+        private readonly string gameSettingsPath;
+        private readonly string gameSteamSettingsPath;
+        public GoldbergGame(Game game, string gameSettingsPath, string gameSteamSettingsPath)
         {
-            this.path = path;
-            this.steampath = steampath;
-            PlayniteApi = api;
+            Name = game.Name;
+            Appid = game.GameId;
+            InstallDirectory = game.InstallDirectory;
+            this.gameSettingsPath = gameSettingsPath;
+            this.gameSteamSettingsPath = gameSteamSettingsPath;
+            ConfigsApp = new ConfigsApp(gameSteamSettingsPath);
+            ConfigsColdClientLoader = new ConfigsColdClientLoader(gameSettingsPath);
+            ConfigsEmu = new ConfigsEmu(gameSettingsPath);
+            ConfigsMain = new ConfigsMain(gameSteamSettingsPath);
+            ConfigsOverlay = new ConfigsOverlay(gameSteamSettingsPath);
         }
-        public Game Game { get; set; }
-        public bool UserdataSavesExists
-        {
-            get
-            {
-                return Goldberg.UserdataSavesExists(Game);
-            }
-        }
-        public bool EnableCloudSave
-        {
-            get
-            {
-                return Goldberg.EnableCloudSave(Game);
-            }
-            set
-            {
-                GlobalProgressOptions progressOptions = new GlobalProgressOptions("Steam Emu Utility", false);
-                progressOptions.IsIndeterminate = true;
-                PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
-                {
-                    GoldbergTasks.SetSymbolicSteamToAppdata(Game, PlayniteApi, value);
-                }, progressOptions);
-                OnPropertyChanged();
-            }
-        }
+        public string InstallDirectory { get; }
+        public bool UserDataSaveExists { get; set; }
+        public bool IsCloudSaveAvailable { get; set; }
+        public bool EnableCloudSave { get; set; }
         public ConfigsEmu ConfigsEmu { get; set; }
         public ConfigsColdClientLoader ConfigsColdClientLoader { get; set; }
         public ConfigsMain ConfigsMain { get; set; }
         public ConfigsOverlay ConfigsOverlay { get; set; }
         public ConfigsApp ConfigsApp { get; set; }
-        public string ConfigsAppIniPath { get => _configsappinipath; set { _configsappinipath = value; OnPropertyChanged(); } }
-        private string _configsappinipath;
-
-        public AppIdInfo AppInfo { get; set; }
+        public App AppInfo { get; set; }
         public bool GenerateAllInfo
         {
             get
@@ -106,37 +88,52 @@ namespace GoldbergCommon.Models
         {
             get => _generatesupportedlanguages; set { _generatesupportedlanguages = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); }
         }
+        private string custombroadcastaddress;
         public string CustomBroadcastAddress
         {
             get
             {
-                string filepath = Path.Combine(path, steampath, "custom_broadcasts.txt");
-                if (File.Exists(filepath))
+                if (string.IsNullOrEmpty(custombroadcastaddress))
                 {
-                    return FileSystem.ReadStringFromFile(filepath);
+                    string filepath = Path.Combine(gameSteamSettingsPath, "custom_broadcasts.txt");
+                    string configsEmu = Path.Combine(gameSettingsPath, "configs.emu.ini");
+                    if (FileSystem.FileExists(filepath))
+                    {
+                        custombroadcastaddress = FileSystem.ReadStringFromFile(filepath);
+                    }
+                    else if (FileSystem.FileExists(configsEmu))
+                    {
+                        custombroadcastaddress = ConfigsCommon.GetValue(configsEmu, "Main", "Broadcasts");
+                    }
                 }
-                return string.Empty;
+                return custombroadcastaddress;
             }
             set
             {
-                string filepath = Path.Combine(path, steampath, "custom_broadcasts.txt");
+                string filepath = Path.Combine(gameSteamSettingsPath, "custom_broadcasts.txt");
+                string configsEmu = Path.Combine(gameSettingsPath, "configs.emu.ini");
+                ConfigsCommon.SerializeConfigs(value, configsEmu, "Main", "Broadcasts");
                 FileSystem.WriteStringToFileSafe(filepath, value);
+                custombroadcastaddress = value;
                 OnPropertyChanged();
             }
         }
-
         public bool CustomBroadcast
         {
             get
             {
-                return FileSystem.FileExists(Path.Combine(path, steampath, "custom_broadcasts.txt"));
+                return FileSystem.FileExists(Path.Combine(gameSteamSettingsPath, "custom_broadcasts.txt"));
             }
             set
             {
-                string filepath = Path.Combine(path, steampath, "custom_broadcasts.txt");
+                string filepath = Path.Combine(gameSteamSettingsPath, "custom_broadcasts.txt");
                 if (value)
                 {
                     FileSystem.CreateFile(filepath, true);
+                    if (!string.IsNullOrEmpty(CustomBroadcastAddress))
+                    {
+                        FileSystem.WriteStringToFileSafe(filepath, CustomBroadcastAddress);
+                    }
                 }
                 else
                 {
@@ -145,8 +142,7 @@ namespace GoldbergCommon.Models
                 OnPropertyChanged();
             }
         }
-
         public string Name { get; set; }
-        public string AppID { get; set; }
+        public string Appid { get; set; }
     }
 }

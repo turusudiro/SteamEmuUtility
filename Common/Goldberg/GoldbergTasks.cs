@@ -1,15 +1,17 @@
-﻿using DownloaderCommon;
+﻿using DlcManagerCommon;
+using DownloaderCommon;
+using GoldbergCommon.Configs;
 using GoldbergCommon.Models;
 using Playnite.SDK;
 using Playnite.SDK.Data;
 using Playnite.SDK.Models;
 using PluginsCommon;
+using SteamCommon;
 using SteamEmuUtility;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows;
 using static GoldbergCommon.Goldberg;
 
 namespace GoldbergCommon
@@ -18,7 +20,11 @@ namespace GoldbergCommon
     {
         public static void CheckForUpdate(IPlayniteAPI PlayniteApi, SteamEmuUtilitySettingsViewModel Settings, SteamEmuUtility.SteamEmuUtility plugin)
         {
-            string verPath = Path.Combine(GoldbergPath, "Version.txt");
+            string pluginPath = plugin.GetPluginUserDataPath();
+
+            string gbPath = Path.Combine(pluginPath, "Goldberg");
+
+            string verPath = Path.Combine(gbPath, "Version.txt");
             if (!FileSystem.FileExists(verPath))
             {
                 return;
@@ -36,53 +42,41 @@ namespace GoldbergCommon
                     return;
                 }
                 PlayniteApi.Notifications.Add(new NotificationMessage(plugin.Id.ToString(), string.Format(ResourceProvider.GetString("LOCSEU_UpdateAvailable"), "Goldberg"),
-                    NotificationType.Info, () => Settings.DownloadGoldberg()));
+                    NotificationType.Info, () => Settings.DownloadGoldberg(pluginPath)));
             }
         }
-        public static GoldbergGame ConvertGame(Game game, IPlayniteAPI PlayniteApi)
+        public static GoldbergGame ConvertGame(string pluginPath, Game game)
         {
-            var goldbergGame = ConvertGames(new List<Game> { game }, PlayniteApi);
-            return goldbergGame.FirstOrDefault();
+            return ConvertGames(pluginPath, new List<Game> { game }).FirstOrDefault();
         }
-        public static List<GoldbergGame> ConvertGames(IEnumerable<Game> games, IPlayniteAPI PlayniteApi)
+        public static List<GoldbergGame> ConvertGames(string pluginPath, IEnumerable<Game> games)
         {
-            var GoldbergGames = new List<GoldbergGame>();
+            var goldbergGames = new List<GoldbergGame>();
             foreach (var game in games)
             {
-                string steamsettingspath = GameSteamSettingPath(game.GameId);
-                string settingspath = GameSettingsPath(game.GameId);
-                string fullpath = string.Empty;
-                string ColdClientPath = Path.Combine(settingspath, "ColdClientLoader.ini");
-                if (game.CoverImage != null)
-                {
-                    fullpath = Path.Combine(PlayniteApi.Database.GetFullFilePath(game.CoverImage));
-                }
-                var goldbergGame = new GoldbergGame(settingspath, steamsettingspath, PlayniteApi)
-                {
-                    Name = game.Name,
-                    AppID = game.GameId,
-                    Game = game,
-                    ConfigsAppIniPath = Path.Combine(steamsettingspath, "configs.app.ini"),
-                    ConfigsApp = new ConfigsApp(Path.Combine(steamsettingspath, "configs.app.ini")),
-                    ConfigsOverlay = new ConfigsOverlay(Path.Combine(steamsettingspath, "configs.overlay.ini")),
-                    ConfigsMain = new ConfigsMain(Path.Combine(steamsettingspath, "configs.main.ini")),
-                    ConfigsColdClientLoader = new ConfigsColdClientLoader(ColdClientPath),
-                    ConfigsEmu = new ConfigsEmu(Path.Combine(settingspath, "configs.emu.ini")),
-                };
-                GoldbergGames.Add(goldbergGame);
+                string goldbergPath = GetGoldbergAppData();
+                string gameSettingsPath = Path.Combine(pluginPath, "GamesInfo", game.GameId);
+                string gameSteamSettingsPath = Path.Combine(gameSettingsPath, "steam_settings");
+
+                var goldbergGame = new GoldbergGame(game, gameSettingsPath, gameSteamSettingsPath);
+                goldbergGames.Add(goldbergGame);
             }
-            return GoldbergGames;
+            return goldbergGames;
         }
         public static void ResetAchievementFile(IEnumerable<Game> games, IPlayniteAPI PlayniteApi)
         {
+            string goldbergPath = GetGoldbergAppData();
+            string achievementWatcherDir = GetAchievementWatcherAppData();
+
             GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
             int count = 0;
             PlayniteApi.Dialogs.ActivateGlobalProgress((global) =>
             {
                 foreach (var game in games)
                 {
-                    string AchievementGameJSONPath = Path.Combine(GameAppdataPath(game.GameId), "achievements.json");
-                    string AchievementDBPath = Path.Combine(AchievementWatcherAppData, "steam_cache", "data", $"{game.GameId}.db");
+                    string goldbergGameDataPath = Path.Combine(goldbergPath, game.GameId);
+                    string AchievementGameJSONPath = Path.Combine(goldbergGameDataPath, "achievements.json");
+                    string AchievementDBPath = Path.Combine(achievementWatcherDir, "steam_cache", "data", $"{game.GameId}.db");
                     try
                     {
                         FileSystem.DeleteFile(AchievementGameJSONPath);
@@ -94,8 +88,56 @@ namespace GoldbergCommon
             }, progress);
             PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_ResetAchievementSuccess"), count));
         }
-        public static bool InjectJob(GoldbergGame game, IPlayniteAPI PlayniteApi, out string message, string apikey)
+        public static bool InjectJob(string pluginPath, GoldbergGame game, IPlayniteAPI PlayniteApi, out string message, SteamEmuUtilitySettings settings)
         {
+            string apiKey = settings.SteamWebApi;
+
+            string gamesteamSettingsPath = Path.Combine(pluginPath, "GamesInfo", game.Appid, "steam_settings");
+
+            string steamSettingsPath = Path.Combine(pluginPath, "Goldberg", "steam_settings");
+
+            string gamecoldClientLoaderiniPath = Path.Combine(pluginPath, "GamesInfo", game.Appid, "ColdClientLoader.ini");
+
+            string coldClientLoaderiniPath = Path.Combine(pluginPath, "Goldberg", "ColdClientLoader.ini");
+
+            if (game.ConfigsEmu.UnlockOnlySelectedDLC && !game.ConfigsApp.UnlockAll)
+            {
+                if (DlcManager.HasDLC(pluginPath, game.Appid))
+                {
+                    // remove all properties in app::dlcs section to clear the remaining dlcs and use the dlcs based on checked dlc in dlc manager
+                    ConfigsCommon.RemoveSection(game.ConfigsApp.IniPath, "app::dlcs");
+
+                    game.ConfigsApp.UnlockAll = false;
+                    var dlcs = DlcManager.GetDLC(pluginPath, game.Appid);
+                    var dict = new Dictionary<string, string>();
+                    foreach (var dlc in dlcs)
+                    {
+                        if (dlc.Enable)
+                        {
+                            dict.Add(dlc.Appid.ToString(), dlc.Name);
+                        }
+                    }
+                    game.ConfigsApp.DLC = dict;
+                }
+                // if there are no dlc try to generate it and try to unlock all available dlcs
+                else
+                {
+                    using (var steam = new SteamService())
+                    {
+                        PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
+                        {
+                            progress.CancelToken.Register(() =>
+                            {
+                                steam.Dispose();
+                                return;
+                            });
+                            DlcManager.GenerateDLC(game.Appid, steam, progress, apiKey, pluginPath);
+                        }, new GlobalProgressOptions("Steam Emu Utility", true));
+                    }
+                }
+            }
+
+            // if configs.emu.ini doesnt have value in Architecture key and the ColdClientLoader.ini doesnt allow inject in different arch, try to generate its info
             if (game.ConfigsEmu.Architecture == string.Empty && !game.ConfigsColdClientLoader.IgnoreLoaderArchDifference)
             {
                 if (!InternetCommon.Internet.IsInternetAvailable())
@@ -104,32 +146,47 @@ namespace GoldbergCommon
                     return false;
                 }
                 game.GenerateArchitecture = true;
-                GoldbergGenerator.GenerateInfo(game, apikey, PlayniteApi);
+                using (var steam = new SteamService())
+                {
+                    GoldbergGenerator.GenerateInfo(game, apiKey, PlayniteApi, steam);
+                }
+                // if fail to obtain info, then allow the coldclient to inject in different arch
                 if (!game.ConfigsEmu.Architecture.Equals("64") || !game.ConfigsEmu.Architecture.Equals("32"))
                 {
                     game.ConfigsColdClientLoader.IgnoreLoaderArchDifference = true;
                 }
             }
-            if (!CopyColdClientIni(game, PlayniteApi, out message, apikey))
+            if (!CopyColdClientIni(pluginPath, game, PlayniteApi, out message, apiKey))
             {
                 return false;
             }
-            bool SettingsExists = FileSystem.DirectoryExists(GameSteamSettingPath(game.AppID));
+
+            bool SettingsExists = FileSystem.DirectoryExists(gamesteamSettingsPath);
+            // check if game has steam_settings directory in plugin dir
             if (SettingsExists)
             {
-                if (!CreateSymbolicSteamSettings(game.Game))
+                // if exist then create a symlink to coldclientloader dir to use the steam_settings upon injecting the game
+                if (!CreateSymbolicSteamSettings(steamSettingsPath, gamesteamSettingsPath))
                 {
                     message = ResourceProvider.GetString("LOCSEU_SymlinkErrorSteamSettings");
                     return false;
                 }
             }
+
             return true;
         }
-        private static bool CopyColdClientIni(GoldbergGame game, IPlayniteAPI PlayniteApi, out string message, string apikey)
+        private static bool CopyColdClientIni(string pluginPath, GoldbergGame game, IPlayniteAPI PlayniteApi, out string message, string apiKey)
         {
-            if (!FileSystem.FileExists(Path.Combine(GameSettingsPath(game.AppID), "ColdClientLoader.ini"))
+            string gameSettingsPath = Path.Combine(pluginPath, "GamesInfo", game.Appid);
+
+            string coldclientIniPath = Path.Combine(pluginPath, "Goldberg", "ColdClientLoader.ini");
+
+            string gamecoldclientIniPath = Path.Combine(gameSettingsPath, "ColdClientLoader.ini");
+
+
+            if (!FileSystem.FileExists(gamecoldclientIniPath)
                 || game.ConfigsColdClientLoader.Exe.IsNullOrWhiteSpace()
-                || game.ConfigsColdClientLoader.AppId.IsNullOrWhiteSpace())
+                || game.ConfigsColdClientLoader.Appid.IsNullOrWhiteSpace())
             {
                 if (!InternetCommon.Internet.IsInternetAvailable())
                 {
@@ -137,12 +194,15 @@ namespace GoldbergCommon
                     return false;
                 }
                 game.GenerateColdClient = true;
-                GoldbergGenerator.GenerateInfo(game, apikey, PlayniteApi);
+                using (var steam = new SteamService())
+                {
+                    GoldbergGenerator.GenerateInfo(game, apiKey, PlayniteApi, steam);
+                }
             }
             if (!game.ConfigsColdClientLoader.Exe.IsNullOrWhiteSpace()
-                && !game.ConfigsColdClientLoader.AppId.IsNullOrWhiteSpace())
+                && !game.ConfigsColdClientLoader.Appid.IsNullOrWhiteSpace())
             {
-                if (FileSystem.CopyFile($"{GameSettingsPath(game.AppID)}\\ColdClientLoader.ini", ColdClientIni, true))
+                if (FileSystem.CopyFile(gamecoldclientIniPath, coldclientIniPath, true))
                 {
                     message = string.Empty;
                     return true;
@@ -159,72 +219,17 @@ namespace GoldbergCommon
                 return false;
             }
         }
-        private static bool CreateSymbolicSteamSettings(Game game)
+        private static bool CreateSymbolicSteamSettings(string steamSettingsPath, string gamesteamSettingsPath)
         {
-            if (FileSystem.DirectoryExists(SteamSettingsPath))
+            if (FileSystem.DirectoryExists(steamSettingsPath))
             {
-                FileSystem.DeleteDirectory(SteamSettingsPath);
+                FileSystem.DeleteDirectory(steamSettingsPath);
             }
-            if (FileSystem.CreateSymbolicLink(SteamSettingsPath, GameSteamSettingPath(game.GameId)))
+            if (FileSystem.CreateSymbolicLink(steamSettingsPath, gamesteamSettingsPath))
             {
                 return true;
             }
             else
-            {
-                return false;
-            }
-        }
-        public static bool SetSymbolicSteamToAppdata(Game game, IPlayniteAPI PlayniteApi, bool Enable = true)
-        {
-            string goldberggamepath = GameAppdataPath(game.GameId);
-            string steamuserdatagamepath = GameUserDataSteamPath(game.GameId);
-            if (!Enable)
-            {
-                var savesPath = Directory.GetDirectories(GameAppdataPath(game.GameId), "*", SearchOption.TopDirectoryOnly);
-                foreach (var dir in savesPath)
-                {
-                    if (FileSystem.IsSymbolicLink(dir))
-                    {
-                        FileSystem.DeleteDirectory(dir);
-                    }
-                }
-                return false;
-            }
-            try
-            {
-                var userdatappid = Directory.GetDirectories(steamuserdatagamepath, "*", SearchOption.TopDirectoryOnly);
-                foreach (var dir in userdatappid)
-                {
-                    string rootdirectory = Path.GetFileName(dir);
-                    string goldbergtarget = Path.Combine(goldberggamepath, rootdirectory);
-                    if (FileSystem.DirectoryExists(goldbergtarget))
-                    {
-                        var dialog = PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_ReplaceAppDataSymbolicWarning"), goldbergtarget, game.Name),
-                            "Steam Emu Utility", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
-                        if (dialog == MessageBoxResult.Yes)
-                        {
-                            string backupPath = Path.Combine(GameSettingsPath(game.GameId), "Saves", Goldberg.ConfigsUser.ID, Path.GetFileName(goldbergtarget));
-                            FileSystem.CopyDirectory(goldbergtarget, backupPath);
-                            try
-                            {
-                                FileSystem.DeleteDirectory(goldbergtarget);
-                            }
-                            catch { continue; }
-                        }
-                        else if (dialog == MessageBoxResult.No)
-                        {
-                            return false;
-                        }
-                    }
-                    if (!FileSystem.CreateSymbolicLink(goldbergtarget, dir))
-                    {
-                        PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_SymbolicDeveloperOffError"));
-                        return false;
-                    }
-                }
-                return true;
-            }
-            catch
             {
                 return false;
             }
