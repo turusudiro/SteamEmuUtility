@@ -1,16 +1,25 @@
-﻿using Playnite.SDK;
-using Playnite.SDK.Data;
+﻿using GoldbergCommon;
+using Playnite.SDK;
 using Playnite.SDK.Models;
+using PlayniteCommon;
 using PluginsCommon;
 using SteamCommon;
-using SteamEmuUtility;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace GreenLumaCommon
 {
+    public partial class GreenLumaLastRun
+    {
+        public IEnumerable<string> Appids { get; set; }
+        public bool FamilyMode { get; set; }
+        public string ProcessID { get; set; }
+        public bool StealthMode { get; set; }
+    }
+
     public partial class GreenLumaVersion
     {
         public string Version { get; set; }
@@ -19,246 +28,264 @@ namespace GreenLumaCommon
 
     public class GreenLuma
     {
+        public enum GreenLumaMode
+        {
+            Normal,
+            Stealth,
+            Family
+        }
         public const string Url = @"https://cs.rin.ru/forum/viewtopic.php?f=29&t=103709";
-        private static string version;
-        public static string Version
-        {
-            get
-            {
-                if (version == null)
-                {
-                    try
-                    {
-                        version = Serialization.FromJsonFile<GreenLumaVersion>(Path
-                    .Combine(GreenLumaPath, "Version.json")).Version;
-                    }
-                    catch { version = "0.0.0"; }
-                }
-                return version;
-            }
-            set
-            {
-                version = value;
-            }
-        }
-        private static string year;
-        public static string Year
-        {
-            get
-            {
-                if (year == null)
-                {
-                    try
-                    {
-                        year = Serialization.FromJsonFile<GreenLumaVersion>(Path
-                    .Combine(GreenLumaPath, "Version.json")).Year;
-                    }
-                    catch { year = DateTime.Now.Year.ToString(); }
-                }
-                return year;
-            }
-            set
-            {
-                year = value;
-            }
-        }
-
-        public static List<string> GreenLumaFilesNormalMode = new List<string>()
-        {
-        "bin\\x64launcher.exe",
-        $"GreenLuma{Year}.txt",
-        $"GreenLuma{Year}_Files",
-        $"GreenLuma{Year}_Files\\AchievementUnlocked.wav",
-        "DLLInjector.exe",
-        "DLLInjector.ini",
-        $"GreenLuma_{Year}_x64.dll",
-        $"GreenLuma_{Year}_x86.dll",
-        "AppOwnershipTickets",
-        "EncryptedAppTickets",
-        $"GreenLuma_{Year}.log"
-        };
-        public static List<string> GreenLumaFiles = new List<string>
-        {
-        "bin\\x64launcher.exe",
-        $"GreenLuma{Year}_Files\\AchievementUnlocked.wav",
-        "DLLInjector.exe",
-        "DLLInjector.ini",
-        $"GreenLuma_{Year}_x64.dll",
-        $"GreenLuma_{Year}_x86.dll",
-        $"GreenLumaSettings_{Year}.exe",
-        $"GreenLuma_{Year}.log",
-        "Applist.log",
-        "user32.dll",
-        "applist",
-        $"GreenLuma{Year}_Files",
-        "AppOwnershipTickets",
-        "EncryptedAppTickets"
-        };
         private const string normalfeature = "[SEU] Normal Mode";
         private const string stealthfeature = "[SEU] Stealth Mode";
+        private const string familybetafeature = "[SEU] Family Beta Mode";
         private const string gamefeature = "[SEU] Game Unlocking";
         private const string dlcfeature = "[SEU] DLC Unlocking";
-        public const string stealth = "NoQuestion.bin";
         private static readonly ILogger logger = LogManager.GetLogger();
-        private static SteamEmuUtilitySettings settings;
-        public static SteamEmuUtilitySettings GreenLumaSettings
+        public static int AddNormalGameOnlyFeature(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
         {
-            get
+            var features = new List<GameFeature>()
             {
-                return settings;
-            }
-            set
+                NormalFeature(playniteAPI),
+                GameFeature(playniteAPI),
+            };
+
+            var removefeature = new List<GameFeature>()
             {
-                settings = value;
-            }
+                Goldberg.Feature(playniteAPI),
+                StealthFeature(playniteAPI),
+                FamilyBetaFeature(playniteAPI),
+                DLCFeature(playniteAPI)
+            };
+            PlayniteUtilities.RemoveFeatures(games, removefeature);
+
+            games.ForEach(x => x.IncludeLibraryPluginAction = true);
+
+            return PlayniteUtilities.AddFeatures(games, features);
         }
-        public static string EncryptedAppTicketsPath { get { return Path.Combine(CommonPath, "EncryptedAppTickets"); } }
-        public static string AppOwnershipTicketsPath { get { return Path.Combine(CommonPath, "AppOwnershipTickets"); } }
-        public static string BackupPath { get { return Path.Combine(CommonPath, "Backup"); } }
-        public static string user32 { get { return Path.Combine(GreenLumaPath, "StealthMode", "user32.dll"); } }
-        public static string CommonPath { get { return Path.Combine(pluginpath, "Common", "GreenLuma"); } }
-        public static string GreenLumaPath { get { return Path.Combine(pluginpath, "GreenLuma"); } }
-        private static string pluginpath;
-        public static string PluginPath
+        public static int AddNormalDLCOnlyFeature(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
         {
-            get
+            var features = new List<GameFeature>()
             {
-                return pluginpath;
-            }
-            set
+                NormalFeature(playniteAPI),
+                DLCFeature(playniteAPI),
+            };
+
+            var removefeature = new List<GameFeature>()
             {
-                pluginpath = value;
-            }
+                Goldberg.Feature(playniteAPI),
+                StealthFeature(playniteAPI),
+                FamilyBetaFeature(playniteAPI),
+                GameFeature(playniteAPI)
+            };
+            PlayniteUtilities.RemoveFeatures(games, removefeature);
+
+            games.ForEach(x => x.IncludeLibraryPluginAction = true);
+
+            return PlayniteUtilities.AddFeatures(games, features);
         }
-        public static GameFeature GameFeature(IPlayniteAPI PlayniteApi)
+        public static int AddNormalGameAndDLCFeature(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
         {
-            return PlayniteApi.Database.Features.Add(gamefeature);
-        }
-        public static GameFeature DLCFeature(IPlayniteAPI PlayniteApi)
-        {
-            return PlayniteApi.Database.Features.Add(dlcfeature);
-        }
-        public static GameFeature NormalFeature(IPlayniteAPI PlayniteApi)
-        {
-            return PlayniteApi.Database.Features.Add(normalfeature);
-        }
-        public static GameFeature StealthFeature(IPlayniteAPI PlayniteApi)
-        {
-            return PlayniteApi.Database.Features.Add(stealthfeature);
-        }
-        public static bool GreenLumaNormalInjected
-        {
-            get
+            var features = new List<GameFeature>()
             {
-                foreach (var file in GreenLumaFilesNormalMode)
-                {
-                    if (file.Equals("AppOwnershipTickets") || file.Equals("EncryptedAppTickets") || file.Equals($"GreenLuma_{Year}.log") || file.Equals($"GreenLuma{Year}.txt"))
-                    {
-                        continue;
-                    }
-                    string path = Path.Combine(Steam.SteamDirectory, file);
-                    if (file.Equals($"GreenLuma{Year}_Files"))
-                    {
-                        if (!FileSystem.DirectoryExists(path))
-                        {
-                            return false;
-                        }
-                        continue;
-                    }
-                    if (path.Contains("x64launcher"))
-                    {
-                        if (new FileInfo(path).Length != new FileInfo(Path.Combine(GreenLumaPath, "NormalMode", "x64launcher.exe")).Length)
-                        {
-                            return false;
-                        }
-                    }
-                    if (!FileSystem.FileExists(path))
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
+                NormalFeature(playniteAPI),
+                DLCFeature(playniteAPI),
+                GameFeature(playniteAPI),
+            };
+
+            var removefeature = new List<GameFeature>()
+            {
+                Goldberg.Feature(playniteAPI),
+                StealthFeature(playniteAPI),
+                FamilyBetaFeature(playniteAPI),
+            };
+            PlayniteUtilities.RemoveFeatures(games, removefeature);
+
+            games.ForEach(x => x.IncludeLibraryPluginAction = true);
+
+            return PlayniteUtilities.AddFeatures(games, features);
         }
-        public static bool ApplistConfigured(IEnumerable<string> appids)
+        public static int AddStealthGameOnlyFeature(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
+        {
+            var features = new List<GameFeature>()
+            {
+                StealthFeature(playniteAPI),
+                GameFeature(playniteAPI),
+            };
+
+            var removefeature = new List<GameFeature>()
+            {
+                FamilyBetaFeature(playniteAPI),
+                Goldberg.Feature(playniteAPI),
+                NormalFeature(playniteAPI),
+                DLCFeature(playniteAPI)
+            };
+            PlayniteUtilities.RemoveFeatures(games, removefeature);
+
+            games.ForEach(x => x.IncludeLibraryPluginAction = true);
+
+            return PlayniteUtilities.AddFeatures(games, features);
+        }
+        public static int AddStealthDLCOnlyFeature(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
+        {
+            var features = new List<GameFeature>()
+            {
+                StealthFeature(playniteAPI),
+                DLCFeature(playniteAPI),
+            };
+
+            var removefeature = new List<GameFeature>()
+            {
+                FamilyBetaFeature(playniteAPI),
+                Goldberg.Feature(playniteAPI),
+                NormalFeature(playniteAPI),
+                GameFeature(playniteAPI)
+            };
+            PlayniteUtilities.RemoveFeatures(games, removefeature);
+
+            games.ForEach(x => x.IncludeLibraryPluginAction = true);
+
+            return PlayniteUtilities.AddFeatures(games, features);
+        }
+        public static int AddStealthGameAndDLCFeature(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
+        {
+            var features = new List<GameFeature>()
+            {
+                StealthFeature(playniteAPI),
+                DLCFeature(playniteAPI),
+                GameFeature(playniteAPI),
+            };
+
+            var removefeature = new List<GameFeature>()
+            {
+                FamilyBetaFeature(playniteAPI),
+                Goldberg.Feature(playniteAPI),
+                NormalFeature(playniteAPI),
+            };
+            PlayniteUtilities.RemoveFeatures(games, removefeature);
+
+            games.ForEach(x => x.IncludeLibraryPluginAction = true);
+
+            return PlayniteUtilities.AddFeatures(games, features);
+        }
+        public static int AddFamilyGameOnlyFeature(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
+        {
+            var features = new List<GameFeature>()
+            {
+                FamilyBetaFeature(playniteAPI),
+                GameFeature(playniteAPI)
+            };
+
+            var removefeature = new List<GameFeature>()
+            {
+                StealthFeature(playniteAPI),
+                Goldberg.Feature(playniteAPI),
+                NormalFeature(playniteAPI),
+                DLCFeature(playniteAPI)
+            };
+            PlayniteUtilities.RemoveFeatures(games, removefeature);
+
+            games.ForEach(x => x.IncludeLibraryPluginAction = true);
+
+            return PlayniteUtilities.AddFeatures(games, features);
+        }
+        public static int AddFamilyDLCOnlyFeature(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
+        {
+            var features = new List<GameFeature>()
+            {
+                FamilyBetaFeature(playniteAPI),
+                DLCFeature(playniteAPI)
+            };
+
+            var removefeature = new List<GameFeature>()
+            {
+                StealthFeature(playniteAPI),
+                Goldberg.Feature(playniteAPI),
+                NormalFeature(playniteAPI),
+                GameFeature(playniteAPI)
+            };
+            PlayniteUtilities.RemoveFeatures(games, removefeature);
+
+            games.ForEach(x => x.IncludeLibraryPluginAction = true);
+
+            return PlayniteUtilities.AddFeatures(games, features);
+        }
+        public static int AddFamilyGameAndDLCFeature(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
+        {
+            var features = new List<GameFeature>()
+            {
+                FamilyBetaFeature(playniteAPI),
+                DLCFeature(playniteAPI),
+                GameFeature(playniteAPI)
+            };
+
+            var removefeature = new List<GameFeature>()
+            {
+                StealthFeature(playniteAPI),
+                Goldberg.Feature(playniteAPI),
+                NormalFeature(playniteAPI),
+            };
+            PlayniteUtilities.RemoveFeatures(games, removefeature);
+
+            games.ForEach(x => x.IncludeLibraryPluginAction = true);
+
+            return PlayniteUtilities.AddFeatures(games, features);
+        }
+        public static int DisableGreenLuma(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
+        {
+            var removefeature = new List<GameFeature>()
+            {
+                NormalFeature(playniteAPI),
+                StealthFeature(playniteAPI),
+                FamilyBetaFeature(playniteAPI),
+                GameFeature(playniteAPI),
+                DLCFeature(playniteAPI),
+            };
+
+            return PlayniteUtilities.RemoveFeatures(games, removefeature);
+        }
+        public static GameFeature GameFeature(IPlayniteAPI playniteApi)
+        {
+            return playniteApi.Database.Features.Add(gamefeature);
+        }
+        public static GameFeature DLCFeature(IPlayniteAPI playniteApi)
+        {
+            return playniteApi.Database.Features.Add(dlcfeature);
+        }
+        public static GameFeature NormalFeature(IPlayniteAPI playniteApi)
+        {
+            return playniteApi.Database.Features.Add(normalfeature);
+        }
+        public static GameFeature StealthFeature(IPlayniteAPI playniteApi)
+        {
+            return playniteApi.Database.Features.Add(stealthfeature);
+        }
+        public static GameFeature FamilyBetaFeature(IPlayniteAPI playniteApi)
+        {
+            return playniteApi.Database.Features.Add(familybetafeature);
+        }
+        public static bool ApplistConfigured(IEnumerable<string> appids, IEnumerable<string> applist)
         {
             var appidSet = new HashSet<string>(appids);
-            var applist = AppList();
 
-            if (applist != null && applist.Length > 0)
+            var applistSet = applist.ToHashSet();
+            if (applistSet != null && applistSet.SetEquals(appidSet))
             {
-                foreach (var fileInfo in applist)
-                {
-                    try
-                    {
-                        using (var reader = fileInfo.OpenText())
-                        {
-                            bool fileContainsAppId = false;
-
-                            // Read each line of the file and check if any line is in appidSet
-                            string line;
-                            while ((line = reader.ReadLine()) != null)
-                            {
-                                if (appidSet.Contains(line.Trim())) // Assuming trimming is appropriate
-                                {
-                                    fileContainsAppId = true;
-                                    break; // Exit the loop if at least one app ID is found in the file
-                                }
-                            }
-
-                            if (!fileContainsAppId)
-                            {
-                                return false; // If no app ID is found in the file, return false
-                            }
-                        }
-                    }
-                    catch (IOException ex)
-                    {
-                        // Handle or log the exception
-                        Console.WriteLine($"Error reading file {fileInfo.FullName}: {ex.Message}");
-                    }
-                }
-
-                // If the loop completes without returning, it means all files contain at least one app ID
                 return true;
             }
-
-            // No files in the applist, considered not configured
             return false;
         }
-
-        public static IEnumerable<string> GetDLC(string appid)
-        {
-            string path = Path.Combine(CommonPath, appid + ".txt");
-            return FileSystem.ReadStringLinesFromFile(path);
-        }
-        public static bool DLCExists(string appid)
-        {
-            return FileSystem.FileExists(Path.Combine(Path.Combine(CommonPath, $"{appid}.txt")));
-        }
-        public static FileInfo[] AppList()
-        {
-            if (FileSystem.DirectoryExists(Path.Combine(Steam.SteamDirectory, "applist")))
-            {
-                string path = FileSystem.FixPathLength(Path.Combine(Steam.SteamDirectory, "applist"));
-                return new DirectoryInfo(path).GetFiles("*.txt", SearchOption.TopDirectoryOnly);
-            }
-            else
-            {
-                return null;
-            }
-        }
-        public static bool GreenLumaFilesExists(out List<string> missingFiles)
+        public static bool GreenLumaFilesExists(string path, out List<string> missingFiles)
         {
             var GreenLumaFiles = new List<string>()
             {
-                $"{GreenLumaPath}\\NormalMode\\AchievementUnlocked.wav",
-                $"{GreenLumaPath}\\NormalMode\\DLLInjector.exe",
-                $"{GreenLumaPath}\\NormalMode\\DLLInjector.ini",
-                $"{GreenLumaPath}\\NormalMode\\GreenLuma_2024_x64.dll",
-                $"{GreenLumaPath}\\NormalMode\\GreenLuma_2024_x86.dll",
-                $"{GreenLumaPath}\\NormalMode\\x64launcher.exe",
-                $"{GreenLumaPath}\\StealthMode\\user32.dll",
+                $"{path}\\AchievementUnlocked.wav",
+                $"{path}\\DLLInjector.exe",
+                $"{path}\\DLLInjector.ini",
+                $"{path}\\GreenLuma_2024_x64.dll",
+                $"{path}\\GreenLuma_2024_x86.dll",
+                $"{path}\\x64launcher.exe",
+                $"{path}\\user32.dll",
+                $"{path}\\user32FamilySharing.dll",
             };
             missingFiles = new List<string>();
 
@@ -274,14 +301,92 @@ namespace GreenLumaCommon
             // Return true if there are no missing files, otherwise return false
             return missingFiles.Count == 0;
         }
-
-        public static bool IsDLLInjectorRunning
+        public static string GetGreenLumaYear(string greenlumaPath)
         {
-            get
+            string year = string.Empty;
+
+            if (FileSystem.DirectoryExists(greenlumaPath))
             {
-                var processes = Process.GetProcessesByName("dllinjector");
-                return processes.Length > 0;
+                string filePattern = @"\d{4}[^ \- \d A-Z]";
+
+                Regex fileRegex = new Regex(filePattern, RegexOptions.IgnoreCase);
+
+                var files = new DirectoryInfo(greenlumaPath).GetFiles("*", SearchOption.TopDirectoryOnly)
+                    .Where(x => fileRegex.IsMatch(x.Name));
+
+                if (files.Any())
+                {
+                    string rawString = files.FirstOrDefault().Name;
+                    year = Regex.Replace(rawString, @"\D+", "");
+                }
             }
+            return year;
+        }
+        public static IEnumerable<DirectoryInfo> GetGreenLumaDirectories(string path)
+        {
+            if (FileSystem.DirectoryExists(path))
+            {
+                string dirPattern = @"GreenLuma.*.files$|applist$|AppOwnershipTickets$|EncryptedAppTickets$";
+
+                Regex dirRegex = new Regex(dirPattern, RegexOptions.IgnoreCase);
+
+                return new DirectoryInfo(path).GetDirectories("*", SearchOption.AllDirectories)
+                    .Where(x => dirRegex.IsMatch(x.Name));
+            }
+            return Enumerable.Empty<DirectoryInfo>();
+        }
+        public static IEnumerable<FileInfo> GetGreenLumaFiles(string path)
+        {
+            if (FileSystem.DirectoryExists(path))
+            {
+                string filePattern = @"GreenLuma.*.(wav|dll|log|exe)$|applist..*|dllinjector.*|.*x64launcher.exe$|.*AchievementUnlocked\.wav$";
+
+                Regex fileRegex = new Regex(filePattern, RegexOptions.IgnoreCase);
+
+                return new DirectoryInfo(path).GetFiles("*", SearchOption.AllDirectories)
+                    .Where(x => fileRegex.IsMatch(x.Name));
+            }
+            return Enumerable.Empty<FileInfo>();
+        }
+        public static bool IsGreenLumaPresentOnSteamDir()
+        {
+            string steamDir = Steam.GetSteamDirectory();
+
+            if (FileSystem.DirectoryExists(steamDir))
+            {
+                var dirGreenLumaOnSteam = GetGreenLumaDirectories(steamDir);
+
+                var fileGreenLumaOnSteam = GetGreenLumaFiles(steamDir);
+
+                if (dirGreenLumaOnSteam.Any())
+                {
+                    return true;
+                }
+                else if (fileGreenLumaOnSteam.Any())
+                {
+                    var x64steam = fileGreenLumaOnSteam.FirstOrDefault(x => x.Name.Contains("x64launcher"));
+                    if (x64steam != null)
+                    {
+                        var fileinfo = FileVersionInfo.GetVersionInfo(x64steam.FullName);
+                        bool fromValve = fileinfo.ProductName == "Steam" ? true : false;
+                        if (!fromValve)
+                        {
+                            return true;
+                        }
+                    }
+                    else { return false; }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+        public static bool IsDLLInjectorRunning()
+        {
+            var processes = Process.GetProcessesByName("dllinjector");
+            return processes.Length > 0;
         }
     }
 }
