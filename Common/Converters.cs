@@ -29,4 +29,31 @@ namespace ConvertersCommon
             throw new NotImplementedException();
         }
     }
+    public class InverseBooleanConverter : MarkupExtension, IValueConverter
+    {
+        private static InverseBooleanConverter _instance;
+
+        public override object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return _instance ?? (_instance = new InverseBooleanConverter());
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue)
+            {
+                return !boolValue;
+            }
+            return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue)
+            {
+                return !boolValue;
+            }
+            throw new NotImplementedException();
+        }
+    }
 }

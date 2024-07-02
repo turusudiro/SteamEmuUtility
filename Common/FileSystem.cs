@@ -45,6 +45,7 @@ namespace PluginsCommon
         {
             try
             {
+                exePath = FixPathLength(exePath);
                 using (FileStream fs = new FileStream(exePath, FileMode.Open, FileAccess.Read))
                 {
                     using (BinaryReader br = new BinaryReader(fs))
@@ -509,7 +510,7 @@ namespace PluginsCommon
             }
         }
 
-        public static void WriteStringToFile(string path, string content, bool useUtf8 = false, bool createDirectory = false)
+        public static void WriteStringToFile(string path, string content, bool useUtf8 = true, bool createDirectory = true)
         {
             path = FixPathLength(path);
             if (createDirectory)
@@ -520,7 +521,7 @@ namespace PluginsCommon
             PrepareSaveFile(path);
             if (useUtf8)
             {
-                File.WriteAllText(path, content, Encoding.UTF8);
+                File.WriteAllText(path, content, new UTF8Encoding());
             }
             else
             {

@@ -87,21 +87,13 @@ namespace ProcessCommon
 
             return Process.Start(info);
         }
-        public static Process TryStartProcess(string executablePath, bool asAdmin = false)
+        public static Process TryStartProcess(string executablePath, int maxAttempts, int IntervalMilliseconds, bool asAdmin = false)
         {
-            return TryStartProcess(executablePath, string.Empty, string.Empty, 1, 1000, false, asAdmin);
+            return TryStartProcess(executablePath, string.Empty, string.Empty, maxAttempts, IntervalMilliseconds, false, asAdmin);
         }
-        public static Process TryStartProcess(string executablePath, string arguments, bool asAdmin = false)
+        public static Process TryStartProcess(string executablePath, string arguments, int maxAttempts, int IntervalMilliseconds, bool asAdmin = false)
         {
-            return TryStartProcess(executablePath, arguments, string.Empty, 1, 1000, false, asAdmin);
-        }
-        public static Process TryStartProcess(string executablePath, string arguments, string workingdir, bool asAdmin = false)
-        {
-            return TryStartProcess(executablePath, arguments, workingdir, 1, 1000, false, asAdmin);
-        }
-        public static Process TryStartProcess(string executablePath, string arguments, string workingdir, int maxAttempts, bool asAdmin = false)
-        {
-            return TryStartProcess(executablePath, arguments, workingdir, maxAttempts, 1000, false, asAdmin);
+            return TryStartProcess(executablePath, arguments, string.Empty, maxAttempts, IntervalMilliseconds, false, asAdmin);
         }
         public static Process TryStartProcess(string executablePath, string arguments, string workingdir, int maxAttempts, int IntervalMilliseconds, bool asAdmin = false)
         {
@@ -114,7 +106,7 @@ namespace ProcessCommon
             process.StartInfo.UseShellExecute = shellExecute;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.Arguments = arguments;
-            process.StartInfo.WorkingDirectory = workingdir;
+            process.StartInfo.WorkingDirectory = string.IsNullOrEmpty(workingdir) ? (new FileInfo(executablePath)).Directory.FullName : workingdir;
             if (AsAdmin)
             {
                 process.StartInfo.Verb = "runas";
@@ -124,10 +116,22 @@ namespace ProcessCommon
                 process.Start();
                 // Wait for a brief moment to give the process a chance to start
                 Thread.Sleep(IntervalMilliseconds); // 0,5 second
-                bool processRunning = IsProcessRunning(process.ProcessName);
-                if (processRunning) // Check if the process is running
+
+                if (process.HasExited)
                 {
-                    break; //if process start normally
+                    if (process.ExitCode == 0)
+                    {
+                        // Process exited successfully
+                        return process;
+                    }
+                }
+                else
+                {
+                    if (IsProcessRunning(process.ProcessName))
+                    {
+                        // Process is running
+                        return process;
+                    }
                 }
                 // Sleep for the specified interval before the next attempt
                 Thread.Sleep(IntervalMilliseconds);
