@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Playnite.SDK.Data;
+﻿using Playnite.SDK.Data;
 using System.Collections.Generic;
 
 namespace SteamCommon.Models
@@ -35,55 +34,22 @@ namespace SteamCommon.Models
         [SerializationPropertyName("availableGameStats")]
         public AvailableGameStatsData AvailableGameStats { get; set; } = new AvailableGameStatsData();
     }
-    public partial class SteamAppDetails<TKey, TValue>
-    {
-        private Dictionary<TKey, TValue> internalDictionary;
-
-        public SteamAppDetails()
-        {
-            internalDictionary = new Dictionary<TKey, TValue>();
-        }
-
-        public void Add(TKey key, TValue value)
-        {
-            internalDictionary.Add(key, value);
-        }
-
-        public bool ContainsKey(TKey key)
-        {
-            return internalDictionary.ContainsKey(key);
-        }
-
-        public bool TryGetValue(TKey key, out TValue value)
-        {
-            return internalDictionary.TryGetValue(key, out value);
-        }
-
-        public TValue this[TKey key]
-        {
-            get => internalDictionary[key];
-            set => internalDictionary[key] = value;
-        }
-
-        public ICollection<TKey> Keys => internalDictionary.Keys;
-        public ICollection<TValue> Values => internalDictionary.Values;
-    }
     public partial class AppDetailsInfo
     {
-        [JsonProperty("success")]
-        private bool _success;
-        [JsonIgnore]
-        public bool Success { get => _success; }
-        [JsonProperty("data")]
-        private AppDetails _data;
-        [JsonIgnore]
-        public AppDetails Data { get => _data; }
+        [SerializationPropertyName("success")]
+        public bool Success { get; set; }
+        [SerializationPropertyName("data")]
+        public AppDetails Data { get; set; }
     }
     public class AppDetails
     {
-        [JsonProperty("dlc")]
-        private List<string> _dlc;
-        [JsonIgnore]
-        public List<string> DLC { get => _dlc; }
+        [SerializationPropertyName("Name")]
+        public string Name { get; set; }
+        [SerializationPropertyName("type")]
+        public string Type { get; set; }
+        [SerializationPropertyName("header_image")]
+        public string ImageLink { get; set; }
+        [SerializationPropertyName("dlc")]
+        public IList<string> DLC { get; set; }
     }
 }

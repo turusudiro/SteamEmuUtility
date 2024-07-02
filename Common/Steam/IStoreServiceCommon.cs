@@ -1,6 +1,4 @@
-﻿using GoldbergCommon;
-using Playnite.SDK;
-using Playnite.SDK.Data;
+﻿using Playnite.SDK.Data;
 using PluginsCommon;
 using SteamCommon.Models;
 using System;
@@ -18,17 +16,17 @@ namespace SteamCommon
         private const string getapplistUrl = "https://api.steampowered.com/IStoreService/GetAppList/v1/?max_results=50000&include_games=0&include_dlc=1&key=";
         public static ApplistDetails GetApplistDetails(string pluginpath)
         {
-            string path = Path.Combine(pluginpath, "Common", "DLCCache.json");
+            string path = Path.Combine(pluginpath, "DLCCache.json");
             return Serialization.FromJsonFile<ApplistDetails>(path);
         }
         public static bool CacheExists(string pluginpath)
         {
-            string path = Path.Combine(pluginpath, "Common", "DLCCache.json");
+            string path = Path.Combine(pluginpath, "DLCCache.json");
             return FileSystem.FileExists(path);
         }
         public static bool Cache1Day(string pluginpath)
         {
-            string path = Path.Combine(pluginpath, "Common", "DLCCache.json");
+            string path = Path.Combine(pluginpath, "DLCCache.json");
             if (FileSystem.FileExists(path))
             {
                 FileInfo fileInfo = new FileInfo(path);
@@ -40,13 +38,11 @@ namespace SteamCommon
             }
             return false;
         }
-        public static void UpdateCache(string pluginpath, GlobalProgressActionArgs progressOptions, string apikey)
+        public static void UpdateCache(string pluginpath, string apiKey)
         {
-            progressOptions.IsIndeterminate = true;
-            progressOptions.Text = ResourceProvider.GetString("LOCSEU_UpdatingDLCCache");
             var client = new HttpClient();
             client.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
-            string path = Path.Combine(pluginpath, "Common", "DLCCache.json");
+            string path = Path.Combine(pluginpath, "DLCCache.json");
             string json;
             int lastappid;
             ApplistDetails applist;
@@ -58,8 +54,8 @@ namespace SteamCommon
                 lastappid = applist.Applist.LastAppid;
                 do
                 {
-                    var response = lastappid > 0 ? client.GetAsync(getapplistUrl + apikey + "&last_appid=" + lastappid.ToString()).Result :
-                        client.GetAsync(getapplistUrl + apikey).Result;
+                    var response = lastappid > 0 ? client.GetAsync(getapplistUrl + apiKey + "&last_appid=" + lastappid.ToString()).Result :
+                        client.GetAsync(getapplistUrl + apiKey).Result;
                     if (response.IsSuccessStatusCode)
                     {
                         var content = response.Content.ReadAsStreamAsync().Result;
@@ -93,13 +89,11 @@ namespace SteamCommon
                 return;
             }
         }
-        public static void GenerateCache(string pluginpath, GlobalProgressActionArgs progressOptions, string apikey)
+        public static void GenerateCache(string pluginpath, string apiKey)
         {
-            progressOptions.IsIndeterminate = true;
-            progressOptions.Text = ResourceProvider.GetString("LOCSEU_DownloadingDLCCache");
             var client = new HttpClient();
             client.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
-            string path = Path.Combine(pluginpath, "Common", "DLCCache.json");
+            string path = Path.Combine(pluginpath, "DLCCache.json");
             string json;
             int lastappid = 0;
             ApplistDetails applist;
@@ -117,8 +111,8 @@ namespace SteamCommon
                 }
                 do
                 {
-                    var response = lastappid > 0 ? client.GetAsync(getapplistUrl + apikey + "&last_appid=" + lastappid.ToString()).Result :
-                        client.GetAsync(getapplistUrl + Goldberg.SteamWebAPIKey).Result;
+                    var response = lastappid > 0 ? client.GetAsync(getapplistUrl + apiKey + "&last_appid=" + lastappid.ToString()).Result :
+                        client.GetAsync(getapplistUrl + apiKey).Result;
                     if (response.IsSuccessStatusCode)
                     {
                         var content = response.Content.ReadAsStreamAsync().Result;
