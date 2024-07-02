@@ -2,6 +2,20 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
+
+    <sys:String x:Key="LOCSEU_ManageDLC">Manage DLC</sys:String>
+    <sys:String x:Key="LOCSEU_Refresh">Refresh</sys:String>
+    <sys:String x:Key="LOCSEU_Name">Name</sys:String>
+    <sys:String x:Key="LOCSEU_Image">Image</sys:String>
+    <sys:String x:Key="LOCSEU_Enable">Enable</sys:String>
+    <sys:String x:Key="LOCSEU_GettingDlcList">Getting DLC List...</sys:String>
+    <sys:String x:Key="LOCSEU_GettingDlcInfo">Getting DLC Info...</sys:String>
+    <sys:String x:Key="LOCSEU_Adding">Adding {0}</sys:String>
+    <sys:String x:Key="LOCSEU_FetchingImages">Fetching image {0}</sys:String>
+    <sys:String x:Key="LOCSEU_LoadingImages">Loading image {0}</sys:String>
+    <sys:String x:Key="LOCSEU_Processing">Processing {0}</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaCleanTaskFinish">GreenLuma : Finished cleaning up GreenLuma files.</sys:String>
+    <sys:String x:Key="LOCSEU_DlcManagerWindow">DLC Manager</sys:String>
     <sys:String x:Key="LOCSEU_StartWithGoldberg">Start {0} with Goldberg</sys:String>
     
     <sys:String x:Key="LOCSEU_SteamLoggedOn">Successfully logged on</sys:String>
@@ -22,9 +36,10 @@
     <sys:String x:Key="LOCSEU_FileExists">The file {0} already exists. Do you want to overwrite it?</sys:String>
     <sys:String x:Key="LOCSEU_Error">Error</sys:String>
     <sys:String x:Key="LOCSEU_InjectorError">An Error occured! Cannot run Steam with injector!</sys:String>
+    <sys:String x:Key="LOCSEU_GLFilesPresentOnSteam">There's a GreenLuma NormalMode files in Steam path, do you want to remove it?</sys:String>
     <sys:String x:Key="LOCSEU_SteamWithoutConfiguredApplist">Steam is running without configured applist, Restart steam with Injector?</sys:String>
     <sys:String x:Key="LOCSEU_SteamInjectedDiffMode">Steam is injected with different mode, Restart steam with Injector?</sys:String>
-    <sys:String x:Key="LOCSEU_SteamIsRunning">Steam is running, Restart steam with Injector?</sys:String>
+    <sys:String x:Key="LOCSEU_SteamIsRunning">Steam is currently running outside the plugin, Restart Steam with Injector?</sys:String>
     <sys:String x:Key="LOCSEU_SteamIsRunningNotification">GreenLuma : Steam is running, waiting steam to exit for clean up GreenLuma files</sys:String>
     <sys:String x:Key="LOCSEU_Error0SteamGame">Select at least 1 game</sys:String>
     <sys:String x:Key="LOCSEU_ResetAchievementSuccess">Achievement reset successful for {0} games</sys:String>
@@ -59,12 +74,13 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_Import">Import</sys:String>
     <sys:String x:Key="LOCSEU_Download">Download</sys:String>
     <sys:String x:Key="LOCSEU_Downloading">Downloading</sys:String>
-    <sys:String x:Key="LOCSEU_GreenLumaErrorFeature">Normal Mode and Stealth Mode are enabled in this game, please make sure to choose one</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaErrorFeature">Invalid GreenLuma features for this game, please make sure to choose one</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaErrorFeatureGoldberg">GreenLuma Feature and Goldberg Feature are enabled in this game, please make sure to choose one</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaErrorFileMissing">Required GreenLuma files not found. Check your settings</sys:String>
     <sys:String x:Key="LOCSEU_GoldbergStatus">Goldberg Status</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaStatus">GreenLuma Status</sys:String>
-    <sys:String x:Key="LOCSEU_GetApiKey">Get API Key</sys:String>
-    <sys:String x:Key="LOCSEU_SteamWebApiKey">Steam Web API Key :</sys:String>
+    <sys:String x:Key="LOCSEU_GetapiKey">Get API Key</sys:String>
+    <sys:String x:Key="LOCSEU_SteamWebapiKey">Steam Web API Key :</sys:String>
     
     <sys:String x:Key="LOCSEU_GreenLumaSettingsLabel">GreenLuma Settings</sys:String>
     <sys:String x:Key="LOCSEU_MissingFiles">Missing Files</sys:String>
@@ -79,6 +95,7 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_GLCleanAppCache">Clean Steam AppCache on starting game</sys:String>
     <sys:String x:Key="LOCSEU_GLCleanApplistFolderNotEmpty">Clean applist folder on Steam if it's not empty</sys:String>
     <sys:String x:Key="LOCSEU_GLSkipSteamUpdateStealth">Skip Steam Update on Stealth Mode</sys:String>
+    <sys:String x:Key="LOCSEU_GLSkipSteamUpdateFamily">Skip Steam Update on Family Mode</sys:String>
     <sys:String x:Key="LOCSEU_InjectAppOwnershipTickets">Inject AppOwnershipTickets if there available</sys:String>
     <sys:String x:Key="LOCSEU_InjectEncryptedAppTickets">Inject EncryptedAppTickets if there available</sys:String>
     <sys:String x:Key="LOCSEU_GLDelay">Wait for the DLLInjector/Steam to start/exit, with a delay of {0} milliseconds</sys:String>
@@ -90,6 +107,9 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_GoldbergSettingsLabel">Goldberg Settings</sys:String>
     <sys:String x:Key="LOCSEU_CheckGBUpdate">Check Goldberg update on application startup</sys:String>
     <sys:String x:Key="LOCSEU_OpenSteamUnlockLastGame">Open Steam and unlock with last stopped game after exit</sys:String>
+    <sys:String x:Key="LOCSEU_GBNoQuestion">No Question Mode</sys:String>
+    <sys:String x:Key="LOCSEU_GBNoQuestionTooltip" xml:space="preserve">Disable default Steam library play action
+useful if you only have single play action in Steam library game</sys:String>
     <sys:String x:Key="LOCSEU_GBCleanGreenLumaExit">Also clean GreenLuma files after Steam Exit</sys:String>
     <sys:String x:Key="LOCSEU_Avatar">Avatar</sys:String>
     <sys:String x:Key="LOCSEU_Change">Change</sys:String>
@@ -101,11 +121,14 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_UserSteamID">User Steam ID</sys:String>
     <sys:String x:Key="LOCSEU_CountryIP">Country IP</sys:String>
 
+    <sys:String x:Key="LOCSEU_DisableFamilyBetaMode">Disable Family Beta</sys:String>
+    <sys:String x:Key="LOCSEU_EnableFamilyBetaMode">Enable Family Beta</sys:String>
     <sys:String x:Key="LOCSEU_GameOnly">Game Only</sys:String>
     <sys:String x:Key="LOCSEU_DLCOnly">DLC Only</sys:String>
     <sys:String x:Key="LOCSEU_GameAndDLC">Game and DLC</sys:String>
     <sys:String x:Key="LOCSEU_NormalMode">Normal Mode</sys:String>
     <sys:String x:Key="LOCSEU_StealthMode">Stealth Mode</sys:String>
+    <sys:String x:Key="LOCSEU_FamilyMode">Family Mode</sys:String>
     <sys:String x:Key="LOCSEU_EnableGoldberg">Enable Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_DisableGoldberg">Disable Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_EnableGreenLuma">Enable GreenLuma</sys:String>
@@ -118,11 +141,13 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_AddGoldberg">Added {0} games Goldberg Features</sys:String>
     <sys:String x:Key="LOCSEU_AddGreenLumaNormal">Added {0} games Normal Mode Features</sys:String>
     <sys:String x:Key="LOCSEU_AddGreenLumaStealth">Added {0} games Stealth Mode Features</sys:String>
+    <sys:String x:Key="LOCSEU_AddGreenLumaFamilyBeta">Added {0} games Family Beta Mode Features</sys:String>
     <sys:String x:Key="LOCSEU_RemoveGoldbergFeature">Removed {0} games Goldberg Features</sys:String>
     <sys:String x:Key="LOCSEU_RemoveGreenlumaFeature">Removed {0} games Greenluma Features</sys:String>
     <sys:String x:Key="LOCSEU_GenerateGreenluma">Generate {0} Games DLC Info for GreenLuma</sys:String>
     <sys:String x:Key="LOCSEU_GenerateGoldberg">Generate {0} Games config for Goldberg</sys:String>
-    <sys:String x:Key="LOCSEU_ResetAchievement">Reset {0} Games Achievements for Goldberg and Achievement Watcher</sys:String>
+    <sys:String x:Key="LOCSEU_ResetAchievement" xml:space="preserve">Reset {0} Games Achievements 
+for Goldberg and Achievement Watcher</sys:String>
     
     <sys:String x:Key="LOCSEU_OpenGoldbergGenerator">Open Goldberg config generator for {0} Games</sys:String>
     <sys:String x:Key="LOCSEU_ListGame">List Games</sys:String>
@@ -155,6 +180,9 @@ but it also works on some of the older ones</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfo">Generate Info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoTooltip">Generate Info for Goldberg Emu such as Achievements, ColdClient.ini, Controller Settings, DLC, etc.</sys:String>
     <sys:String x:Key="LOCSEU_Game">Game</sys:String>
+    <sys:String x:Key="LOCSEU_UnlockSelectedDLC">Unlock only selected DLC</sys:String>
+    <sys:String x:Key="LOCSEU_UnlockSelectedDLCTooltip" xml:space="preserve">Unlock only the selected DLC managed by DLC Manager
+by default the plugin will try to unlock all available DLC</sys:String>
     <sys:String x:Key="LOCSEU_UnlockAllDLC">Unlock All DLC</sys:String>
     <sys:String x:Key="LOCSEU_UnlockAllDLCTooltip" xml:space="preserve">Should the emu report all DLCs as unlocked,
 some games check for "hidden" DLCs,

@@ -2,7 +2,20 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
-    
+
+    <sys:String x:Key="LOCSEU_ManageDLC">Kelola DLC</sys:String>
+    <sys:String x:Key="LOCSEU_Refresh">Perbarui</sys:String>
+    <sys:String x:Key="LOCSEU_Name">Nama</sys:String>
+    <sys:String x:Key="LOCSEU_Image">Gambar</sys:String>
+    <sys:String x:Key="LOCSEU_Enable">Aktifkan</sys:String>
+    <sys:String x:Key="LOCSEU_GettingDlcList">Mengunduh Daftar DLC...</sys:String>
+    <sys:String x:Key="LOCSEU_GettingDlcInfo">Mengunduh Informasi DLC...</sys:String>
+    <sys:String x:Key="LOCSEU_Adding">Menambahkan {0}</sys:String>
+    <sys:String x:Key="LOCSEU_FetchingImages">Mengambil gambar {0}</sys:String>
+    <sys:String x:Key="LOCSEU_LoadingImages">Memuat gambar {0}</sys:String>
+    <sys:String x:Key="LOCSEU_Processing">Memproses {0}</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaCleanTaskFinish">GreenLuma : Berhasil menghapus file GreenLuma.</sys:String>
+    <sys:String x:Key="LOCSEU_DlcManagerWindow">Pengelola DLC</sys:String>
     <sys:String x:Key="LOCSEU_StartWithGoldberg">Mulai {0} dengan Goldberg</sys:String>
     
     <sys:String x:Key="LOCSEU_SteamLoggedOn">Berhasil masuk</sys:String>
@@ -24,8 +37,9 @@
     <sys:String x:Key="LOCSEU_Error">Kesalahan</sys:String>
     <sys:String x:Key="LOCSEU_InjectorError">Terjadi kesalahan! Tidak dapat menjalankan Steam dengan injektor!</sys:String>
     <sys:String x:Key="LOCSEU_SteamWithoutConfiguredApplist">Steam berjalan tanpa applist yang dikonfigurasi, Mulai ulang steam dengan Injektor?</sys:String>
+    <sys:String x:Key="LOCSEU_GLFilesPresentOnSteam">Ada file GreenLuma NormalMode di jalur Steam, apakah Anda ingin menghapusnya?</sys:String>
     <sys:String x:Key="LOCSEU_SteamInjectedDiffMode">Steam diinjeksikan dengan mode yang berbeda, Mulai ulang steam dengan Injektor?</sys:String>
-    <sys:String x:Key="LOCSEU_SteamIsRunning">Steam sedang berjalan, Mulai ulang steam dengan Injektor?</sys:String>
+    <sys:String x:Key="LOCSEU_SteamIsRunning">Steam saat ini berjalan di luar plugin, Mulai ulang steam dengan Injektor?</sys:String>
     <sys:String x:Key="LOCSEU_SteamIsRunningNotification">GreenLuma : Steam sedang berjalan, menunggu steam tertutup untuk membersihkan file GreenLuma</sys:String>
     <sys:String x:Key="LOCSEU_Error0SteamGame">Pilih setidaknya 1 permainan</sys:String>
     <sys:String x:Key="LOCSEU_ResetAchievementSuccess">Pengaturan ulang pencapaian berhasil untuk {0} game</sys:String>
@@ -60,14 +74,15 @@ pastikan Mode Pengembang diaktifkan.</sys:String>
     <sys:String x:Key="LOCSEU_Import">Impor</sys:String>
     <sys:String x:Key="LOCSEU_Download">Unduh</sys:String>
     <sys:String x:Key="LOCSEU_Downloading">Mengunduh</sys:String>
-    <sys:String x:Key="LOCSEU_GreenLumaErrorFeature">Mode Normal dan Mode Senyap diaktifkan dalam game ini, pastikan untuk memilih salah satunya</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaErrorFeature">Fitur GreenLuma tidak valid untuk permainan ini, pastikan untuk memilih salah satu</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaErrorFeatureGoldberg">Fitur GreenLuma dan Fitur Goldberg diaktifkan dalam game ini, pastikan untuk memilih salah satunya</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaErrorFileMissing">File GreenLuma yang dibutuhkan tidak ditemukan. Periksa pengaturan Anda</sys:String>
     <sys:String x:Key="LOCSEU_GoldbergStatus">Status Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaStatus">Status GreenLuma</sys:String>
-    <sys:String x:Key="LOCSEU_GetApiKey">Dapatkan Kunci API</sys:String>
-    <sys:String x:Key="LOCSEU_SteamWebApiKey">Kunci Steam Web API :</sys:String>
+    <sys:String x:Key="LOCSEU_GetapiKey">Dapatkan Kunci API</sys:String>
+    <sys:String x:Key="LOCSEU_SteamWebapiKey">Kunci Steam Web API :</sys:String>
 
-    <sys:String x:Key="LOCSEU_GreenLumaSettingsLabel">Pengaturan GreenLuma</sys:String>
+    <sys:String x:Key="LOCSEU_GreenLumaSettingsLabel">Pengaturan GreenLuma</sys:String> 
     <sys:String x:Key="LOCSEU_MissingFiles">File yang hilang</sys:String>
     <sys:String x:Key="LOCSEU_CheckGLUpdate">Periksa pembaruan GreenLuma pada saat memulai aplikasi</sys:String>
     <sys:String x:Key="LOCSEU_CheckGLFilesStartup">Periksa dan bersihkan file GreenLuma saat memulai aplikasi</sys:String>
@@ -81,6 +96,7 @@ pastikan Mode Pengembang diaktifkan.</sys:String>
     <sys:String x:Key="LOCSEU_GLCleanApplistFolderNotEmpty">Bersihkan folder applist di Steam jika tidak kosong</sys:String>
     <sys:String x:Key="LOCSEU_GLSkipSteamUpdateStealth">Lewati Pembaruan Steam pada Mode Senyap</sys:String>
     <sys:String x:Key="LOCSEU_InjectAppOwnershipTickets">Masukkan AppOwnershipTickets jika tersedia</sys:String>
+    <sys:String x:Key="LOCSEU_GLSkipSteamUpdateFamily">Lewati Pembaruan Steam pada Mode Keluarga</sys:String>
     <sys:String x:Key="LOCSEU_InjectEncryptedAppTickets">Masukkan EncryptedAppTickets jika tersedia</sys:String>
     <sys:String x:Key="LOCSEU_GLDelay">Tunggu hingga DLLInjector/Steam memulai/berakhir, dengan penundaan {0} milidetik</sys:String>
     <sys:String x:Key="LOCSEU_AttemptDLLInjector">Coba Mulai Ulang DLLInjector jika gagal</sys:String>
@@ -91,6 +107,9 @@ pastikan Mode Pengembang diaktifkan.</sys:String>
     <sys:String x:Key="LOCSEU_GoldbergSettingsLabel">Pengaturan Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_CheckGBUpdate">Periksa pembaruan Goldberg pada saat memulai aplikasi</sys:String>
     <sys:String x:Key="LOCSEU_OpenSteamUnlockLastGame">Buka Steam dan buka game yang terakhir dihentikan setelah keluar</sys:String>
+    <sys:String x:Key="LOCSEU_GBNoQuestion">Mode Tanpa Pertanyaan</sys:String>
+    <sys:String x:Key="LOCSEU_GBNoQuestionTooltip" xml:space="preserve">Menonaktifkan aksi bermain pustaka Steam bawaan
+berguna jika Anda hanya memiliki aksi bermain satu-satunya di game perpustakaan Steam</sys:String>
     <sys:String x:Key="LOCSEU_GBCleanGreenLumaExit">Juga bersihkan file GreenLuma setelah Keluar dari Steam</sys:String>
     <sys:String x:Key="LOCSEU_Avatar">Avatar</sys:String>
     <sys:String x:Key="LOCSEU_Change">Ganti</sys:String>
@@ -102,11 +121,14 @@ pastikan Mode Pengembang diaktifkan.</sys:String>
     <sys:String x:Key="LOCSEU_UserSteamID">ID Steam Pengguna</sys:String>
     <sys:String x:Key="LOCSEU_CountryIP">IP Negara</sys:String>
 
+    <sys:String x:Key="LOCSEU_DisableFamilyBetaMode">Nonaktifkan Family Beta</sys:String>
+    <sys:String x:Key="LOCSEU_EnableFamilyBetaMode">Aktifkan Family Beta</sys:String>
     <sys:String x:Key="LOCSEU_GameOnly">Hanya Game</sys:String>
     <sys:String x:Key="LOCSEU_DLCOnly">Hanya DLC</sys:String>
     <sys:String x:Key="LOCSEU_GameAndDLC">Game dan DLC</sys:String>
     <sys:String x:Key="LOCSEU_NormalMode">Mode Normal</sys:String>
     <sys:String x:Key="LOCSEU_StealthMode">Mode Senyap</sys:String>
+    <sys:String x:Key="LOCSEU_FamilyMode">Mode Keluarga</sys:String>
     <sys:String x:Key="LOCSEU_EnableGoldberg">Aktifkan Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_DisableGoldberg">Nonaktifkan Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_EnableGreenLuma">Aktifkan GreenLuma</sys:String>
@@ -119,11 +141,13 @@ pastikan Mode Pengembang diaktifkan.</sys:String>
     <sys:String x:Key="LOCSEU_AddGoldberg">Menambahkan {0} permainan Fitur Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_AddGreenLumaNormal">Menambahkan {0} permainan Fitur Mode Normal</sys:String>
     <sys:String x:Key="LOCSEU_AddGreenLumaStealth">Menambahkan {0} permainan Fitur Mode Senyap</sys:String>
+    <sys:String x:Key="LOCSEU_AddGreenLumaFamilyBeta">Menambahkan {0} permainan Fitur Family Beta</sys:String>
     <sys:String x:Key="LOCSEU_RemoveGoldbergFeature">Menghapus {0} permainan Fitur Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_RemoveGreenlumaFeature">Menghapus {0} permainan Fitur GreenLuma</sys:String>
     <sys:String x:Key="LOCSEU_GenerateGreenluma">Hasilkan {0} Info DLC permainan untuk GreenLuma</sys:String>
     <sys:String x:Key="LOCSEU_GenerateGoldberg">Hasilkan {0} Configurasi permainan untuk Goldberg</sys:String>
-    <sys:String x:Key="LOCSEU_ResetAchievement">Atur Ulang {0} permainan Pencapaian Untuk Goldberg dan Achievement Watcher</sys:String>
+    <sys:String x:Key="LOCSEU_ResetAchievement" xml:space="preserve">Atur Ulang {0} permainan Pencapaian 
+Untuk Goldberg dan Achievement Watcher</sys:String>
     
     <sys:String x:Key="LOCSEU_OpenGoldbergGenerator">Buka generator konfigurasi Goldberg untuk {0} permainan</sys:String>
     <sys:String x:Key="LOCSEU_ListGame">Daftar Permainan</sys:String>
@@ -156,6 +180,9 @@ tetapi juga bisa digunakan pada beberapa varian yang lebih lama</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfo">Buat Info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoTooltip">Buat Info untuk Goldberg Emu seperti Pencapaian, ColdClient.ini, Pengaturan Kontroler, DLC, dll.</sys:String>
     <sys:String x:Key="LOCSEU_Game">Permainan</sys:String>
+    <sys:String x:Key="LOCSEU_UnlockSelectedDLC">Hanya membuka DLC yang dipilih</sys:String>
+    <sys:String x:Key="LOCSEU_UnlockSelectedDLCTooltip" xml:space="preserve">Membuka hanya DLC yang dipilih yang dikelola oleh Manajer DLC
+secara bawaan, plugin akan mencoba membuka semua DLC yang tersedia</sys:String>
     <sys:String x:Key="LOCSEU_UnlockAllDLC">Buka Semua DLC</sys:String>
     <sys:String x:Key="LOCSEU_UnlockAllDLCTooltip" xml:space="preserve">Haruskah emu melaporkan semua DLC sebagai terbuka,
 beberapa permainan memeriksa DLC &quot;tersembunyi&quot;,
