@@ -1,6 +1,8 @@
 ﻿using DownloaderCommon;
 using GoldbergCommon;
+using GoldbergCommon.Models;
 using GreenLumaCommon;
+using ImageCommon;
 using Playnite.SDK;
 using Playnite.SDK.Data;
 using Playnite.SDK.Models;
@@ -14,238 +16,114 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace SteamEmuUtility
 {
     public class SteamEmuUtilitySettings : ObservableObject
     {
-        [DontSerialize]
         private BitmapImage _avatarimage;
         [DontSerialize]
-        [Obsolete]
         public BitmapImage AvatarImage
         {
-            get
-            {
-                if (_avatarimage != null)
-                {
-                    return _avatarimage;
-                }
-
-                BitmapImage image = new BitmapImage();
-                image.BeginInit();
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                if (FileSystem.FileExists(Goldberg.GoldbergAvatar))
-                {
-                    image.UriSource = new Uri(Goldberg.GoldbergAvatar);
-                }
-                else
-                {
-                    // Create a "?" symbol image
-                    DrawingVisual drawingVisual = new DrawingVisual();
-                    using (DrawingContext drawingContext = drawingVisual.RenderOpen())
-                    {
-                        Typeface typeface = new Typeface("Arial");
-                        FormattedText formattedText = new FormattedText(
-                            "?",
-                            System.Globalization.CultureInfo.CurrentCulture,
-                            FlowDirection.LeftToRight,
-                            typeface,
-                            24, // Font size
-                            Brushes.Black);
-
-                        double textX = formattedText.Width / 2;
-                        double textY = formattedText.Height / 2;
-
-                        drawingContext.DrawText(formattedText, new Point(textX, textY));
-                    }
-
-                    RenderTargetBitmap bmp = new RenderTargetBitmap(50, 50, 96, 96, PixelFormats.Pbgra32);
-                    bmp.Render(drawingVisual);
-
-                    image = new BitmapImage();
-                    using (MemoryStream stream = new MemoryStream())
-                    {
-                        PngBitmapEncoder encoder = new PngBitmapEncoder();
-                        encoder.Frames.Add(BitmapFrame.Create(bmp));
-                        encoder.Save(stream);
-                        image.BeginInit();
-                        image.CacheOption = BitmapCacheOption.OnLoad;
-                        image.StreamSource = stream;
-                        image.EndInit();
-                    }
-                }
-                image.EndInit();
-                _avatarimage = image;
-                return image;
-            }
+            get => _avatarimage;
             set
             {
                 _avatarimage = value;
                 OnPropertyChanged();
             }
         }
-        [DontSerialize]
-        public bool? _goldbergenableaccountavatar;
+
+        private bool _goldbergenableaccountavatar;
         [DontSerialize]
         public bool GoldbergEnableAccountAvatar
         {
-            get
-            {
-                if (!_goldbergenableaccountavatar.HasValue)
-                {
-                    _goldbergenableaccountavatar = Goldberg.ConfigsMain.EnableAccountAvatar;
-                    return Goldberg.ConfigsMain.EnableAccountAvatar;
-                }
-                return _goldbergenableaccountavatar.Value;
-            }
+            get => _goldbergenableaccountavatar;
             set
             {
                 _goldbergenableaccountavatar = value;
                 OnPropertyChanged();
             }
         }
-        [DontSerialize]
-        public string _goldbergaccountname;
+
+        private string _goldbergaccountname;
         [DontSerialize]
         public string GoldbergAccountName
         {
-            get
-            {
-                if (_goldbergaccountname == null)
-                {
-                    _goldbergaccountname = Goldberg.ConfigsUser.AccountName;
-                }
-                if (_goldbergaccountname != null)
-                {
-                    return _goldbergaccountname;
-                }
-                return Goldberg.ConfigsUser.AccountName;
-            }
+            get => _goldbergaccountname;
             set
             {
                 _goldbergaccountname = value;
                 OnPropertyChanged();
             }
         }
-        [DontSerialize]
-        public string _goldberglanguage;
+
+        private string _goldberglanguage;
         [DontSerialize]
         public string GoldbergLanguage
         {
-            get
-            {
-                if (_goldberglanguage == null)
-                {
-                    _goldberglanguage = Goldberg.ConfigsUser.Language;
-                }
-                if (_goldberglanguage != null)
-                {
-                    return _goldberglanguage;
-                }
-                return Goldberg.ConfigsUser.Language;
-            }
+            get => _goldberglanguage;
             set
             {
                 _goldberglanguage = value;
                 OnPropertyChanged();
             }
         }
-        [DontSerialize]
-        public string _goldberglistenport;
+        private string _goldberglistenport;
         [DontSerialize]
         public string GoldbergListenPort
         {
-            get
-            {
-                if (_goldberglistenport == null)
-                {
-                    _goldberglistenport = Goldberg.ConfigsMain.Listen_Port;
-                }
-                if (_goldberglistenport != null)
-                {
-                    return _goldberglistenport;
-                }
-                return Goldberg.ConfigsMain.Listen_Port;
-            }
+            get => _goldberglistenport;
             set
             {
                 _goldberglistenport = value;
                 OnPropertyChanged();
             }
         }
-        [DontSerialize]
-        public string _goldbergcustombroadcasts;
+        private string _goldbergcustombroadcasts;
         [DontSerialize]
         public string GoldbergCustomBroadcasts
         {
-            get
-            {
-                if (_goldbergcustombroadcasts == null)
-                {
-                    _goldbergcustombroadcasts = Goldberg.CustomBroadcasts;
-                }
-                if (_goldbergcustombroadcasts != null)
-                {
-                    return _goldbergcustombroadcasts;
-                }
-                return Goldberg.CustomBroadcasts;
-            }
+            get => _goldbergcustombroadcasts;
             set
             {
                 _goldbergcustombroadcasts = value;
                 OnPropertyChanged();
             }
         }
-        [DontSerialize]
-        public string _goldbergusersteamid;
+        private string _goldbergusersteamid;
         [DontSerialize]
         public string GoldbergUserSteamID
         {
-            get
-            {
-                if (_goldbergusersteamid == null)
-                {
-                    _goldbergusersteamid = Goldberg.ConfigsUser.ID;
-                }
-                if (_goldbergusersteamid != null)
-                {
-                    return _goldbergusersteamid;
-                }
-                return Goldberg.ConfigsUser.ID;
-            }
+            get => _goldbergusersteamid;
             set
             {
                 _goldbergusersteamid = value;
                 OnPropertyChanged();
             }
         }
-        [DontSerialize]
-        public string _goldbergcountryip;
+        private string _goldbergcountryip;
         [DontSerialize]
         public string GoldbergCountryIP
         {
-            get
-            {
-                if (_goldbergcountryip == null)
-                {
-                    _goldbergcountryip = Goldberg.ConfigsUser.IP;
-                }
-                if (_goldbergcountryip != null)
-                {
-                    return _goldbergcountryip;
-                }
-                return Goldberg.ConfigsUser.IP;
-            }
+            get => _goldbergcountryip;
             set
             {
                 _goldbergcountryip = value;
                 OnPropertyChanged();
             }
         }
-        private bool checkgoldbergupdate = true;
+        private bool goldbergoverride;
+        public bool GoldbergOverride
+        {
+            get => goldbergoverride;
+            set
+            {
+                goldbergoverride = value;
+                OnPropertyChanged();
+            }
+        }
+        private bool checkgoldbergupdate;
         public bool CheckGoldbergUpdate
         {
             get => checkgoldbergupdate;
@@ -255,7 +133,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool checkgreenlumaupdate = true;
+        private bool checkgreenlumaupdate;
         public bool CheckGreenLumaUpdate
         {
             get => checkgreenlumaupdate;
@@ -285,16 +163,6 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool goldbergcleansteam = true;
-        public bool GoldbergCleanSteam
-        {
-            get => goldbergcleansteam;
-            set
-            {
-                goldbergcleansteam = value;
-                OnPropertyChanged();
-            }
-        }
         private string steamwebapi;
         public string SteamWebApi
         {
@@ -315,7 +183,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool enablesteamargs = false;
+        private bool enablesteamargs;
         public bool EnableSteamArgs
         {
             get => enablesteamargs;
@@ -325,7 +193,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool opensteamafterexit = false;
+        private bool opensteamafterexit;
         public bool OpenSteamAfterExit
         {
             get => opensteamafterexit;
@@ -355,11 +223,12 @@ namespace SteamEmuUtility
                 OnPropertyChanged(nameof(MillisecondsToWaitText));
             }
         }
+        [DontSerialize]
         public string MillisecondsToWaitText
         {
             get { return string.Format(ResourceProvider.GetString("LOCSEU_GLDelay"), MillisecondsToWait); }
         }
-        private bool cleangreenlumastartup = false;
+        private bool cleangreenlumastartup;
         public bool CleanGreenLumaStartup
         {
             get => cleangreenlumastartup;
@@ -369,7 +238,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool cleangreenluma = false;
+        private bool cleangreenluma;
         public bool CleanGreenLuma
         {
             get => cleangreenluma;
@@ -380,7 +249,7 @@ namespace SteamEmuUtility
             }
         }
 
-        private bool injectappownership = false;
+        private bool injectappownership;
         public bool InjectAppOwnership
         {
             get => injectappownership;
@@ -391,7 +260,7 @@ namespace SteamEmuUtility
             }
         }
 
-        private bool injectencryptedapp = false;
+        private bool injectencryptedapp;
         public bool InjectEncryptedApp
         {
             get => injectencryptedapp;
@@ -402,7 +271,17 @@ namespace SteamEmuUtility
             }
         }
 
-        private bool skipupdatestealth = false;
+        private bool skipupdatefamily;
+        public bool SkipUpdateFamily
+        {
+            get => skipupdatefamily;
+            set
+            {
+                skipupdatefamily = value;
+                OnPropertyChanged();
+            }
+        }
+        private bool skipupdatestealth;
         public bool SkipUpdateStealth
         {
             get => skipupdatestealth;
@@ -412,7 +291,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool cleanappcache = false;
+        private bool cleanappcache;
         public bool CleanAppCache
         {
             get => cleanappcache;
@@ -422,84 +301,88 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
+        private IEnumerable<string> missinggoldbergfiles;
         [DontSerialize]
-        public List<string> MissingGoldbergFiles
+        public IEnumerable<string> MissingGoldbergFiles
         {
-            get
+            get => missinggoldbergfiles;
+            set
             {
-                return Goldberg.ColdClientExists(out List<string> missingFiles) ? null : missingFiles;
+                missinggoldbergfiles = value;
+                OnPropertyChanged();
             }
         }
         private bool goldbergnotexists;
         [DontSerialize]
         public bool GoldbergNotExists
         {
-            get
-            {
-                return !Goldberg.ColdClientExists(out _);
-            }
+            get => goldbergnotexists;
             set
             {
                 goldbergnotexists = value;
                 OnPropertyChanged();
             }
         }
+        private bool goldbergready;
         [DontSerialize]
         public bool GoldbergReady
         {
-            get
+            get => goldbergready;
+            set
             {
-                return Goldberg.ColdClientExists(out _);
+                goldbergready = value;
+                OnPropertyChanged();
             }
         }
+        private string goldbergstatus;
         [DontSerialize]
         public string GoldbergStatus
         {
-            get
+            get => goldbergstatus;
+            set
             {
-                return Goldberg.ColdClientExists(out _) ? ResourceProvider.GetString("LOCSEU_Active") : ResourceProvider.GetString("LOCSEU_Missing");
+                goldbergstatus = value;
+                OnPropertyChanged();
             }
-            set { }
         }
+        private bool greenlumaready;
         [DontSerialize]
         public bool GreenLumaReady
         {
-            get
+            get => greenlumaready;
+            set
             {
-                return GreenLuma.GreenLumaFilesExists(out _);
+                greenlumaready = value;
+                OnPropertyChanged();
             }
         }
+        private IEnumerable<string> missinggreenlumaFiles;
         [DontSerialize]
-        public List<string> MissingGreenLumaFiles
+        public IEnumerable<string> MissingGreenLumaFiles
         {
-            get
+            get => missinggreenlumaFiles;
+            set
             {
-                return GreenLuma.GreenLumaFilesExists(out List<string> missingFiles) ? null : missingFiles;
+                missinggreenlumaFiles = value;
+                OnPropertyChanged();
             }
         }
         private bool greenlumanotexists;
         [DontSerialize]
         public bool GreenLumaNotExists
         {
-            get
-            {
-                return !GreenLuma.GreenLumaFilesExists(out _);
-            }
+            get => greenlumanotexists;
             set
             {
                 greenlumanotexists = value;
                 OnPropertyChanged();
             }
         }
-        [DontSerialize]
         private string greenlumastatus;
         [DontSerialize]
         public string GreenLumaStatus
         {
-            get
-            {
-                return GreenLuma.GreenLumaFilesExists(out _) ? ResourceProvider.GetString("LOCSEU_Active") : ResourceProvider.GetString("LOCSEU_Missing");
-            }
+            get => greenlumastatus;
             set
             {
                 greenlumastatus = value;
@@ -545,6 +428,8 @@ namespace SteamEmuUtility
         public void BeginEdit()
         {
             // Code executed when settings view is opened and user starts editing values.
+            CheckFiles();
+            GetGoldbergConfigs();
             editingClone = Serialization.GetClone(Settings);
         }
 
@@ -559,7 +444,7 @@ namespace SteamEmuUtility
         {
             // Code executed when user decides to confirm changes made since BeginEdit was called.
             // This method should save settings made to Option1 and Option2.
-            Goldberg.UpdateConfigs(Settings);
+            UpdateConfigs();
             plugin.SavePluginSettings(Settings);
         }
 
@@ -570,6 +455,87 @@ namespace SteamEmuUtility
             // List of errors is presented to user if verification fails.
             errors = new List<string>();
             return true;
+        }
+
+        private void UpdateConfigs()
+        {
+            string goldbergPath = Goldberg.GetGoldbergAppData();
+            string goldbergSettingsPath = Path.Combine(goldbergPath, "settings");
+
+            ConfigsMain configsMain = new ConfigsMain(goldbergSettingsPath);
+            configsMain.EnableAccountAvatar = Settings.GoldbergEnableAccountAvatar;
+            configsMain.Listen_Port = Settings.GoldbergListenPort;
+
+            ConfigsUser configsUser = new ConfigsUser(goldbergSettingsPath);
+            configsUser.AccountName = Settings.GoldbergAccountName;
+            configsUser.ID = Settings.GoldbergUserSteamID;
+            configsUser.IP = Settings.GoldbergCountryIP;
+            configsUser.Language = Settings.GoldbergLanguage;
+        }
+
+        private void CheckFiles()
+        {
+            string pluginPath = plugin.GetPluginUserDataPath();
+            string pluginGoldbergPath = Path.Combine(pluginPath, "Goldberg");
+            string pluginGreenLumaPath = Path.Combine(pluginPath, "GreenLuma");
+
+            bool glExists = GreenLuma.GreenLumaFilesExists(pluginGreenLumaPath, out List<string> missingFilesGL);
+
+            Settings.MissingGreenLumaFiles = glExists ? null : missingFilesGL;
+            Settings.GreenLumaNotExists = !glExists;
+            Settings.GreenLumaReady = glExists;
+            Settings.GreenLumaStatus = glExists
+               ? ResourceProvider.GetString("LOCSEU_Active") : ResourceProvider.GetString("LOCSEU_Missing");
+            Settings.OnPropertyChanged(nameof(Settings.GreenLumaNotExists));
+
+
+
+            bool gbExists = Goldberg.ColdClientExists(pluginGoldbergPath, out List<string> missingFilesGB);
+
+            Settings.MissingGoldbergFiles = gbExists ? null : missingFilesGB;
+            Settings.GoldbergNotExists = !gbExists;
+            Settings.GoldbergReady = gbExists;
+            Settings.GoldbergStatus = gbExists ? ResourceProvider.GetString("LOCSEU_Active") : ResourceProvider.GetString("LOCSEU_Missing");
+        }
+
+        private void GetGoldbergConfigs()
+        {
+            string goldbergPath = Goldberg.GetGoldbergAppData();
+            string goldbergSettingsPath = Path.Combine(goldbergPath, "settings");
+
+            ConfigsMain configsMain = new ConfigsMain(goldbergSettingsPath);
+            Settings.GoldbergEnableAccountAvatar = configsMain.EnableAccountAvatar;
+            Settings.GoldbergListenPort = configsMain.Listen_Port;
+
+            ConfigsUser configsUser = new ConfigsUser(goldbergSettingsPath);
+            Settings.GoldbergAccountName = configsUser.AccountName;
+            Settings.GoldbergUserSteamID = configsUser.ID;
+            Settings.GoldbergCountryIP = configsUser.IP;
+            Settings.GoldbergLanguage = configsUser.Language;
+
+            Settings.AvatarImage = GetGoldbergAvatar(goldbergPath);
+        }
+
+        private BitmapImage GetGoldbergAvatar(string goldbergPath)
+        {
+            BitmapImage image;
+            try
+            {
+                string[] files = Directory.GetFiles(Path.Combine(goldbergPath, "settings"), $"account_avatar.*");
+                string avatarPath = files[0];
+                image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.UriSource = new Uri(avatarPath);
+                image.EndInit();
+            }
+            // if there are no files or exception is throw
+            catch
+            {
+                // Create a "?" symbol image
+                image = ImageUtilites.CreateQuestionMarkImage(100, 100);
+            }
+            return image;
         }
 
         public RelayCommand<object> OpenURL
@@ -618,7 +584,6 @@ namespace SteamEmuUtility
         }
         private static string SevenZipLib { get { return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Libraries", "7z"); } }
 
-        [Obsolete]
         public RelayCommand<object> ChangeAvatar
         {
             get => new RelayCommand<object>((a) =>
@@ -634,19 +599,18 @@ namespace SteamEmuUtility
                 {
                     try
                     {
-                        if (!FileSystem.DirectoryExists(Path.Combine(Goldberg.GoldbergAppData, "settings")))
+                        string goldbergPath = Goldberg.GetGoldbergAppData();
+                        if (!FileSystem.DirectoryExists(Path.Combine(goldbergPath, "settings")))
                         {
-                            FileSystem.CreateDirectory(Path.Combine(Goldberg.GoldbergAppData, "settings"));
+                            FileSystem.CreateDirectory(Path.Combine(goldbergPath, "settings"));
                         }
-                        string[] files = Directory.GetFiles(Path.Combine(Goldberg.GoldbergAppData, "settings"), $"account_avatar.*");
+                        string[] files = Directory.GetFiles(Path.Combine(goldbergPath, "settings"), $"account_avatar.*");
 
                         if (files.Length > 0)
                         {
-                            // If multiple files match, you may want to choose one based on your criteria
-                            // In this example, the first matching file is selected
                             FileSystem.DeleteFile(files[0]);
                         }
-                        FileSystem.CopyFile(path, Path.Combine(Goldberg.GoldbergAppData, "settings", $"account_avatar{Path.GetExtension(path)}"), true);
+                        FileSystem.CopyFile(path, Path.Combine(goldbergPath, "settings", $"account_avatar{Path.GetExtension(path)}"), true);
                         Application.Current.Dispatcher.Invoke(() =>
                         {
                             BitmapImage image = new BitmapImage();
@@ -669,6 +633,8 @@ namespace SteamEmuUtility
             get => new RelayCommand<object>((a) =>
             {
                 var path = plugin.PlayniteApi.Dialogs.SelectFile(@"GreenLuma_XXXX_X.X.X-Steam006.zip Files|*.zip");
+                string glPath = Path.Combine(plugin.GetPluginUserDataPath(), "GreenLuma");
+
                 if (string.IsNullOrEmpty(path))
                 {
                     return;
@@ -676,7 +642,7 @@ namespace SteamEmuUtility
                 GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
                 plugin.PlayniteApi.Dialogs.ActivateGlobalProgress((global) =>
                 {
-                    ExtractGreenLumaFiles(path, GreenLuma.GreenLumaPath);
+                    ExtractGreenLumaFiles(path, glPath);
                 }, progress);
 
             });
@@ -697,6 +663,8 @@ namespace SteamEmuUtility
             get => new RelayCommand<object>((a) =>
             {
                 var path = plugin.PlayniteApi.Dialogs.SelectFile(@"GoldbergSteamEmu (*.7z;*.zip) Files|*.zip;*.7z");
+                string gbPath = Path.Combine(plugin.GetPluginUserDataPath(), "Goldberg");
+
                 if (string.IsNullOrEmpty(path))
                 {
                     return;
@@ -704,22 +672,21 @@ namespace SteamEmuUtility
                 GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
                 plugin.PlayniteApi.Dialogs.ActivateGlobalProgress((global) =>
                 {
-                    ExtractGoldbergFiles(path, Goldberg.GoldbergPath);
-                    string changelogPath = Path.Combine(Goldberg.GoldbergPath, "CHANGELOG.md");
+                    ExtractGoldbergFiles(path, gbPath);
+                    string changelogPath = Path.Combine(gbPath, "CHANGELOG.md");
                     if (FileSystem.FileExists(changelogPath))
                     {
                         string regexPatternDate = @"\d{4}[\W_][0-9]+[\W_][0-9]+";
                         string ver = FileSystem.ReadStringFromFile(changelogPath);
-                        FileSystem.WriteStringToFile(Path.Combine(Goldberg.GoldbergPath, "Version.txt"), Regex.Match(ver, regexPatternDate).Value, true, true);
+                        FileSystem.WriteStringToFile(Path.Combine(gbPath, "Version.txt"), Regex.Match(ver, regexPatternDate).Value, true, true);
                     }
                 }, progress);
-                Settings.OnPropertyChanged(nameof(Settings.GoldbergStatus));
-                Settings.OnPropertyChanged(nameof(Settings.GoldbergReady));
-                Settings.OnPropertyChanged(nameof(Settings.MissingGoldbergFiles));
+                CheckFiles();
             });
         }
-        public void DownloadGoldberg()
+        public void DownloadGoldberg(string pluginPath)
         {
+            string gbPath = Path.Combine(plugin.GetPluginUserDataPath(), "Goldberg");
             string url = @"https://api.github.com/repos/otavepto/gbe_fork/releases/latest";
             string raw = HttpDownloader.DownloadString(url);
             if (string.IsNullOrEmpty(raw))
@@ -738,11 +705,11 @@ namespace SteamEmuUtility
                         string urlDownload = asset.browser_download_url;
                         string tempfilename = Path.GetTempFileName();
                         HttpDownloader.DownloadFile(urlDownload, tempfilename);
-                        ExtractGoldbergFiles(tempfilename, Goldberg.GoldbergPath);
+                        ExtractGoldbergFiles(tempfilename, gbPath);
                         FileSystem.DeleteFile(tempfilename);
                         DateTime date = json.published_at;
                         string ver = $"{date.Year}/{date.Month}/{date.Day}";
-                        FileSystem.WriteStringToFile(Path.Combine(Goldberg.GoldbergPath, "Version.txt"), ver, true, true);
+                        FileSystem.WriteStringToFile(Path.Combine(gbPath, "Version.txt"), ver, true, true);
                         break;
                     }
                 }
@@ -752,7 +719,8 @@ namespace SteamEmuUtility
         {
             get => new RelayCommand<object>((a) =>
             {
-                DownloadGoldberg();
+                string pluginPath = plugin.GetPluginUserDataPath();
+                DownloadGoldberg(pluginPath);
             });
         }
         void ExtractGreenLumaFiles(string archivePath, string destinationFolder)
@@ -773,11 +741,21 @@ namespace SteamEmuUtility
                     @"GreenLuma_\d{4}_x64.dll",
                     @"GreenLuma_\d{4}_x86.dll",
                     "user32.dll",
+                    "user32FamilySharing.dll",
                     @"GreenLuma\d{4}.txt"
                 };
 
                 var files = extractor.ArchiveFileData.Where(x => gl.Any(file => Regex.IsMatch(x.FileName, file, RegexOptions.IgnoreCase)));
-                string kosong = string.Empty;
+
+                if (!FileSystem.IsDirectoryEmpty(destinationFolder))
+                {
+                    FileSystem.DeleteDirectory(destinationFolder, true);
+                }
+                if (!FileSystem.DirectoryExists(destinationFolder))
+                {
+                    FileSystem.CreateDirectory(destinationFolder);
+                }
+
                 foreach (var item in files)
                 {
                     if (item.IsDirectory)
@@ -796,35 +774,19 @@ namespace SteamEmuUtility
                         }
                         return;
                     }
+
+
                     //try extracting files
-                    if (item.FileName.Contains("Normal"))
+                    if (item.FileName.Contains("Normal") || item.FileName.Contains("Stealth"))
                     {
-                        if (!FileSystem.DirectoryExists(Path.Combine(destinationFolder, "NormalMode")))
-                        {
-                            FileSystem.CreateDirectory(Path.Combine(destinationFolder, "NormalMode"));
-                        }
-                        using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, "NormalMode", Path.GetFileName(item.FileName)), FileMode.Create))
+                        using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)), FileMode.Create))
                         {
                             extractor.ExtractFile(item.Index, fileStream);
                         }
                     }
-                    if (item.FileName.Contains("Stealth"))
-                    {
-                        if (!FileSystem.DirectoryExists(Path.Combine(destinationFolder, "StealthMode")))
-                        {
-                            FileSystem.CreateDirectory(Path.Combine(destinationFolder, "StealthMode"));
-                        }
-                        using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, "StealthMode", Path.GetFileName(item.FileName)), FileMode.Create))
-                        {
-                            extractor.ExtractFile(item.Index, fileStream);
-                        }
-                    }
+
                     if (Regex.IsMatch(item.FileName, @"GreenLuma\d{4}.txt"))
                     {
-                        if (!FileSystem.DirectoryExists(destinationFolder))
-                        {
-                            FileSystem.CreateDirectory(destinationFolder);
-                        }
                         using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)), FileMode.Create))
                         {
                             extractor.ExtractFile(item.Index, fileStream);
@@ -838,6 +800,7 @@ namespace SteamEmuUtility
                         };
                         FileSystem.WriteStringToFileSafe(Path.Combine(destinationFolder, "Version.json"), Serialization.ToJson(version, true));
                     }
+
                     //check if password is wrong, if wrong the extracted files will 0 bytes and delete it and ask user to reenter password
                     if (FileSystem.FileExists(Path.Combine(destinationFolder, Path.GetFileName(item.FileName))))
                     {
@@ -857,9 +820,7 @@ namespace SteamEmuUtility
                     }
                 }
             }
-            Settings.OnPropertyChanged(nameof(Settings.GreenLumaStatus));
-            Settings.OnPropertyChanged(nameof(Settings.GreenLumaReady));
-            Settings.OnPropertyChanged(nameof(Settings.MissingGreenLumaFiles));
+            CheckFiles();
         }
         void ExtractGoldbergFiles(string archivePath, string destinationFolder)
         {
@@ -867,7 +828,7 @@ namespace SteamEmuUtility
         }
         void ExtractGoldbergFiles(string archivePath, string destinationFolder, string password)
         {
-            string regexPattern = @"^(?!.*debug_experimental_steamclient).*experimental_steamclient\\(?!dll_injection.EXAMPLE)";
+            string regexPattern = @"^(?!.*\bdll_injection\b).+steamclient_experimental";
             SevenZipBase.SetLibraryPath(Path.Combine(SevenZipLib, Environment.Is64BitProcess ? "x64" : "x86", "7z.dll"));
             using (var extractor = new SevenZipExtractor(archivePath, password))
             {
@@ -974,10 +935,7 @@ namespace SteamEmuUtility
                     }
                 }
             }
-            Settings.OnPropertyChanged(nameof(Settings.GoldbergStatus));
-            Settings.OnPropertyChanged(nameof(Settings.GoldbergReady));
-            Settings.OnPropertyChanged(nameof(Settings.MissingGoldbergFiles));
+            CheckFiles();
         }
-
     }
 }
