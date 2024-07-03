@@ -79,7 +79,7 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaErrorFileMissing">Required GreenLuma files not found. Check your settings</sys:String>
     <sys:String x:Key="LOCSEU_GoldbergStatus">Goldberg Status</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaStatus">GreenLuma Status</sys:String>
-    <sys:String x:Key="LOCSEU_GetapiKey">Get API Key</sys:String>
+    <sys:String x:Key="LOCSEU_GetApiKey">Get API Key</sys:String>
     <sys:String x:Key="LOCSEU_SteamWebapiKey">Steam Web API Key :</sys:String>
     
     <sys:String x:Key="LOCSEU_GreenLumaSettingsLabel">GreenLuma Settings</sys:String>
@@ -93,7 +93,7 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_ManuallyCleanGLDescription">Clean files after user exit Steam manually</sys:String>
     <sys:String x:Key="LOCSEU_RunSteamArgs">Run Steam with additional argument</sys:String>
     <sys:String x:Key="LOCSEU_GLCleanAppCache">Clean Steam AppCache on starting game</sys:String>
-    <sys:String x:Key="LOCSEU_GLCleanApplistFolderNotEmpty">Clean applist folder on Steam if it's not empty</sys:String>
+    <sys:String x:Key="LOCSEU_GLCleanApplistFolderNotEmpty">Clean applist folder if it's not empty</sys:String>
     <sys:String x:Key="LOCSEU_GLSkipSteamUpdateStealth">Skip Steam Update on Stealth Mode</sys:String>
     <sys:String x:Key="LOCSEU_GLSkipSteamUpdateFamily">Skip Steam Update on Family Mode</sys:String>
     <sys:String x:Key="LOCSEU_InjectAppOwnershipTickets">Inject AppOwnershipTickets if there available</sys:String>
@@ -134,8 +134,6 @@ useful if you only have single play action in Steam library game</sys:String>
     <sys:String x:Key="LOCSEU_EnableGreenLuma">Enable GreenLuma</sys:String>
     <sys:String x:Key="LOCSEU_DisableGreenLuma">Disable GreenLuma</sys:String>
     <sys:String x:Key="LOCSEU_MenuUnlockAll">Unlock all installed Steam games</sys:String>
-    <sys:String x:Key="LOCSEU_MenuUnlockAllClean">Unlock all installed Steam games and clean</sys:String>
-    <sys:String x:Key="LOCSEU_GodMode">God Mode</sys:String>
     <sys:String x:Key="LOCSEU_LoadTickets">Load Tickets</sys:String>
     <sys:String x:Key="LOCSEU_GoldbergConfigGenerator">Goldberg Config Generator</sys:String>
     <sys:String x:Key="LOCSEU_AddGoldberg">Added {0} games Goldberg Features</sys:String>

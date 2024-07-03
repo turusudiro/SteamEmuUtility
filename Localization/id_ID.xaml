@@ -79,8 +79,8 @@ pastikan Mode Pengembang diaktifkan.</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaErrorFileMissing">File GreenLuma yang dibutuhkan tidak ditemukan. Periksa pengaturan Anda</sys:String>
     <sys:String x:Key="LOCSEU_GoldbergStatus">Status Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaStatus">Status GreenLuma</sys:String>
-    <sys:String x:Key="LOCSEU_GetapiKey">Dapatkan Kunci API</sys:String>
-    <sys:String x:Key="LOCSEU_SteamWebapiKey">Kunci Steam Web API :</sys:String>
+    <sys:String x:Key="LOCSEU_GetApiKey">Dapatkan Kunci API</sys:String>
+    <sys:String x:Key="LOCSEU_SteamWebApiKey">Kunci Steam Web API :</sys:String>
 
     <sys:String x:Key="LOCSEU_GreenLumaSettingsLabel">Pengaturan GreenLuma</sys:String> 
     <sys:String x:Key="LOCSEU_MissingFiles">File yang hilang</sys:String>
@@ -93,7 +93,7 @@ pastikan Mode Pengembang diaktifkan.</sys:String>
     <sys:String x:Key="LOCSEU_ManuallyCleanGLDescription">Bersihkan file setelah pengguna keluar dari Steam secara manual</sys:String>
     <sys:String x:Key="LOCSEU_RunSteamArgs">Jalankan Steam dengan argumen tambahan</sys:String>
     <sys:String x:Key="LOCSEU_GLCleanAppCache">Bersihkan Steam AppCache saat memulai permainan</sys:String>
-    <sys:String x:Key="LOCSEU_GLCleanApplistFolderNotEmpty">Bersihkan folder applist di Steam jika tidak kosong</sys:String>
+    <sys:String x:Key="LOCSEU_GLCleanApplistFolderNotEmpty">Bersihkan folder applist jika tidak kosong</sys:String>
     <sys:String x:Key="LOCSEU_GLSkipSteamUpdateStealth">Lewati Pembaruan Steam pada Mode Senyap</sys:String>
     <sys:String x:Key="LOCSEU_InjectAppOwnershipTickets">Masukkan AppOwnershipTickets jika tersedia</sys:String>
     <sys:String x:Key="LOCSEU_GLSkipSteamUpdateFamily">Lewati Pembaruan Steam pada Mode Keluarga</sys:String>
@@ -134,8 +134,6 @@ berguna jika Anda hanya memiliki aksi bermain satu-satunya di game perpustakaan 
     <sys:String x:Key="LOCSEU_EnableGreenLuma">Aktifkan GreenLuma</sys:String>
     <sys:String x:Key="LOCSEU_DisableGreenLuma">Nonaktifkan GreenLuma</sys:String>
     <sys:String x:Key="LOCSEU_MenuUnlockAll">Buka semua game Steam yang terinstal</sys:String>
-    <sys:String x:Key="LOCSEU_MenuUnlockAllClean">Buka semua game Steam yang diinstal dan bersihkan</sys:String>
-    <sys:String x:Key="LOCSEU_GodMode">Mode Dewa</sys:String>
     <sys:String x:Key="LOCSEU_LoadTickets">Muat Tiket</sys:String>
     <sys:String x:Key="LOCSEU_GoldbergConfigGenerator">Generator Konfigurasi Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_AddGoldberg">Menambahkan {0} permainan Fitur Goldberg</sys:String>
