@@ -118,7 +118,7 @@ namespace SteamEmuUtility
                 MenuSection = "Steam Emu Utility",
                 Action = (a) =>
                 {
-                    GreenLumaTasks.StartGreenLumaJob(PlayniteApi, appids, GreenLuma.GreenLumaMode.Stealth);
+                    GreenLumaTasks.StartGreenLumaJob(PlayniteApi, appids);
                 }
             };
             yield return new MainMenuItem
@@ -488,11 +488,7 @@ namespace SteamEmuUtility
                         {
                             return;
                         }
-                        GreenLumaTasks.RunSteamWIthGreenLumaStealthMode(PlayniteApi, new List<string> { game.GameId });
-                        if (settings.Settings.GoldbergCleanSteam)
-                        {
-                            _ = GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath());
-                        }
+                        GreenLumaTasks.StartGreenLumaJob(PlayniteApi, new List<string> { game.GameId });
                         return;
                     }
 
