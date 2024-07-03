@@ -80,7 +80,7 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_GoldbergStatus">Goldberg Status</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaStatus">GreenLuma Status</sys:String>
     <sys:String x:Key="LOCSEU_GetApiKey">Get API Key</sys:String>
-    <sys:String x:Key="LOCSEU_SteamWebapiKey">Steam Web API Key :</sys:String>
+    <sys:String x:Key="LOCSEU_SteamWebApiKey">Steam Web API Key :</sys:String>
     
     <sys:String x:Key="LOCSEU_GreenLumaSettingsLabel">GreenLuma Settings</sys:String>
     <sys:String x:Key="LOCSEU_MissingFiles">Missing Files</sys:String>
