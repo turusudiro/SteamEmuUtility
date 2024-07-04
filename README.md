@@ -7,9 +7,9 @@
 
 ## Features
 - Automatically generate a configuration for GreenLuma or Goldberg.
-- Run Steam games from the Playnite library with GreenLuma or Goldberg.
+- Run Steam games from the Playnite Steam library with GreenLuma or Goldberg.
 - Steam Cloud Save with Goldberg Steam Emu.
-- Launch games with Goldberg Steam Emu without touching game files.
+- Launch Steam games with Goldberg Steam Emu without touching game files using ColdClientLoader.
 
 ## Disclaimer
 **USE AT YOUR OWN RISK**
