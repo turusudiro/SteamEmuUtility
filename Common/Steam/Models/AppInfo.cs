@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Playnite.SDK.Data;
+using System.Collections.Generic;
 
 namespace SteamCommon.Models
 {
@@ -17,7 +18,22 @@ namespace SteamCommon.Models
         public Language SmallCapsuleImage { get; set; }
         public bool CloudSaveAvailable { get; set; }
         public bool CloudSaveConfigured { get; set; }
+        public IEnumerable<Branches> Branches { get; set; }
     }
+    public partial class Branches
+    {
+        [SerializationPropertyName("name")]
+        public string Name { get; set; }
+        [SerializationPropertyName("description")]
+        public string Description { get; set; }
+        [SerializationPropertyName("protected")]
+        public bool Protected { get; set; }
+        [SerializationPropertyName("build_id")]
+        public uint BuildID { get; set; }
+        [SerializationPropertyName("time_updated")]
+        public int TimeUpdated { get; set; }
+    }
+
     public partial class Language
     {
         public string English { get; set; }

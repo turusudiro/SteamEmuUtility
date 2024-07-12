@@ -149,13 +149,15 @@ namespace SteamCommon
             App app = new App()
             {
                 Appid = uint.TryParse(keyValue["appid"].Value, out uint appid) ? appid : 0,
+                Branches = Enumerable.Empty<Branches>(),
+                BuildID = 0,
                 Name = keyValue["common"]["name"].Value == string.Empty ? string.Empty : keyValue["common"]["name"].Value,
                 DLC = new List<uint>(),
                 SupportedLanguages = new List<string>(),
                 Depots = new List<uint>(),
                 SteamControllerConfigDetails = new Dictionary<uint, Controller> { },
                 SteamControllerTouchConfigDetails = new Dictionary<uint, Controller> { },
-                Launch = new List<Launch>()
+                Launch = new List<Launch>(),
             };
 
             string listofdlc = keyValue["extended"]["listofdlc"].Value;
@@ -173,20 +175,67 @@ namespace SteamCommon
                 }
             }
 
-            var depots = keyValue["depots"];
-            if (depots.Children.Count >= 1)
+            if (keyValue.Children.Any(x => x.Name.Contains("depots")))
             {
-                foreach (var depot in depots.Children)
+                foreach (var dep in keyValue["depots"].Children)
                 {
-                    if (uint.TryParse(depot.Name, out uint depotid))
+                    if (uint.TryParse(dep["dlcappid"].Value, out uint dlcappid))
                     {
-                        app.Depots.AddMissing(depotid);
-                        if (uint.TryParse(depot["dlcappid"].Value, out uint dlcappid))
+                        app.DLC.AddMissing(dlcappid);
+                    }
+
+                    if (uint.TryParse(dep.Name, out uint id))
+                    {
+                        app.Depots.AddMissing(id);
+                    }
+
+                    if (dep.Name.Equals("branches"))
+                    {
+                        var branches = new List<Branches>();
+                        foreach (var branch in keyValue["depots"]["branches"].Children)
                         {
-                            app.DLC.AddMissing(dlcappid);
+                            var branchinfo = new Branches()
+                            {
+                                Name = branch.Name,
+                                Description = string.Empty,
+                                Protected = false,
+                                BuildID = 0,
+                                TimeUpdated = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                            };
+
+                            if (branch.Children.Any(x => x.Name.Equals("description")))
+                            {
+                                branchinfo.Description = branch["description"].Value;
+                            }
+
+                            if (branch.Children.Any(x => x.Name.Equals("pwdrequired")))
+                            {
+                                branchinfo.Protected = int.TryParse(branch["pwdrequired"].Value, out int value) && (value == 1 ? true : false);
+                            }
+
+                            if (branch.Children.Any(x => x.Name.Equals("buildid")))
+                            {
+                                branchinfo.BuildID = uint.Parse(branch["buildid"].Value);
+                            }
+
+                            if (branch.Children.Any(x => x.Name.Equals("timeupdated")))
+                            {
+                                branchinfo.TimeUpdated = int.Parse(branch["timeupdated"].Value);
+                            }
+
+                            branches.Add(branchinfo);
+
+                            app.Branches = branches;
+                        }
+
+                        if (app.Branches.Any(x => x.Name.Equals("public")))
+                        {
+                            app.BuildID = app.Branches.FirstOrDefault(x => x.Name.Equals("public")).BuildID;
                         }
                     }
-                    if (depot.Name.Equals("branches") && uint.TryParse(depot["public"]["buildid"].Value, out uint builid))
+
+
+                    if (dep.Name.Equals("branches") && uint.TryParse(dep["public"]["buildid"].Value, out uint builid))
                     {
                         app.BuildID = builid;
                     }

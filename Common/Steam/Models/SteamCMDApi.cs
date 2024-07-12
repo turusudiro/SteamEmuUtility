@@ -45,7 +45,7 @@ namespace SteamCommon.Models
                                     dep.BaseLanguage = depot.Value;
                                     break;
                                 case "branches":
-                                    dep.Branches = depot.Value.ToObject<BranchesInfo>();
+                                    dep.Branches = depot.Value.ToObject<Dictionary<string, BranchesInfo>>();
                                     break;
                             }
                         }
@@ -80,7 +80,8 @@ namespace SteamCommon.Models
 
             public partial class DepotsInfo
             {
-                public BranchesInfo Branches { get; set; }
+                [SerializationPropertyName("branches")]
+                public Dictionary<string, BranchesInfo> Branches { get; set; }
                 public string BaseLanguage { get; set; }
                 public Dictionary<uint, DepotsDetail> Depots { get; set; } = new Dictionary<uint, DepotsDetail>();
                 public partial class DepotsDetail
@@ -89,7 +90,6 @@ namespace SteamCommon.Models
                     public ConfigData Config { get; set; }
                     public class ConfigData
                     {
-
                         [SerializationPropertyName("oslist")]
                         public string oslist { get; set; }
                     }
@@ -105,13 +105,14 @@ namespace SteamCommon.Models
             }
             public partial class BranchesInfo
             {
-                [SerializationPropertyName("public")]
-                public PublicInfo Public { get; set; }
-                public class PublicInfo
-                {
-                    [SerializationPropertyName("buildid")]
-                    public string BuildId { get; set; }
-                }
+                [SerializationPropertyName("buildid")]
+                public string BuildID { get; set; }
+                [SerializationPropertyName("description")]
+                public string Description { get; set; }
+                [SerializationPropertyName("pwdrequired")]
+                public string PwdRequired { get; set; }
+                [SerializationPropertyName("timeupdated")]
+                public string TimeUpdated { get; set; }
             }
             public partial class Controller
             {
