@@ -1,6 +1,7 @@
 ﻿<UserControl x:Class="SteamEmuUtility.Views.GoldbergConfigView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:cv="clr-namespace:ConvertersCommon"
@@ -76,10 +77,22 @@
                 <StackPanel Grid.Column="0" Grid.Row="1" Margin="10,0,10,10">
                     <TextBlock Text="{DynamicResource LOCSEU_Game}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,2,0,5"/>
                     <Separator Margin="0,5,0,5"/>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource LOCSEU_Branch}" Margin="2,2,0,2"/>
+                        <ComboBox x:Name="Branch" ItemsSource="{Binding Branches}" SelectedItem="{Binding SelectedBranch}" Margin="0,2,0,2"
+                            IsEnabled="{Binding Branches, Converter={cv:ItemsSourceCountToEnabledConverter}}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="SelectionChanged">
+                                    <i:InvokeCommandAction Command="{Binding DataContext.UpdateBranch, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
+                                   CommandParameter="{Binding}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </ComboBox>
+                    </StackPanel>
                     <CheckBox Content="{DynamicResource LOCSEU_UnlockSelectedDLC}" IsEnabled="{Binding ConfigsApp.UnlockAll, Converter={cv:InverseBooleanConverter}}" 
                               ToolTip="{DynamicResource LOCSEU_UnlockSelectedDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding ConfigsEmu.UnlockOnlySelectedDLC}"/>
                     <CheckBox Content="{DynamicResource LOCSEU_UnlockAllDLC}" ToolTip="{DynamicResource LOCSEU_UnlockAllDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding ConfigsApp.UnlockAll}"/>
-                    <CheckBox Content="{DynamicResource LOCSEU_EnableCloudSave}" ToolTip="{DynamicResource LOCSEU_EnableCloudSaveTooltip}" Margin="0,2,0,2" 
+                    <CheckBox Content="{DynamicResource LOCSEU_EnableCloudSave}" ToolTip="{DynamicResource LOCSEU_EnableCloudSaveTooltip}" Margin="0,2,0,2"
                               IsChecked="{Binding EnableCloudSave}" Command="{Binding DataContext.SetCloudSave, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}" 
                               CommandParameter="{Binding}" IsEnabled="{Binding IsCloudSaveAvailable}"/>
                     <TextBlock Text="{DynamicResource LOCSEU_ExeCommandLine}" Margin="2,2,0,2"/>
@@ -98,22 +111,24 @@
                     <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
                         <TextBlock Text="Goldberg" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,2,0,5"/>
                         <Separator Margin="0,5,0,5"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateAllInfo}" ToolTip="{DynamicResource LOCSEU_GenerateAllInfoTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateAllInfo}"/>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="0">
                         <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoAchievement}" ToolTip="{DynamicResource LOCSEU_GenerateInfoAchievementTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateAchievements}"/>
-                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoBuildID}" ToolTip="{DynamicResource LOCSEU_GenerateInfoBuildIDTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateBuildID}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoArchitecture}" ToolTip="{DynamicResource LOCSEU_GenerateInfoArchitectureTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateArchitecture}"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoBranches}" ToolTip="{DynamicResource LOCSEU_GenerateInfoBranchesTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateBranches}"/>
                         <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoColdClient}" ToolTip="{DynamicResource LOCSEU_GenerateInfoColdClientTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateColdClient}"/>
-                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoController}" ToolTip="{DynamicResource LOCSEU_GenerateInfoControllerTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateController}"/>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,0,0">
+                        <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoController}" ToolTip="{DynamicResource LOCSEU_GenerateInfoControllerTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateController}"/>
                         <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoDepots}" ToolTip="{DynamicResource LOCSEU_GenerateInfoDepotsTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateDepots}"/>
                         <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoDLC}" ToolTip="{DynamicResource LOCSEU_GenerateInfoDLCTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateDLC}"/>
                         <CheckBox Content="{DynamicResource LOCSEU_GenerateInfoSupportedLang}" ToolTip="{DynamicResource LOCSEU_GenerateInfoSupportedLangTooltip}" IsChecked="{Binding GenerateSupportedLanguages}" Margin="0,2,0,2"/>
-                        <CheckBox Content="{DynamicResource LOCSEU_GenerateAllInfo}" ToolTip="{DynamicResource LOCSEU_GenerateAllInfoTooltip}" Margin="0,2,0,2" IsChecked="{Binding GenerateAllInfo}"/>
                     </StackPanel>
-                    <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="{DynamicResource LOCSEU_GenerateInfo}" Margin="0,10,0,0" 
+                    <Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Content="{DynamicResource LOCSEU_GenerateInfo}" Margin="0,20,0,0" 
 Command="{Binding DataContext.GenerateInfo, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}" 
-CommandParameter="{Binding}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+CommandParameter="{Binding}" HorizontalAlignment="Center" VerticalAlignment="Center"
+IsEnabled="{Binding GenerateInfo}"/>
                 </Grid>
             </Grid>
         </ScrollViewer>

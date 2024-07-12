@@ -2,8 +2,10 @@
 using GoldbergCommon.Configs;
 using GoldbergCommon.Models;
 using Playnite.SDK;
+using Playnite.SDK.Data;
 using PluginsCommon;
 using SteamCommon;
+using SteamCommon.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,8 +35,6 @@ namespace SteamEmuUtility.ViewModels
                 {
                     steam.Dispose();
                 }
-
-                GoldbergGames = null;
             }
 
             disposed = true;
@@ -48,12 +48,14 @@ namespace SteamEmuUtility.ViewModels
         private readonly IPlayniteAPI PlayniteApi;
         private readonly SteamEmuUtilitySettings settings;
         private SteamService steam;
+        private GlobalProgressActionArgs progress;
         private readonly string pluginPath;
         private readonly string steamID;
         private readonly string steamID3;
         private readonly string goldbergPath;
         private readonly string steamDir;
         public int GamesCount => goldberggames?.Count() ?? 1;
+
         private IEnumerable<GoldbergGame> goldberggames;
         public IEnumerable<GoldbergGame> GoldbergGames
         {
@@ -89,14 +91,6 @@ namespace SteamEmuUtility.ViewModels
             {
                 progress.ProgressMaxValue = GamesCount;
 
-                void CallbackHandler(object obj)
-                {
-                    if (obj is string text)
-                    {
-                        progress.Text = text;
-                    }
-                }
-
                 GoldbergGames.ForEach(x =>
                 {
                     progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_Processing"), x.Name);
@@ -109,16 +103,19 @@ namespace SteamEmuUtility.ViewModels
                         {
                             return;
                         }
-                        if (steam == null)
-                        {
-                            progress.IsIndeterminate = true;
-                            steam = new SteamService(CallbackHandler);
-                        }
+                        CheckSteam();
                         x.AppInfo = SteamUtilities.GetApp(uint.Parse(x.Appid), steam);
 
                         x.ConfigsEmu.CloudSaveAvailable = x.AppInfo.CloudSaveAvailable && !x.AppInfo.CloudSaveConfigured;
 
                         progress.IsIndeterminate = false;
+                    }
+
+                    if (FileSystem.FileExists(Path.Combine(x.gameSteamSettingsPath, "branches.json")))
+                    {
+                        x.Branches = Serialization.FromJsonFile<IEnumerable<Branches>>(Path.Combine(x.gameSteamSettingsPath, "branches.json")).Select(b => b.Name);
+
+                        x.SelectedBranch = x.Branches.Any(b => b.Equals(x.ConfigsApp.BranchName)) ? x.ConfigsApp.BranchName : x.Branches.FirstOrDefault();
                     }
 
                     x.EnableCloudSave = IsCloudSaveEnabled(x.Appid);
@@ -129,6 +126,20 @@ namespace SteamEmuUtility.ViewModels
                 });
 
             }, progressOptions);
+        }
+        private void CallbackHandler(object obj)
+        {
+            if (progress != null)
+            {
+                if (obj is int count)
+                {
+                    progress.CurrentProgressValue = count;
+                }
+                else if (obj is string text)
+                {
+                    progress.Text = text;
+                }
+            }
         }
         private bool IsCloudSaveEnabled(string appid)
         {
@@ -165,14 +176,34 @@ namespace SteamEmuUtility.ViewModels
             get => new RelayCommand<object>((a) =>
             {
                 var game = a as GoldbergGame;
+
                 if (!InternetCommon.Internet.IsInternetAvailable())
                 {
                     PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_ConnectionUnavailable"));
                     return;
                 }
 
+                CheckSteam();
+
+                string gameSettingsPath = Path.Combine(pluginPath, "GamesInfo", game.Appid);
+                string gameSteamSettingsPath = Path.Combine(gameSettingsPath, "steam_settings");
+
                 GoldbergGenerator.GenerateInfo(game, settings.SteamWebApi, PlayniteApi, steam);
             });
+        }
+        public RelayCommand<GoldbergGame> UpdateBranch
+        {
+            get => new RelayCommand<GoldbergGame>((a) =>
+            {
+                a.ConfigsApp.BranchName = a.SelectedBranch;
+            });
+        }
+        private void CheckSteam()
+        {
+            if (steam == null)
+            {
+                steam = new SteamService(CallbackHandler);
+            }
         }
         public RelayCommand<object> OpenSettingsPath
         {

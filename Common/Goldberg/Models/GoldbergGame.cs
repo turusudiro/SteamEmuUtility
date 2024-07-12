@@ -10,7 +10,7 @@ namespace GoldbergCommon.Models
     public partial class GoldbergGame : ObservableObject
     {
         private readonly string gameSettingsPath;
-        private readonly string gameSteamSettingsPath;
+        public readonly string gameSteamSettingsPath;
         public GoldbergGame(Game game, string gameSettingsPath, string gameSteamSettingsPath)
         {
             Name = game.Name;
@@ -34,59 +34,93 @@ namespace GoldbergCommon.Models
         public ConfigsOverlay ConfigsOverlay { get; set; }
         public ConfigsApp ConfigsApp { get; set; }
         public App AppInfo { get; set; }
+        private IEnumerable<string> _branches;
+        public IEnumerable<string> Branches
+        {
+            get => _branches;
+            set
+            {
+                _branches = value;
+                OnPropertyChanged();
+            }
+        }
+        private string _selectedbranch;
+        public string SelectedBranch
+        {
+            get => _selectedbranch;
+            set
+            {
+                _selectedbranch = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool GenerateInfo
+        {
+            get
+            {
+                return GenerateAllInfo || GenerateAchievements || GenerateArchitecture || GenerateBranches || GenerateColdClient || GenerateController || GenerateDepots || GenerateDLC || GenerateSupportedLanguages;
+            }
+        }
         public bool GenerateAllInfo
         {
             get
             {
-                return GenerateAchievements && GenerateBuildID && GenerateColdClient && GenerateController && GenerateDepots && GenerateDLC && GenerateSupportedLanguages;
+                return GenerateAchievements && GenerateArchitecture && GenerateBranches && GenerateColdClient && GenerateController && GenerateDepots && GenerateDLC && GenerateSupportedLanguages;
             }
             set
             {
                 GenerateAchievements = value;
-                GenerateBuildID = value;
+                GenerateArchitecture = value;
+                GenerateBranches = value;
                 GenerateColdClient = value;
                 GenerateController = value;
                 GenerateDepots = value;
                 GenerateDLC = value;
                 GenerateSupportedLanguages = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(GenerateInfo));
             }
         }
         private bool _generateachievement;
         public bool GenerateAchievements
         {
-            get => _generateachievement; set { _generateachievement = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); }
+            get => _generateachievement; set { _generateachievement = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); OnPropertyChanged(nameof(GenerateInfo)); }
         }
-        public bool GenerateArchitecture { get; set; }
-        private bool _generatebuildid;
-        public bool GenerateBuildID
+        private bool _generatearchitecture;
+        public bool GenerateArchitecture
         {
-            get => _generatebuildid; set { _generatebuildid = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); }
+            get => _generatearchitecture;
+            set { _generatearchitecture = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); OnPropertyChanged(nameof(GenerateInfo)); }
+        }
+        private bool _generatebranches;
+        public bool GenerateBranches
+        {
+            get => _generatebranches; set { _generatebranches = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); OnPropertyChanged(nameof(GenerateInfo)); }
         }
         private bool _generatecoldclient;
         public bool GenerateColdClient
         {
-            get => _generatecoldclient; set { _generatecoldclient = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); }
+            get => _generatecoldclient; set { _generatecoldclient = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); OnPropertyChanged(nameof(GenerateInfo)); }
         }
         private bool _generatecontroller;
         public bool GenerateController
         {
-            get => _generatecontroller; set { _generatecontroller = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); }
+            get => _generatecontroller; set { _generatecontroller = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); OnPropertyChanged(nameof(GenerateInfo)); }
         }
         private bool _generatedepots;
         public bool GenerateDepots
         {
-            get => _generatedepots; set { _generatedepots = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); }
+            get => _generatedepots; set { _generatedepots = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); OnPropertyChanged(nameof(GenerateInfo)); }
         }
         private bool _generatedlc;
         public bool GenerateDLC
         {
-            get => _generatedlc; set { _generatedlc = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); }
+            get => _generatedlc; set { _generatedlc = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); OnPropertyChanged(nameof(GenerateInfo)); }
         }
         private bool _generatesupportedlanguages;
         public bool GenerateSupportedLanguages
         {
-            get => _generatesupportedlanguages; set { _generatesupportedlanguages = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); }
+            get => _generatesupportedlanguages; set { _generatesupportedlanguages = value; OnPropertyChanged(); OnPropertyChanged(nameof(GenerateAllInfo)); OnPropertyChanged(nameof(GenerateInfo)); }
         }
         private string custombroadcastaddress;
         public string CustomBroadcastAddress

@@ -38,19 +38,56 @@ namespace GoldbergCommon
             string gameSettingsPath = Path.Combine(pluginPath, "GamesInfo", game.Appid);
             string gameSteamSettingsPath = Path.Combine(gameSettingsPath, "steam_settings");
 
-            GlobalProgressOptions progressOptions = new GlobalProgressOptions("Steam Emu Utility", true);
+            GlobalProgressOptions progressOptions = new GlobalProgressOptions("Steam Emu Utility", false);
             progressOptions.IsIndeterminate = true;
 
-            PlayniteApi.Dialogs.ActivateGlobalProgress(async (progress) =>
+            var tasks = new List<Task>();
+
+            PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
             {
                 progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_Processing"), game.Name);
 
-                var tasks = new List<Task>();
+                steam.action = callback =>
+                {
+                    if (callback is string text)
+                    {
+                        progress.Text = text;
+                    }
+                };
+
                 if (game.GenerateAllInfo)
                 {
                     CheckAppInfo(game, steam);
+                }
+                else if (game.GenerateArchitecture
+                         || game.GenerateBranches
+                         || game.GenerateColdClient
+                         || game.GenerateController
+                         || game.GenerateDepots
+                         || game.GenerateDLC
+                         || game.GenerateSupportedLanguages)
+                {
+                    CheckAppInfo(game, steam);
+                }
+            }, progressOptions);
+
+            progressOptions.Cancelable = true;
+
+            PlayniteApi.Dialogs.ActivateGlobalProgress(async (progress) =>
+            {
+                steam.action = callback =>
+                {
+                    if (callback is string text)
+                    {
+                        progress.Text = text;
+                    }
+                };
+
+                if (game.GenerateAllInfo)
+                {
                     tasks.Add(Task.Run(() => { GenerateAchievement(gameSteamSettingsPath, game, progress, apiKey); }, progress.CancelToken));
-                    tasks.Add(Task.Run(() => { GenerateBuildID(game, progress); }, progress.CancelToken));
+                    tasks.Add(Task.Run(() => { GenerateArchitecture(game); }, progress.CancelToken));
+                    tasks.Add(Task.Run(() => { GenerateBranches(gameSteamSettingsPath, game, progress); }, progress.CancelToken));
                     tasks.Add(Task.Run(() => { GenerateColdClient(gameSettingsPath, game, progress); }, progress.CancelToken));
                     tasks.Add(Task.Run(() => { GenerateController(gameSteamSettingsPath, game, steam, progress); }, progress.CancelToken));
                     tasks.Add(Task.Run(() => { GenerateDepots(gameSteamSettingsPath, game, progress); }, progress.CancelToken));
@@ -65,53 +102,50 @@ namespace GoldbergCommon
                     }
                     if (game.GenerateArchitecture)
                     {
-                        CheckAppInfo(game, steam);
                         tasks.Add(Task.Run(() => { GenerateArchitecture(game); }, progress.CancelToken));
                     }
-                    if (game.GenerateBuildID)
+                    if (game.GenerateBranches)
                     {
-                        CheckAppInfo(game, steam);
-                        tasks.Add(Task.Run(() => { GenerateBuildID(game, progress); }, progress.CancelToken));
+                        tasks.Add(Task.Run(() => { GenerateBranches(gameSteamSettingsPath, game, progress); }, progress.CancelToken));
                     }
                     if (game.GenerateColdClient)
                     {
-                        CheckAppInfo(game, steam);
                         tasks.Add(Task.Run(() => { GenerateColdClient(gameSettingsPath, game, progress); }, progress.CancelToken));
                     }
                     if (game.GenerateController)
                     {
-                        CheckAppInfo(game, steam);
                         tasks.Add(Task.Run(() => { GenerateController(gameSteamSettingsPath, game, steam, progress); }, progress.CancelToken));
                     }
                     if (game.GenerateDepots)
                     {
-                        CheckAppInfo(game, steam);
                         tasks.Add(Task.Run(() => { GenerateDepots(gameSteamSettingsPath, game, progress); }, progress.CancelToken));
                     }
                     if (game.GenerateDLC)
                     {
-                        CheckAppInfo(game, steam);
                         tasks.Add(Task.Run(() => { GenerateDLC(pluginPath, game, steam, progress, apiKey); }, progress.CancelToken));
                     }
                     if (game.GenerateSupportedLanguages)
                     {
-                        CheckAppInfo(game, steam);
                         tasks.Add(Task.Run(() => { GenerateSupportedLanguages(gameSteamSettingsPath, game, progress); }, progress.CancelToken));
                     }
                 }
+
                 while (!Task.WhenAll(tasks).IsCompleted)
                 {
                     if (progress.CancelToken.IsCancellationRequested)
                     {
-                        return;
+                        break;
                     }
                     await Task.Delay(500);
                 }
+
+                await Task.WhenAll(tasks);
             }, progressOptions);
         }
 
         private static void GenerateSupportedLanguages(string gameSteamSettingsPath, GoldbergGame game, GlobalProgressActionArgs progress)
         {
+            progress.CancelToken.ThrowIfCancellationRequested();
             progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_ConfiguringSupportedLang"), game.Name);
             if (game.AppInfo.SupportedLanguages.Any())
             {
@@ -119,17 +153,23 @@ namespace GoldbergCommon
             }
         }
 
-        private static void GenerateBuildID(GoldbergGame game, GlobalProgressActionArgs progress)
+        private static void GenerateBranches(string gameSteamSettingsPath, GoldbergGame game, GlobalProgressActionArgs progress)
         {
-            progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_ConfiguringBuildID"), game.Name);
-            if (game.AppInfo.BuildID.HasValue)
+            progress.CancelToken.ThrowIfCancellationRequested();
+            progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_ConfiguringBranches"), game.Name);
+
+            if (game.AppInfo.Branches.Any())
             {
-                game.ConfigsApp.buildid = game.AppInfo.BuildID.Value.ToString();
+                game.SelectedBranch = "public";
+                game.Branches = game.AppInfo.Branches.Select(x => x.Name).ToList();
+                string branch = Serialization.ToJson(game.AppInfo.Branches, true);
+                FileSystem.WriteStringToFile(Path.Combine(gameSteamSettingsPath, "branches.json"), branch);
             }
         }
 
         private static void GenerateDepots(string gameSteamSettingsPath, GoldbergGame game, GlobalProgressActionArgs progress)
         {
+            progress.CancelToken.ThrowIfCancellationRequested();
             progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_ConfiguringDepots"), game.Name);
             if (game.AppInfo.Depots.Any())
             {
@@ -139,6 +179,7 @@ namespace GoldbergCommon
 
         private static void GenerateController(string gameSteamSettingsPath, GoldbergGame game, SteamService steam, GlobalProgressActionArgs progress)
         {
+            progress.CancelToken.ThrowIfCancellationRequested();
             progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_ConfiguringController"), game.Name);
             var controllerinfo = GetController(game, steam, progress);
             if (controllerinfo != null)
@@ -157,6 +198,7 @@ namespace GoldbergCommon
 
         private static Dictionary<string, List<string>> GetController(GoldbergGame game, SteamService steam, GlobalProgressActionArgs progress)
         {
+            progress.CancelToken.ThrowIfCancellationRequested();
             progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_ConfiguringCheckingController"), game.Name);
             if (!game.AppInfo.ControllerSupport.HasValue)
             {
@@ -202,6 +244,7 @@ namespace GoldbergCommon
 
         public static void GenerateDLC(string pluginPath, GoldbergGame game, SteamService steam, GlobalProgressActionArgs progress, string apiKey)
         {
+            progress.CancelToken.ThrowIfCancellationRequested();
             DlcManager.GenerateDLC(game.Appid, steam, progress, apiKey, pluginPath);
             if (DlcManager.HasDLC(pluginPath, game.Appid))
             {
@@ -234,6 +277,7 @@ namespace GoldbergCommon
 
         private static void GenerateColdClient(string gameSettingsPath, GoldbergGame game, GlobalProgressActionArgs progress)
         {
+            progress.CancelToken.ThrowIfCancellationRequested();
             string InstallDirectory = game.InstallDirectory;
             string coldclient = Path.Combine(gameSettingsPath, "ColdClientLoader.ini");
             string exeRegex = @"(?!.*\/).*exe";
@@ -257,12 +301,15 @@ namespace GoldbergCommon
 
         private static void GenerateAchievement(string gameSteamSettingsPath, GoldbergGame game, GlobalProgressActionArgs progress, string apiKey)
         {
+            progress.CancelToken.ThrowIfCancellationRequested();
             progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_ConfiguringAchievements"), game.Name);
             progress.CurrentProgressValue = 0;
+
             var job = GetSchema(game.Appid, apiKey);
             var achievementPath = Path.Combine(gameSteamSettingsPath, "achievements_images");
             if (job != null && job.AvailableGameStats.Achievements.Count >= 1)
             {
+                progress.IsIndeterminate = false;
                 progress.ProgressMaxValue = job.AvailableGameStats.Achievements.Count;
                 if (!FileSystem.DirectoryExists(achievementPath))
                 {
