@@ -419,6 +419,14 @@ namespace SteamEmuUtility
                     {
                         PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
                         {
+                            steam.action = callback =>
+                            {
+                                if (callback is string text)
+                                {
+                                    progress.Text = text;
+                                }
+                            };
+
                             progress.CancelToken.Register(() =>
                             {
                                 steam.Dispose();

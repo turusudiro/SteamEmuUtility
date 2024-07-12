@@ -96,10 +96,6 @@ namespace GoldbergCommon
 
             string steamSettingsPath = Path.Combine(pluginPath, "Goldberg", "steam_settings");
 
-            string gamecoldClientLoaderiniPath = Path.Combine(pluginPath, "GamesInfo", game.Appid, "ColdClientLoader.ini");
-
-            string coldClientLoaderiniPath = Path.Combine(pluginPath, "Goldberg", "ColdClientLoader.ini");
-
             if (game.ConfigsEmu.UnlockOnlySelectedDLC && !game.ConfigsApp.UnlockAll)
             {
                 if (DlcManager.HasDLC(pluginPath, game.Appid))
@@ -126,13 +122,21 @@ namespace GoldbergCommon
                     {
                         PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
                         {
+                            steam.action = callback =>
+                            {
+                                if (callback is string text)
+                                {
+                                    progress.Text = text;
+                                }
+                            };
+
                             progress.CancelToken.Register(() =>
                             {
                                 steam.Dispose();
                                 return;
                             });
                             DlcManager.GenerateDLC(game.Appid, steam, progress, apiKey, pluginPath);
-                        }, new GlobalProgressOptions("Steam Emu Utility", true));
+                        }, new GlobalProgressOptions("Steam Emu Utility", false));
                     }
                 }
             }
@@ -182,7 +186,6 @@ namespace GoldbergCommon
             string coldclientIniPath = Path.Combine(pluginPath, "Goldberg", "ColdClientLoader.ini");
 
             string gamecoldclientIniPath = Path.Combine(gameSettingsPath, "ColdClientLoader.ini");
-
 
             if (!FileSystem.FileExists(gamecoldclientIniPath)
                 || game.ConfigsColdClientLoader.Exe.IsNullOrWhiteSpace()
