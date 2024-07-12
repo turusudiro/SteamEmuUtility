@@ -62,7 +62,7 @@ Click here to download the latest version.</sys:String>
     <sys:String x:Key="LOCSEU_ConfiguringFoundController">Configuring {0} : Found controller support</sys:String>
     <sys:String x:Key="LOCSEU_ConfiguringAccessingController">Configuring {0} : Accessing {1}</sys:String>
     <sys:String x:Key="LOCSEU_ConfiguringDepots">Configuring {0} : Configuring Configuring depots</sys:String>
-    <sys:String x:Key="LOCSEU_ConfiguringBuildID">Configuring {0} : Configuring Build ID</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringBranches">Configuring {0} : Configuring Branches</sys:String>
     <sys:String x:Key="LOCSEU_ConfiguringDLC">Configuring {0} DLC : Configuring {1}</sys:String>
     <sys:String x:Key="LOCSEU_ConfiguringSupportedLang">Configuring {0} : Configuring supported languages</sys:String>
     <sys:String x:Key="LOCSEU_ColdClientExeOrAppidNotFound">Unable to find required information for ColdClient</sys:String>
@@ -139,7 +139,7 @@ useful if you only have single play action in Steam library game</sys:String>
     <sys:String x:Key="LOCSEU_AddGoldberg">Added {0} games Goldberg Features</sys:String>
     <sys:String x:Key="LOCSEU_AddGreenLumaNormal">Added {0} games Normal Mode Features</sys:String>
     <sys:String x:Key="LOCSEU_AddGreenLumaStealth">Added {0} games Stealth Mode Features</sys:String>
-    <sys:String x:Key="LOCSEU_AddGreenLumaFamilyBeta">Added {0} games Family Beta Mode Features</sys:String>
+    <sys:String x:Key="LOCSEU_AddGreenLumaFamilySharing">Added {0} games Family Sharing Mode Features</sys:String>
     <sys:String x:Key="LOCSEU_RemoveGoldbergFeature">Removed {0} games Goldberg Features</sys:String>
     <sys:String x:Key="LOCSEU_RemoveGreenlumaFeature">Removed {0} games Greenluma Features</sys:String>
     <sys:String x:Key="LOCSEU_GenerateGreenluma">Generate {0} Games DLC Info for GreenLuma</sys:String>
@@ -194,14 +194,17 @@ USE IT WITH CAUTION</sys:String>
 Are you sure you want to continue?</sys:String>
     <sys:String x:Key="LOCSEU_GenerateAllInfo">Generate all info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateAllInfoTooltip">Generate all available app/game info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoArchitecture">Generate architecture info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoArchitectureTooltip">Generate game exe architecture info in configs.emu.ini to determine loader architecture</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoAchievement">Generate achievement info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoAchievementTooltip" xml:space="preserve">Generate achievement info and downloadall available achievement 
 images related to achievement</sys:String>
-    <sys:String x:Key="LOCSEU_GenerateInfoBuildID">Generate build ID info</sys:String>
-    <sys:String x:Key="LOCSEU_GenerateInfoBuildIDTooltip">Generate build ID info to allow the app/game to show the correct build ID</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoBranches">Generate Branches info</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoBranchesTooltip" xml:space="preserve">Generate a new file steam_settings/branches.json which contain all info about the branches of the game,
+needed by SDK v1.60</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoColdClient">Generate ColdClient info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoColdClientTooltip" xml:space="preserve">Generate ColdClient.ini file to tell the plugin how to launch the app/game
-such as app/game architecture, launch path, etc</sys:String>
+such as app/game ID, launch path, etc</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoController">Generate controller info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoControllerTooltip" xml:space="preserve">Generate controller info to tell the emulator on how to handle
 each action set, which button is linked to which action name</sys:String>
@@ -211,6 +214,7 @@ each action set, which button is linked to which action name</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoDLCTooltip">Generate all available DLC info to tell the emulator which DLC should be unlocked</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoSupportedLang">Generate supported language info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoSupportedLangTooltip">Generate all supported language info for app/game</sys:String>
-    <sys:String x:Key="LOCSEU_ExeCommandLine">Command line to execute</sys:String>
+    <sys:String x:Key="LOCSEU_ExeCommandLine">Command line to execute:</sys:String>
+    <sys:String x:Key="LOCSEU_Branch">Branch:</sys:String>
 
 </ResourceDictionary>

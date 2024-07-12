@@ -62,7 +62,7 @@ Klik di sini untuk mengunduh versi terbaru.</sys:String>
     <sys:String x:Key="LOCSEU_ConfiguringFoundController">Konfigurasi {0}: Menemukan dukungan pengontrol</sys:String>
     <sys:String x:Key="LOCSEU_ConfiguringAccessingController">Konfigurasi {0}: Mengakses {1}</sys:String>
     <sys:String x:Key="LOCSEU_ConfiguringDepots">Mengkonfigurasi {0}: Mengkonfigurasi depot</sys:String>
-    <sys:String x:Key="LOCSEU_ConfiguringBuildID">Konfigurasi {0} : Mengkonfigurasi ID Build</sys:String>
+    <sys:String x:Key="LOCSEU_ConfiguringBranches">Konfigurasi {0} : Mengkonfigurasi cabang</sys:String>
     <sys:String x:Key="LOCSEU_ConfiguringDLC">Mengonfigurasi {0} DLC : Mengonfigurasi {1}</sys:String>
     <sys:String x:Key="LOCSEU_ConfiguringSupportedLang">Mengonfigurasi {0} : Mengonfigurasi bahasa yang didukung</sys:String>
     <sys:String x:Key="LOCSEU_ColdClientExeOrAppidNotFound">Tidak dapat menemukan informasi yang dibutuhkan untuk ColdClient</sys:String>
@@ -139,7 +139,7 @@ berguna jika Anda hanya memiliki aksi bermain satu-satunya di game perpustakaan 
     <sys:String x:Key="LOCSEU_AddGoldberg">Menambahkan {0} permainan Fitur Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_AddGreenLumaNormal">Menambahkan {0} permainan Fitur Mode Normal</sys:String>
     <sys:String x:Key="LOCSEU_AddGreenLumaStealth">Menambahkan {0} permainan Fitur Mode Senyap</sys:String>
-    <sys:String x:Key="LOCSEU_AddGreenLumaFamilyBeta">Menambahkan {0} permainan Fitur Family Beta</sys:String>
+    <sys:String x:Key="LOCSEU_AddGreenLumaFamilySharing">Menambahkan {0} permainan Fitur Berbagi dengan keluarga</sys:String>
     <sys:String x:Key="LOCSEU_RemoveGoldbergFeature">Menghapus {0} permainan Fitur Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_RemoveGreenlumaFeature">Menghapus {0} permainan Fitur GreenLuma</sys:String>
     <sys:String x:Key="LOCSEU_GenerateGreenluma">Hasilkan {0} Info DLC permainan untuk GreenLuma</sys:String>
@@ -194,14 +194,17 @@ GUNAKAN DENGAN HATI-HATI</sys:String>
 Apakah Anda yakin ingin melanjutkan?</sys:String>
     <sys:String x:Key="LOCSEU_GenerateAllInfo">Buat Semua Info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateAllInfoTooltip">Buat semua info aplikasi/game yang tersedia</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoArchitecture">Generate info arsitektur</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoAchievement">Buat Info pencapaian</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoArchitectureTooltip">Buat info arsitektur game exe di configs.emu.ini untuk menentukan arsitektur pemuat</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoAchievementTooltip" xml:space="preserve">Buat info pencapaian dan unduh semua gambar pencapaian
 yang tersedia terkait dengan pencapaian</sys:String>
-    <sys:String x:Key="LOCSEU_GenerateInfoBuildID">Buat Info ID dibangun</sys:String>
-    <sys:String x:Key="LOCSEU_GenerateInfoBuildIDTooltip">Buat info build ID agar aplikasi/game dapat menampilkan build ID yang benar</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoBranches">Buat Info cabang</sys:String>
+    <sys:String x:Key="LOCSEU_GenerateInfoBranchesTooltip" xml:space="preserve">Buat file baru steam_settings/branches.json yang berisi semua info tentang cabang-cabang permainan,
+yang dibutuhkan oleh SDK v1.60</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoColdClient">Buat Info ColdClient</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoColdClientTooltip" xml:space="preserve">Buat file ColdClient.ini untuk memberi tahu plugin cara meluncurkan aplikasi/game
-seperti arsitektur aplikasi/game, jalur peluncur, dll</sys:String>
+seperti ID aplikasi/game, jalur peluncur, dll</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoController">Buat Info kontroler</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoControllerTooltip" xml:space="preserve">Buat info kontroler untuk memberi tahu emulator tentang cara menangani
 setiap set aksi, tombol mana yang ditautkan ke nama aksi yang mana</sys:String>
@@ -212,5 +215,6 @@ setiap set aksi, tombol mana yang ditautkan ke nama aksi yang mana</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoSupportedLang">Buat Info Bahasa yang didukung</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoSupportedLangTooltip">Buat semua info bahasa yang didukung untuk aplikasi/game</sys:String>
     <sys:String x:Key="LOCSEU_ExeCommandLine">Baris perintah untuk eksekusi</sys:String>
+    <sys:String x:Key="LOCSEU_Branch">Cabang:</sys:String>
 
 </ResourceDictionary>
