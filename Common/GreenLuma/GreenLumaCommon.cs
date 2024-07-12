@@ -3,9 +3,7 @@ using Playnite.SDK;
 using Playnite.SDK.Models;
 using PlayniteCommon;
 using PluginsCommon;
-using SteamCommon;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -23,7 +21,6 @@ namespace GreenLumaCommon
     public partial class GreenLumaVersion
     {
         public string Version { get; set; }
-        public string Year { get; set; }
     }
 
     public class GreenLuma
@@ -286,117 +283,128 @@ namespace GreenLumaCommon
         }
         public static bool GreenLumaFilesExists(string path, out List<string> missingFiles)
         {
-            var GreenLumaFiles = new List<string>()
-            {
-                $"{path}\\AchievementUnlocked.wav",
-                $"{path}\\DLLInjector.exe",
-                $"{path}\\DLLInjector.ini",
-                $"{path}\\GreenLuma_2024_x64.dll",
-                $"{path}\\GreenLuma_2024_x86.dll",
-                $"{path}\\x64launcher.exe",
-                $"{path}\\user32.dll",
-                $"{path}\\user32FamilySharing.dll",
-            };
             missingFiles = new List<string>();
 
-            foreach (string file in GreenLumaFiles)
+            if (!FileSystem.DirectoryExists(path))
             {
-                if (!FileSystem.FileExists(file))
-                {
-                    // If the file doesn't exist, add it to the list of missing files
-                    missingFiles.Add(Path.GetFileName(file));
-                }
+                missingFiles.Add("Achievement");
+                missingFiles.Add("GreenLuma DLL x86");
+                missingFiles.Add("GreenLuma DLL x64");
+                missingFiles.Add("Injector");
+                missingFiles.Add("X64launcher");
+                missingFiles.Add("Family DLL");
+
+                return false;
             }
 
-            // Return true if there are no missing files, otherwise return false
-            return missingFiles.Count == 0;
-        }
-        public static string GetGreenLumaYear(string greenlumaPath)
-        {
-            string year = string.Empty;
+            var files = Directory.GetFiles(path, "*");
 
-            if (FileSystem.DirectoryExists(greenlumaPath))
+            List<string> glFilesRegex = new List<string>()
             {
-                string filePattern = @"\d{4}[^ \- \d A-Z]";
+                AchievementRegex,
+                GreenLumaDLL86Regex,
+                GreenLumaDLL64Regex,
+                InjectorRegex,
+                X64launcherRegex,
+                FamilyRegex
+            };
 
-                Regex fileRegex = new Regex(filePattern, RegexOptions.IgnoreCase);
+            foreach (string pattern in glFilesRegex)
+            {
+                Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+                bool isMatchFound = files.Any(file => regex.IsMatch(file));
 
-                var files = new DirectoryInfo(greenlumaPath).GetFiles("*", SearchOption.TopDirectoryOnly)
-                    .Where(x => fileRegex.IsMatch(x.Name));
-
-                if (files.Any())
+                if (!isMatchFound)
                 {
-                    string rawString = files.FirstOrDefault().Name;
-                    year = Regex.Replace(rawString, @"\D+", "");
-                }
-            }
-            return year;
-        }
-        public static IEnumerable<DirectoryInfo> GetGreenLumaDirectories(string path)
-        {
-            if (FileSystem.DirectoryExists(path))
-            {
-                string dirPattern = @"GreenLuma.*.files$|applist$|AppOwnershipTickets$|EncryptedAppTickets$";
-
-                Regex dirRegex = new Regex(dirPattern, RegexOptions.IgnoreCase);
-
-                return new DirectoryInfo(path).GetDirectories("*", SearchOption.AllDirectories)
-                    .Where(x => dirRegex.IsMatch(x.Name));
-            }
-            return Enumerable.Empty<DirectoryInfo>();
-        }
-        public static IEnumerable<FileInfo> GetGreenLumaFiles(string path)
-        {
-            if (FileSystem.DirectoryExists(path))
-            {
-                string filePattern = @"GreenLuma.*.(wav|dll|log|exe)$|applist..*|dllinjector.*|.*x64launcher.exe$|.*AchievementUnlocked\.wav$";
-
-                Regex fileRegex = new Regex(filePattern, RegexOptions.IgnoreCase);
-
-                return new DirectoryInfo(path).GetFiles("*", SearchOption.AllDirectories)
-                    .Where(x => fileRegex.IsMatch(x.Name));
-            }
-            return Enumerable.Empty<FileInfo>();
-        }
-        public static bool IsGreenLumaPresentOnSteamDir()
-        {
-            string steamDir = Steam.GetSteamDirectory();
-
-            if (FileSystem.DirectoryExists(steamDir))
-            {
-                var dirGreenLumaOnSteam = GetGreenLumaDirectories(steamDir);
-
-                var fileGreenLumaOnSteam = GetGreenLumaFiles(steamDir);
-
-                if (dirGreenLumaOnSteam.Any())
-                {
-                    return true;
-                }
-                else if (fileGreenLumaOnSteam.Any())
-                {
-                    var x64steam = fileGreenLumaOnSteam.FirstOrDefault(x => x.Name.Contains("x64launcher"));
-                    if (x64steam != null)
+                    switch (pattern)
                     {
-                        var fileinfo = FileVersionInfo.GetVersionInfo(x64steam.FullName);
-                        bool fromValve = fileinfo.ProductName == "Steam" ? true : false;
-                        if (!fromValve)
+                        case AchievementRegex:
+                            missingFiles.Add("Achievement");
+                            break;
+                        case GreenLumaDLL86Regex:
+                            missingFiles.Add("GreenLuma DLL x86");
+                            break;
+                        case GreenLumaDLL64Regex:
+                            missingFiles.Add("GreenLuma DLL x64");
+                            break;
+                        case InjectorRegex:
+                            missingFiles.Add("Injector");
+                            break;
+                        case X64launcherRegex:
+                            missingFiles.Add("X64launcher");
+                            break;
+                        case FamilyRegex:
+                            missingFiles.Add("Family DLL");
+                            break;
+                    }
+                }
+            }
+
+            return !missingFiles.Any();
+        }
+        /// <summary>
+        /// Check if GreenLuma Files exists
+        /// </summary>
+        /// <param name="files">specified FileInfo to check</param>
+        /// <param name="mode">GreenLuma Mode files to check</param>
+        /// <returns>True if specified GreenLuma mode files exists</returns>
+        public static bool GreenLumaFilesExists(IEnumerable<FileInfo> files, GreenLumaMode mode)
+        {
+            if (!files.Any())
+            {
+                return false;
+            }
+
+            switch (mode)
+            {
+                case GreenLumaMode.Normal:
+                    string[] patternsNormal = { AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex };
+
+                    foreach (string pattern in patternsNormal)
+                    {
+                        Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+
+                        if (!files.Any(file => regex.IsMatch(file.Name)))
                         {
-                            return true;
+                            return false;
                         }
                     }
-                    else { return false; }
-                }
-                else
-                {
+
+                    return true;
+
+                case GreenLumaMode.Stealth:
+                    string[] patternsStealth = { InjectorRegex, GreenLumaDLL86Regex };
+
+                    foreach (string pattern in patternsStealth)
+                    {
+                        Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+
+                        if (!files.Any(file => regex.IsMatch(file.Name)))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+
+                case GreenLumaMode.Family:
+                    string[] patternsFamily = { InjectorRegex, FamilyRegex };
+
+                    foreach (string pattern in patternsFamily)
+                    {
+                        Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+
+                        if (!files.Any(file => regex.IsMatch(file.Name)))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+
+                default:
                     return false;
-                }
             }
-            return false;
-        }
-        public static bool IsDLLInjectorRunning()
-        {
-            var processes = Process.GetProcessesByName("dllinjector");
-            return processes.Length > 0;
         }
     }
 }

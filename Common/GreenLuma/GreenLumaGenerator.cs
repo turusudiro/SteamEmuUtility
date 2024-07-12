@@ -15,11 +15,11 @@ namespace GreenLumaCommon
 {
     public class GreenLumaGenerator
     {
-        public static void CreateDLLInjectorIni(string pluginPath, GreenLumaMode mode, IEnumerable<string> argsList, string destination)
+        public static void CreateDLLInjectorIni(string pluginPath, GreenLumaMode mode, IEnumerable<string> argsList, string dllPath, string destination)
         {
-            CreateDLLInjectorIni(pluginPath, mode, string.Empty, argsList, destination);
+            CreateDLLInjectorIni(pluginPath, mode, string.Empty, argsList, dllPath, destination);
         }
-        public static void CreateDLLInjectorIni(string pluginPath, GreenLumaMode mode, string steamexePath, IEnumerable<string> argsList, string destinationDir)
+        public static void CreateDLLInjectorIni(string pluginPath, GreenLumaMode mode, string steamexePath, IEnumerable<string> argsList, string dllPath, string destinationDir)
         {
             string args = string.Empty;
 
@@ -29,7 +29,6 @@ namespace GreenLumaCommon
             }
 
             string glPath = Path.Combine(pluginPath, "GreenLuma");
-            string year = GetGreenLumaYear(glPath);
 
             string path = Path.Combine(destinationDir, "DLLInjector.ini");
             string section = "DllInjector";
@@ -49,7 +48,7 @@ namespace GreenLumaCommon
             data.Sections[section]["CommandLine"] = "-inhibitbootstrap";
 
             // Dll to inject
-            data.Sections[section]["Dll"] = $"GreenLuma_{year}_x86.dll";
+            data.Sections[section]["Dll"] = dllPath;
 
             // Wait for started exe to close before exiting the DllInjector process.
             data.Sections[section]["WaitForProcessTermination"] = "1";
@@ -111,12 +110,6 @@ namespace GreenLumaCommon
                 data.Sections[section]["CreateFiles"] = "2";
                 data.Sections[section]["FileToCreate_1"] = "StealthMode.bin";
                 data.Sections[section]["FileToCreate_2"] = "NoQuestion.bin";
-
-                // change the dll to inject user32FamilySharing
-                if (mode == GreenLumaMode.Family)
-                {
-                    data.Sections[section]["Dll"] = $"{glPath}\\user32FamilySharing.dll";
-                }
             }
             else
             {
