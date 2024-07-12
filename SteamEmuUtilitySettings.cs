@@ -647,17 +647,6 @@ namespace SteamEmuUtility
 
             });
         }
-        public RelayCommand<object> UpdateGreenLuma
-        {
-            get => new RelayCommand<object>((a) =>
-            {
-                GlobalProgressOptions progress = new GlobalProgressOptions("Steam Emu Utility");
-                plugin.PlayniteApi.Dialogs.ActivateGlobalProgress((global) =>
-                {
-                    GreenLumaTasks.CheckForUpdate(plugin.PlayniteApi, plugin);
-                }, progress);
-            });
-        }
         public RelayCommand<object> ImportGoldberg
         {
             get => new RelayCommand<object>((a) =>
@@ -732,20 +721,7 @@ namespace SteamEmuUtility
             SevenZipBase.SetLibraryPath(Path.Combine(SevenZipLib, Environment.Is64BitProcess ? "x64" : "x86", "7z.dll"));
             using (var extractor = new SevenZipExtractor(archivePath, password))
             {
-                List<string> gl = new List<string>
-                {
-                    "DLLInjector.exe",
-                    "DLLInjector.ini",
-                    "x64launcher.exe",
-                    "AchievementUnlocked.wav",
-                    @"GreenLuma_\d{4}_x64.dll",
-                    @"GreenLuma_\d{4}_x86.dll",
-                    "user32.dll",
-                    "user32FamilySharing.dll",
-                    @"GreenLuma\d{4}.txt"
-                };
-
-                var files = extractor.ArchiveFileData.Where(x => gl.Any(file => Regex.IsMatch(x.FileName, file, RegexOptions.IgnoreCase)));
+                var files = extractor.ArchiveFileData.Where(x => Regex.IsMatch(x.FileName, GreenLuma.GreenLumaFilesRegex, RegexOptions.IgnoreCase));
 
                 if (!FileSystem.IsDirectoryEmpty(destinationFolder))
                 {
@@ -758,10 +734,6 @@ namespace SteamEmuUtility
 
                 foreach (var item in files)
                 {
-                    if (item.IsDirectory)
-                    {
-                        continue;
-                    }
                     /// check if file is encrypted and user is not set the password
                     if (item.Encrypted && string.IsNullOrEmpty(password))
                     {
@@ -775,16 +747,6 @@ namespace SteamEmuUtility
                         return;
                     }
 
-
-                    //try extracting files
-                    if (item.FileName.Contains("Normal") || item.FileName.Contains("Stealth"))
-                    {
-                        using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)), FileMode.Create))
-                        {
-                            extractor.ExtractFile(item.Index, fileStream);
-                        }
-                    }
-
                     if (Regex.IsMatch(item.FileName, @"GreenLuma\d{4}.txt"))
                     {
                         using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)), FileMode.Create))
@@ -796,9 +758,15 @@ namespace SteamEmuUtility
                         var version = new GreenLumaVersion()
                         {
                             Version = rawinfo.Split(' ')[2],
-                            Year = rawinfo.Split(' ')[1]
                         };
                         FileSystem.WriteStringToFileSafe(Path.Combine(destinationFolder, "Version.json"), Serialization.ToJson(version, true));
+                    }
+                    else
+                    {
+                        using (FileStream fileStream = new FileStream(Path.Combine(destinationFolder, Path.GetFileName(item.FileName)), FileMode.Create))
+                        {
+                            extractor.ExtractFile(item.Index, fileStream);
+                        }
                     }
 
                     //check if password is wrong, if wrong the extracted files will 0 bytes and delete it and ask user to reenter password
