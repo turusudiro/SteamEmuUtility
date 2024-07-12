@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -53,6 +54,29 @@ namespace ConvertersCommon
             {
                 return !boolValue;
             }
+            throw new NotImplementedException();
+        }
+    }
+    public class ItemsSourceCountToEnabledConverter : MarkupExtension, IValueConverter
+    {
+        private static ItemsSourceCountToEnabledConverter _instance;
+
+        public override object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return _instance ?? (_instance = new ItemsSourceCountToEnabledConverter());
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is IEnumerable items)
+            {
+                return (items.GetEnumerator().MoveNext());
+            }
+            return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
             throw new NotImplementedException();
         }
     }
