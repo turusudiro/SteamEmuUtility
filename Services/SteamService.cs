@@ -10,7 +10,7 @@ namespace SteamCommon
 {
     public class SteamService : IDisposable
     {
-        private Action<object> action;
+        public Action<object> action;
         private Dictionary<uint, SteamApps.PICSProductInfoCallback.PICSProductInfo> PICSProductInfo;
         private bool isRunning = false;
         private bool disposed = false;
@@ -39,7 +39,7 @@ namespace SteamCommon
 
             disposed = true;
         }
-        public SteamService(Action<object> action = null, CancellationTokenSource cancellationTokenSource = null)
+        public SteamService(Action<object> action = null)
         {
             this.action = action;
             steamClient = new SteamClient();
@@ -120,8 +120,6 @@ namespace SteamCommon
 
             steamApps.PICSGetProductInfo(appids, new List<uint>());
 
-
-
             isRunning = true;
 
             while (isRunning)
@@ -138,7 +136,6 @@ namespace SteamCommon
             {
                 AnonymousLogin();
             }
-
 
             var task = manager.Subscribe<SteamApps.PICSProductInfoCallback>(callback =>
             {
