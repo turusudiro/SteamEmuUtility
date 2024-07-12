@@ -15,10 +15,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using static GreenLumaCommon.GreenLuma;
 
 namespace SteamEmuUtility
 {
@@ -97,21 +99,23 @@ namespace SteamEmuUtility
         }
         public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs args)
         {
-            var SteamGame = PlayniteApi.Database.Games.Where(x => x.IsInstalled && Steam.IsGameSteamGame(x));
-
-            string pluginPath = GetPluginUserDataPath();
-
-            string glPath = Path.Combine(pluginPath, "GreenLuma");
-
-            IEnumerable<string> appids = SteamGame.Select(x => x.GameId).ToList();
-
             yield return new MainMenuItem
             {
                 Description = ResourceProvider.GetString("LOCSEU_MenuUnlockAll"),
                 MenuSection = "Steam Emu Utility",
                 Action = (a) =>
                 {
-                    GreenLumaTasks.StartGreenLumaJob(PlayniteApi, appids);
+                    var SteamGame = PlayniteApi.Database.Games.Where(x => x.IsInstalled && Steam.IsGameSteamGame(x));
+
+                    IEnumerable<string> appids = SteamGame.Select(x => x.GameId).ToList();
+                    string pluginPath = GetPluginUserDataPath();
+                    string pluginGreenLumaPath = Path.Combine(pluginPath, "GreenLuma");
+
+                    string regexPattern = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex, FamilyRegex);
+                    IEnumerable<FileInfo> greenlumaFiles = FileSystem.GetFiles(pluginGreenLumaPath,
+                                                                               regexPattern,
+                                                                               RegexOptions.IgnoreCase);
+                    GreenLumaTasks.StartGreenLumaJob(PlayniteApi, appids, greenlumaFiles);
                 }
             };
             yield return new MainMenuItem
@@ -264,7 +268,7 @@ namespace SteamEmuUtility
                     Action = (a) =>
                     {
                         int count = GreenLuma.AddFamilyGameOnlyFeature(steamGame, PlayniteApi);
-                        PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_AddGreenLumaStealth"), count), "Steam Emu Utility");
+                        PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_AddGreenLumaFamilySharing"), count), "Steam Emu Utility");
                     }
                 };
                 yield return new GameMenuItem
@@ -275,7 +279,7 @@ namespace SteamEmuUtility
                     Action = (a) =>
                     {
                         int count = GreenLuma.AddFamilyDLCOnlyFeature(steamGame, PlayniteApi);
-                        PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_AddGreenLumaFamilyBeta"), count), "Steam Emu Utility");
+                        PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_AddGreenLumaFamilySharing"), count), "Steam Emu Utility");
                     }
                 };
                 yield return new GameMenuItem
@@ -286,7 +290,7 @@ namespace SteamEmuUtility
                     Action = (a) =>
                     {
                         int count = GreenLuma.AddFamilyGameAndDLCFeature(steamGame, PlayniteApi);
-                        PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_AddGreenLumaFamilyBeta"), count), "Steam Emu Utility");
+                        PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_AddGreenLumaFamilySharing"), count), "Steam Emu Utility");
                     }
                 };
                 yield return new GameMenuItem
@@ -332,7 +336,7 @@ namespace SteamEmuUtility
 
             var viewModel = new GoldbergConfigViewModel(PlayniteApi, settings.Settings, GetPluginUserDataPath());
 
-            window.Height = 410;
+            window.Height = 440;
             window.Width = 780;
             window.Title = ResourceProvider.GetString("LOCSEU_GoldbergConfigGenerator");
             window.Content = new GoldbergConfigView();
@@ -368,7 +372,7 @@ namespace SteamEmuUtility
             bool hasGreenLumaFeature = greenLumaNormal || greenLumaStealth || greenLumaFamily;
 
             int glFeature = (greenLumaNormal ? 1 : 0) + (greenLumaStealth ? 1 : 0) + (greenLumaFamily ? 1 : 0);
-            bool glFeatureInvalid = glFeature != 1;
+            bool glFeatureInvalid = glFeature >= 2;
 
             if (goldberg)
             {
@@ -381,6 +385,11 @@ namespace SteamEmuUtility
                 }
                 return;
             }
+            // dont execute the next code if the game doesnt have any gl feature
+            else if (!hasGreenLumaFeature)
+            {
+                return;
+            }
             // return a dialog error if gl feature is invalid
             else if (glFeatureInvalid)
             {
@@ -388,25 +397,48 @@ namespace SteamEmuUtility
                 args.CancelStartup = true;
                 return;
             }
-            // dont execute the next code if the game doesnt have any gl feature
-            else if (!hasGreenLumaFeature)
-            {
-                return;
-            }
+
 
             string pluginPath = GetPluginUserDataPath();
             string pluginGreenLumaPath = Path.Combine(pluginPath, "GreenLuma");
 
+            string regexPattern = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex, FamilyRegex);
+            IEnumerable<FileInfo> greenlumaFiles = FileSystem.GetFiles(pluginGreenLumaPath,
+                                                                       regexPattern,
+                                                                       RegexOptions.IgnoreCase);
+
             // if greenluma files doesnt exists in plugin userdata path then return.
-            if (!GreenLuma.GreenLumaFilesExists(pluginGreenLumaPath, out List<string> _))
+            if (greenLumaNormal)
             {
-                PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_GreenLumaErrorFileMissing"));
-                args.CancelStartup = true;
-                return;
+                if (!GreenLumaFilesExists(greenlumaFiles, GreenLumaMode.Normal))
+                {
+                    PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_GreenLumaErrorFileMissing"));
+                    args.CancelStartup = true;
+                    return;
+                }
+            }
+            else if (greenLumaStealth)
+            {
+                if (!GreenLumaFilesExists(greenlumaFiles, GreenLumaMode.Stealth))
+                {
+                    PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_GreenLumaErrorFileMissing"));
+                    args.CancelStartup = true;
+                    return;
+                }
+            }
+            else if (greenLumaFamily)
+            {
+                if (!GreenLumaFilesExists(greenlumaFiles, GreenLumaMode.Family))
+                {
+                    PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_GreenLumaErrorFileMissing"));
+                    args.CancelStartup = true;
+                    return;
+                }
             }
 
             string appid = game.GameId;
             var appids = new List<string>();
+
             if (greenLumaGameUnlocking)
             {
                 appids.Add(appid);
@@ -447,15 +479,15 @@ namespace SteamEmuUtility
 
             if (greenLumaNormal)
             {
-                GreenLumaTasks.StartGreenLumaJob(args, PlayniteApi, appids, GreenLuma.GreenLumaMode.Normal);
+                GreenLumaTasks.StartGreenLumaJob(args, PlayniteApi, appids, GreenLumaMode.Normal, greenlumaFiles);
             }
             else if (greenLumaStealth)
             {
-                GreenLumaTasks.StartGreenLumaJob(args, PlayniteApi, appids, GreenLuma.GreenLumaMode.Stealth);
+                GreenLumaTasks.StartGreenLumaJob(args, PlayniteApi, appids, GreenLumaMode.Stealth, greenlumaFiles);
             }
             else if (greenLumaFamily)
             {
-                GreenLumaTasks.StartGreenLumaJob(args, PlayniteApi, appids, GreenLuma.GreenLumaMode.Family);
+                GreenLumaTasks.StartGreenLumaJob(args, PlayniteApi, appids, GreenLumaMode.Family, greenlumaFiles);
             }
         }
         private async void CommonGameShutdownLogic(Game game)
@@ -489,7 +521,15 @@ namespace SteamEmuUtility
                         {
                             return;
                         }
-                        GreenLumaTasks.StartGreenLumaJob(PlayniteApi, new List<string> { game.GameId });
+
+                        string pluginGreenLumaPath = Path.Combine(pluginPath, "GreenLuma");
+
+                        string regexPattern = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex, FamilyRegex);
+                        IEnumerable<FileInfo> greenlumaFiles = FileSystem.GetFiles(pluginGreenLumaPath,
+                                                                                   regexPattern,
+                                                                                   RegexOptions.IgnoreCase);
+
+                        GreenLumaTasks.StartGreenLumaJob(PlayniteApi, new List<string> { game.GameId }, greenlumaFiles);
                         return;
                     }
 
@@ -502,7 +542,7 @@ namespace SteamEmuUtility
                     {
                         return;
                     }
-                    else if (greenLumaNormal && settings.Settings.CleanGreenLuma && GreenLuma.IsGreenLumaPresentOnSteamDir())
+                    else if (greenLumaNormal && settings.Settings.CleanGreenLuma)
                     {
                         string notificationIdSteamRunning = Id.ToString() + "Clean GreenLuma with Steam running";
                         string notificationIdClean = Id.ToString() + "Clean GreenLuma";
@@ -515,16 +555,23 @@ namespace SteamEmuUtility
                                 NotificationType.Info));
                             PlayniteApi.Notifications.Remove(notificationIdClean);
                         }
+
+                        string steamDir = Steam.GetSteamDirectory();
+
+                        var dirGreenLumaOnSteam = FileSystem.GetDirectories(steamDir, GreenLumaDirectoriesRegex, RegexOptions.IgnoreCase);
+
+                        var fileGreenLumaOnSteam = FileSystem.GetFiles(steamDir, GreenLumaFilesRegex, RegexOptions.IgnoreCase);
+
                         switch (settings.Settings.CleanMode)
                         {
                             case 0:
                                 Steam.KillSteam();
-                                await GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath());
+                                await GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath(), steamDir, dirGreenLumaOnSteam, fileGreenLumaOnSteam);
                                 PlayniteApi.Notifications.Add(notificationMessageFinish);
                                 PlayniteApi.Notifications.Remove(notificationIdSteamRunning);
                                 break;
                             case 1:
-                                await GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath());
+                                await GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath(), steamDir, dirGreenLumaOnSteam, fileGreenLumaOnSteam);
                                 PlayniteApi.Notifications.Add(notificationMessageFinish);
                                 PlayniteApi.Notifications.Remove(notificationIdSteamRunning);
                                 break;
@@ -552,7 +599,6 @@ namespace SteamEmuUtility
         }
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
-
             if (settings.Settings.CheckGoldbergUpdate)
             {
                 if (InternetCommon.Internet.IsInternetAvailable())
@@ -567,19 +613,37 @@ namespace SteamEmuUtility
                     Task.Run(() => GreenLumaTasks.CheckForUpdate(PlayniteApi, this));
                 }
             }
-            if (settings.Settings.CleanGreenLumaStartup && GreenLuma.IsGreenLumaPresentOnSteamDir())
+            if (settings.Settings.CleanGreenLumaStartup)
             {
+                string steamDir = Steam.GetSteamDirectory();
+
+                if (!FileSystem.DirectoryExists(steamDir))
+                {
+                    return;
+                }
+
+                var dirGreenLumaOnSteam = FileSystem.GetDirectories(steamDir, GreenLumaDirectoriesRegex, RegexOptions.IgnoreCase);
+
+                var fileGreenLumaOnSteam = FileSystem.GetFiles(steamDir, GreenLumaFilesRegex, RegexOptions.IgnoreCase);
+
+                if (!dirGreenLumaOnSteam.Any() && !fileGreenLumaOnSteam.Any())
+                {
+                    return;
+                }
+
                 if (Steam.IsSteamRunning())
                 {
                     string notificationIdSteamRunning = Id.ToString() + "Clean GreenLuma with Steam running";
                     PlayniteApi.Notifications.Add(new NotificationMessage(notificationIdSteamRunning, ResourceProvider.GetString("LOCSEU_SteamIsRunningNotification"),
                     NotificationType.Info));
-                    GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath()).ContinueWith(t => { PlayniteApi.Notifications.Remove(notificationIdSteamRunning); });
+                    GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath(), steamDir, dirGreenLumaOnSteam, fileGreenLumaOnSteam)
+                        .ContinueWith(t => { PlayniteApi.Notifications.Remove(notificationIdSteamRunning); });
                 }
                 else
                 {
                     string notificationIdSteamRunning = Id.ToString() + "Clean GreenLuma with Steam running";
-                    GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath()).ContinueWith(t => { PlayniteApi.Notifications.Remove(notificationIdSteamRunning); });
+                    GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath(), steamDir, dirGreenLumaOnSteam, fileGreenLumaOnSteam)
+                        .ContinueWith(t => { PlayniteApi.Notifications.Remove(notificationIdSteamRunning); });
                 }
             }
         }
