@@ -35,11 +35,21 @@ namespace GreenLumaCommon
             Family
         }
         public const string Url = @"https://cs.rin.ru/forum/viewtopic.php?f=29&t=103709";
-        private const string normalfeature = "[SEU] Normal Mode";
-        private const string stealthfeature = "[SEU] Stealth Mode";
-        private const string familybetafeature = "[SEU] Family Beta Mode";
-        private const string gamefeature = "[SEU] Game Unlocking";
-        private const string dlcfeature = "[SEU] DLC Unlocking";
+        public const string User32FamilyRegex = @"user32.\w*.dll";
+        public const string NormalModeFeature = "[SEU] Normal Mode";
+        public const string StealthModeFeature = "[SEU] Stealth Mode";
+        public const string FamilySharingModeFeatuere = "[SEU] Family Sharing Mode";
+        public const string GameUnlockingFeature = "[SEU] Game Unlocking";
+        public const string DLCUnlockingFeature = "[SEU] DLC Unlocking";
+        public const string AchievementRegex = @"ach[a-z]+\.wav";
+        public const string GreenLumaDLL86Regex = @"GreenLuma\w+86\.dll";
+        public const string GreenLumaDLL64Regex = @"GreenLuma\w+64\.dll";
+        public const string InjectorRegex = @"injector*\.exe";
+        public const string X64launcherRegex = @"x64\w+\.exe";
+        public const string FamilyRegex = @"fam.*\.dll";
+        public const string GreenLumaDirectoriesRegex = @"GreenLuma.*.files|applist|AppOwnershipTickets|EncryptedAppTickets";
+        public const string GreenLumaFilesRegex = @"GreenLuma.*.(dll|log|exe|txt)|applist*.\d\.txt|inject|ach[a-z]+\.wav|user32.\w*.dll|fam.*\.dll|x64\w+\.exe";
+
         private static readonly ILogger logger = LogManager.GetLogger();
         public static int AddNormalGameOnlyFeature(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
         {
@@ -53,7 +63,7 @@ namespace GreenLumaCommon
             {
                 Goldberg.Feature(playniteAPI),
                 StealthFeature(playniteAPI),
-                FamilyBetaFeature(playniteAPI),
+                FamilySharingFeature(playniteAPI),
                 DLCFeature(playniteAPI)
             };
             PlayniteUtilities.RemoveFeatures(games, removefeature);
@@ -74,7 +84,7 @@ namespace GreenLumaCommon
             {
                 Goldberg.Feature(playniteAPI),
                 StealthFeature(playniteAPI),
-                FamilyBetaFeature(playniteAPI),
+                FamilySharingFeature(playniteAPI),
                 GameFeature(playniteAPI)
             };
             PlayniteUtilities.RemoveFeatures(games, removefeature);
@@ -96,7 +106,7 @@ namespace GreenLumaCommon
             {
                 Goldberg.Feature(playniteAPI),
                 StealthFeature(playniteAPI),
-                FamilyBetaFeature(playniteAPI),
+                FamilySharingFeature(playniteAPI),
             };
             PlayniteUtilities.RemoveFeatures(games, removefeature);
 
@@ -114,7 +124,7 @@ namespace GreenLumaCommon
 
             var removefeature = new List<GameFeature>()
             {
-                FamilyBetaFeature(playniteAPI),
+                FamilySharingFeature(playniteAPI),
                 Goldberg.Feature(playniteAPI),
                 NormalFeature(playniteAPI),
                 DLCFeature(playniteAPI)
@@ -135,7 +145,7 @@ namespace GreenLumaCommon
 
             var removefeature = new List<GameFeature>()
             {
-                FamilyBetaFeature(playniteAPI),
+                FamilySharingFeature(playniteAPI),
                 Goldberg.Feature(playniteAPI),
                 NormalFeature(playniteAPI),
                 GameFeature(playniteAPI)
@@ -157,7 +167,7 @@ namespace GreenLumaCommon
 
             var removefeature = new List<GameFeature>()
             {
-                FamilyBetaFeature(playniteAPI),
+                FamilySharingFeature(playniteAPI),
                 Goldberg.Feature(playniteAPI),
                 NormalFeature(playniteAPI),
             };
@@ -171,7 +181,7 @@ namespace GreenLumaCommon
         {
             var features = new List<GameFeature>()
             {
-                FamilyBetaFeature(playniteAPI),
+                FamilySharingFeature(playniteAPI),
                 GameFeature(playniteAPI)
             };
 
@@ -192,7 +202,7 @@ namespace GreenLumaCommon
         {
             var features = new List<GameFeature>()
             {
-                FamilyBetaFeature(playniteAPI),
+                FamilySharingFeature(playniteAPI),
                 DLCFeature(playniteAPI)
             };
 
@@ -213,7 +223,7 @@ namespace GreenLumaCommon
         {
             var features = new List<GameFeature>()
             {
-                FamilyBetaFeature(playniteAPI),
+                FamilySharingFeature(playniteAPI),
                 DLCFeature(playniteAPI),
                 GameFeature(playniteAPI)
             };
@@ -236,7 +246,7 @@ namespace GreenLumaCommon
             {
                 NormalFeature(playniteAPI),
                 StealthFeature(playniteAPI),
-                FamilyBetaFeature(playniteAPI),
+                FamilySharingFeature(playniteAPI),
                 GameFeature(playniteAPI),
                 DLCFeature(playniteAPI),
             };
@@ -245,23 +255,23 @@ namespace GreenLumaCommon
         }
         public static GameFeature GameFeature(IPlayniteAPI playniteApi)
         {
-            return playniteApi.Database.Features.Add(gamefeature);
+            return playniteApi.Database.Features.Add(GameUnlockingFeature);
         }
         public static GameFeature DLCFeature(IPlayniteAPI playniteApi)
         {
-            return playniteApi.Database.Features.Add(dlcfeature);
+            return playniteApi.Database.Features.Add(DLCUnlockingFeature);
         }
         public static GameFeature NormalFeature(IPlayniteAPI playniteApi)
         {
-            return playniteApi.Database.Features.Add(normalfeature);
+            return playniteApi.Database.Features.Add(NormalModeFeature);
         }
         public static GameFeature StealthFeature(IPlayniteAPI playniteApi)
         {
-            return playniteApi.Database.Features.Add(stealthfeature);
+            return playniteApi.Database.Features.Add(StealthModeFeature);
         }
-        public static GameFeature FamilyBetaFeature(IPlayniteAPI playniteApi)
+        public static GameFeature FamilySharingFeature(IPlayniteAPI playniteApi)
         {
-            return playniteApi.Database.Features.Add(familybetafeature);
+            return playniteApi.Database.Features.Add(FamilySharingModeFeatuere);
         }
         public static bool ApplistConfigured(IEnumerable<string> appids, IEnumerable<string> applist)
         {

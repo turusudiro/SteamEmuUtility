@@ -30,13 +30,6 @@ namespace SteamEmuUtility
 
         public override Guid Id { get; } = Guid.Parse("a237961d-d688-4be9-9576-fb635547f854");
 
-        private const string goldbergFeature = "[SEU] Goldberg";
-        private const string stealthFeature = "[SEU] Stealth Mode";
-        private const string normalFeature = "[SEU] Normal Mode";
-        private const string familyFeature = "[SEU] Family Beta Mode";
-        private const string gameUnlockingFeature = "[SEU] Game Unlocking";
-        private const string dlcUnlockingFeature = "[SEU] DLC Unlocking";
-
         public SteamEmuUtility(IPlayniteAPI api) : base(api)
         {
             settings = new SteamEmuUtilitySettingsViewModel(this);
@@ -87,10 +80,10 @@ namespace SteamEmuUtility
 
             bool isSteamGame = Steam.IsGameSteamGame(game);
 
-            bool goldberg = PlayniteUtilities.HasFeature(game, goldbergFeature);
-            bool greenLumaStealth = PlayniteUtilities.HasFeature(game, stealthFeature);
-            bool greenLumaFamily = PlayniteUtilities.HasFeature(game, familyFeature);
-            bool greenLumaNormal = PlayniteUtilities.HasFeature(game, normalFeature);
+            bool goldberg = PlayniteUtilities.HasFeature(game, Goldberg.GoldbergFeature);
+            bool greenLumaStealth = PlayniteUtilities.HasFeature(game, StealthModeFeature);
+            bool greenLumaFamily = PlayniteUtilities.HasFeature(game, FamilySharingModeFeatuere);
+            bool greenLumaNormal = PlayniteUtilities.HasFeature(game, NormalModeFeature);
             bool hasGreenLumaFeature = greenLumaNormal || greenLumaStealth || greenLumaFamily;
 
             if (isSteamGame && goldberg && !hasGreenLumaFeature)
@@ -366,12 +359,12 @@ namespace SteamEmuUtility
                 return;
             }
 
-            bool goldberg = PlayniteUtilities.HasFeature(game, goldbergFeature);
-            bool greenLumaStealth = PlayniteUtilities.HasFeature(game, stealthFeature);
-            bool greenLumaFamily = PlayniteUtilities.HasFeature(game, familyFeature);
-            bool greenLumaNormal = PlayniteUtilities.HasFeature(game, normalFeature);
-            bool greenLumaGameUnlocking = PlayniteUtilities.HasFeature(game, gameUnlockingFeature);
-            bool greenLumaDLCUnlocking = PlayniteUtilities.HasFeature(game, dlcUnlockingFeature);
+            bool goldberg = PlayniteUtilities.HasFeature(game, Goldberg.GoldbergFeature);
+            bool greenLumaStealth = PlayniteUtilities.HasFeature(game, StealthModeFeature);
+            bool greenLumaFamily = PlayniteUtilities.HasFeature(game, FamilySharingModeFeatuere);
+            bool greenLumaNormal = PlayniteUtilities.HasFeature(game, NormalModeFeature);
+            bool greenLumaGameUnlocking = PlayniteUtilities.HasFeature(game, GameUnlockingFeature);
+            bool greenLumaDLCUnlocking = PlayniteUtilities.HasFeature(game, DLCUnlockingFeature);
             bool hasGreenLumaFeature = greenLumaNormal || greenLumaStealth || greenLumaFamily;
 
             int glFeature = (greenLumaNormal ? 1 : 0) + (greenLumaStealth ? 1 : 0) + (greenLumaFamily ? 1 : 0);
@@ -461,10 +454,10 @@ namespace SteamEmuUtility
         {
             if (game.Features != null)
             {
-                bool goldberg = PlayniteUtilities.HasFeature(game, goldbergFeature);
-                bool greenLumaStealth = PlayniteUtilities.HasFeature(game, stealthFeature);
-                bool greenLumaFamily = PlayniteUtilities.HasFeature(game, familyFeature);
-                bool greenLumaNormal = PlayniteUtilities.HasFeature(game, normalFeature);
+                bool goldberg = PlayniteUtilities.HasFeature(game, Goldberg.GoldbergFeature);
+                bool greenLumaStealth = PlayniteUtilities.HasFeature(game, StealthModeFeature);
+                bool greenLumaFamily = PlayniteUtilities.HasFeature(game, FamilySharingModeFeatuere);
+                bool greenLumaNormal = PlayniteUtilities.HasFeature(game, NormalModeFeature);
                 bool hasGreenLumaFeature = greenLumaNormal || greenLumaStealth || greenLumaFamily;
 
                 string pluginPath = GetPluginUserDataPath();

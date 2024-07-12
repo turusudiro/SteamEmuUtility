@@ -12,7 +12,7 @@ namespace GoldbergCommon
     public class Goldberg
     {
         private static readonly ILogger logger = LogManager.GetLogger();
-        private const string goldbergfeature = "[SEU] Goldberg";
+        public const string GoldbergFeature = "[SEU] Goldberg";
         public static string GetAchievementWatcherAppData()
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Achievement Watcher");
@@ -52,7 +52,7 @@ namespace GoldbergCommon
             {
                 GreenLuma.NormalFeature(playniteAPI),
                 GreenLuma.StealthFeature(playniteAPI),
-                GreenLuma.FamilyBetaFeature(playniteAPI),
+                GreenLuma.FamilySharingFeature(playniteAPI),
                 GreenLuma.GameFeature(playniteAPI),
                 GreenLuma.DLCFeature(playniteAPI),
             };
@@ -66,7 +66,7 @@ namespace GoldbergCommon
         }
         public static GameFeature Feature(IPlayniteAPI PlayniteApi)
         {
-            return PlayniteApi.Database.Features.Add(goldbergfeature);
+            return PlayniteApi.Database.Features.Add(GoldbergFeature);
         }
     }
 }
