@@ -144,16 +144,16 @@ namespace GoldbergCommon.Models
         {
             IniPath = Path.Combine(iniDirectory, "configs.app.ini");
         }
-        public string buildid
+        public string BranchName
         {
             get
             {
-                string Value = ConfigsCommon.GetValue(IniPath, "app::general", "build_id");
+                string Value = (string)ConfigsCommon.GetValue(IniPath, "app::general", "branch_name", "public");
                 return Value?.ToString() ?? string.Empty;
             }
             set
             {
-                ConfigsCommon.SerializeConfigs(value, IniPath, "app::general", "build_id");
+                ConfigsCommon.SerializeConfigs(value, IniPath, "app::general", "branch_name");
             }
         }
         public bool UnlockAll
