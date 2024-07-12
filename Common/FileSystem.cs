@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace PluginsCommon
@@ -609,6 +610,35 @@ namespace PluginsCommon
 
             throw new IOException($"Failed to delete {path}", ioException);
         }
+
+
+        public static IEnumerable<DirectoryInfo> GetDirectories(string path, string regexPattern, RegexOptions regexOptions = RegexOptions.None)
+        {
+            path = FixPathLength(path);
+            if (!DirectoryExists(path))
+            {
+                return Enumerable.Empty<DirectoryInfo>();
+            }
+
+            Regex regex = new Regex(regexPattern, regexOptions);
+            return new DirectoryInfo(path).GetDirectories("*", SearchOption.AllDirectories)
+            .Where(x => regex.IsMatch(x.Name));
+        }
+
+
+        public static IEnumerable<FileInfo> GetFiles(string path, string regexPattern, RegexOptions regexOptions = RegexOptions.None)
+        {
+            path = FixPathLength(path);
+            if (!DirectoryExists(path))
+            {
+                return Enumerable.Empty<FileInfo>();
+            }
+
+            Regex regex = new Regex(regexPattern, regexOptions);
+            return new DirectoryInfo(path).GetFiles("*", SearchOption.AllDirectories)
+            .Where(x => regex.IsMatch(x.Name));
+        }
+
 
         public static long GetFileSize(string path)
         {
