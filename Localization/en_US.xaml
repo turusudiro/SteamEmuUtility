@@ -105,7 +105,6 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_RestartTwiceDLLInjector">Restart twice</sys:String>
 
     <sys:String x:Key="LOCSEU_GoldbergSettingsLabel">Goldberg Settings</sys:String>
-    <sys:String x:Key="LOCSEU_CheckGBUpdate">Check Goldberg update on application startup</sys:String>
     <sys:String x:Key="LOCSEU_OpenSteamUnlockLastGame">Open Steam and unlock with last stopped game after exit</sys:String>
     <sys:String x:Key="LOCSEU_GBNoQuestion">No Question Mode</sys:String>
     <sys:String x:Key="LOCSEU_GBNoQuestionTooltip" xml:space="preserve">Disable default Steam library play action

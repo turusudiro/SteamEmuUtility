@@ -105,7 +105,6 @@ pastikan Mode Pengembang diaktifkan.</sys:String>
     <sys:String x:Key="LOCSEU_RestartTwiceDLLInjector">Mulai ulang dua kali</sys:String>
 
     <sys:String x:Key="LOCSEU_GoldbergSettingsLabel">Pengaturan Goldberg</sys:String>
-    <sys:String x:Key="LOCSEU_CheckGBUpdate">Periksa pembaruan Goldberg pada saat memulai aplikasi</sys:String>
     <sys:String x:Key="LOCSEU_OpenSteamUnlockLastGame">Buka Steam dan buka game yang terakhir dihentikan setelah keluar</sys:String>
     <sys:String x:Key="LOCSEU_GBNoQuestion">Mode Tanpa Pertanyaan</sys:String>
     <sys:String x:Key="LOCSEU_GBNoQuestionTooltip" xml:space="preserve">Menonaktifkan aksi bermain pustaka Steam bawaan

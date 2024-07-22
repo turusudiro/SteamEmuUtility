@@ -599,13 +599,6 @@ namespace SteamEmuUtility
         }
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
-            if (settings.Settings.CheckGoldbergUpdate)
-            {
-                if (InternetCommon.Internet.IsInternetAvailable())
-                {
-                    Task.Run(() => GoldbergTasks.CheckForUpdate(PlayniteApi, settings, this));
-                }
-            }
             if (settings.Settings.CheckGreenLumaUpdate)
             {
                 if (InternetCommon.Internet.IsInternetAvailable())

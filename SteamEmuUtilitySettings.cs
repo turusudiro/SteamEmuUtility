@@ -123,16 +123,6 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool checkgoldbergupdate;
-        public bool CheckGoldbergUpdate
-        {
-            get => checkgoldbergupdate;
-            set
-            {
-                checkgoldbergupdate = value;
-                OnPropertyChanged();
-            }
-        }
         private bool checkgreenlumaupdate;
         public bool CheckGreenLumaUpdate
         {
@@ -703,14 +693,6 @@ namespace SteamEmuUtility
                     }
                 }
             }, progress);
-        }
-        public RelayCommand<object> DownloadGoldbergButton
-        {
-            get => new RelayCommand<object>((a) =>
-            {
-                string pluginPath = plugin.GetPluginUserDataPath();
-                DownloadGoldberg(pluginPath);
-            });
         }
         void ExtractGreenLumaFiles(string archivePath, string destinationFolder)
         {
