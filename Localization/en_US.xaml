@@ -17,7 +17,7 @@
     <sys:String x:Key="LOCSEU_GreenLumaCleanTaskFinish">GreenLuma : Finished cleaning up GreenLuma files.</sys:String>
     <sys:String x:Key="LOCSEU_DlcManagerWindow">DLC Manager</sys:String>
     <sys:String x:Key="LOCSEU_StartWithGoldberg">Start {0} with Goldberg</sys:String>
-    
+
     <sys:String x:Key="LOCSEU_SteamLoggedOn">Successfully logged on</sys:String>
     <sys:String x:Key="LOCSEU_SteamLoggedOff">Logged off of Steam</sys:String>
     <sys:String x:Key="LOCSEU_SteamConnecting">Connecting to Steam...</sys:String>
@@ -81,7 +81,7 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaStatus">GreenLuma Status</sys:String>
     <sys:String x:Key="LOCSEU_GetApiKey">Get API Key</sys:String>
     <sys:String x:Key="LOCSEU_SteamWebApiKey">Steam Web API Key :</sys:String>
-    
+
     <sys:String x:Key="LOCSEU_GreenLumaSettingsLabel">GreenLuma Settings</sys:String>
     <sys:String x:Key="LOCSEU_MissingFiles">Missing Files</sys:String>
     <sys:String x:Key="LOCSEU_CheckGLUpdate">Check GreenLuma update on application startup</sys:String>
@@ -105,6 +105,7 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_RestartTwiceDLLInjector">Restart twice</sys:String>
 
     <sys:String x:Key="LOCSEU_GoldbergSettingsLabel">Goldberg Settings</sys:String>
+    <sys:String x:Key="LOCSEU_CheckGBUpdate">Check Goldberg update on application startup</sys:String>
     <sys:String x:Key="LOCSEU_OpenSteamUnlockLastGame">Open Steam and unlock with last stopped game after exit</sys:String>
     <sys:String x:Key="LOCSEU_GBNoQuestion">No Question Mode</sys:String>
     <sys:String x:Key="LOCSEU_GBNoQuestionTooltip" xml:space="preserve">Disable default Steam library play action
@@ -145,7 +146,7 @@ useful if you only have single play action in Steam library game</sys:String>
     <sys:String x:Key="LOCSEU_GenerateGoldberg">Generate {0} Games config for Goldberg</sys:String>
     <sys:String x:Key="LOCSEU_ResetAchievement" xml:space="preserve">Reset {0} Games Achievements 
 for Goldberg and Achievement Watcher</sys:String>
-    
+
     <sys:String x:Key="LOCSEU_OpenGoldbergGenerator">Open Goldberg config generator for {0} Games</sys:String>
     <sys:String x:Key="LOCSEU_ListGame">List Games</sys:String>
     <sys:String x:Key="LOCSEU_OverlayLabel">Overlay</sys:String>

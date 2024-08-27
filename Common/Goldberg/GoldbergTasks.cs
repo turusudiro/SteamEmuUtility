@@ -29,7 +29,7 @@ namespace GoldbergCommon
             {
                 return;
             }
-            string url = @"https://api.github.com/repos/otavepto/gbe_fork/releases/latest";
+            string url = @"https://api.github.com/repos/Detanup01/gbe_fork/releases/latest";
             string raw = HttpDownloader.DownloadString(url);
             dynamic json = Serialization.FromJson<object>(raw);
             DateTime jsonDate = json.published_at;

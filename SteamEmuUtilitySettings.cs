@@ -123,6 +123,16 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
+        private bool checkgoldbergupdate;
+        public bool CheckGoldbergUpdate
+        {
+            get => checkgoldbergupdate;
+            set
+            {
+                checkgoldbergupdate = value;
+                OnPropertyChanged();
+            }
+        }
         private bool checkgreenlumaupdate;
         public bool CheckGreenLumaUpdate
         {
@@ -666,7 +676,7 @@ namespace SteamEmuUtility
         public void DownloadGoldberg(string pluginPath)
         {
             string gbPath = Path.Combine(plugin.GetPluginUserDataPath(), "Goldberg");
-            string url = @"https://api.github.com/repos/otavepto/gbe_fork/releases/latest";
+            string url = @"https://api.github.com/repos/Detanup01/gbe_fork/releases/latest";
             string raw = HttpDownloader.DownloadString(url);
             if (string.IsNullOrEmpty(raw))
             {
@@ -693,6 +703,14 @@ namespace SteamEmuUtility
                     }
                 }
             }, progress);
+        }
+        public RelayCommand<object> DownloadGoldbergButton
+        {
+            get => new RelayCommand<object>((a) =>
+            {
+                string pluginPath = plugin.GetPluginUserDataPath();
+                DownloadGoldberg(pluginPath);
+            });
         }
         void ExtractGreenLumaFiles(string archivePath, string destinationFolder)
         {

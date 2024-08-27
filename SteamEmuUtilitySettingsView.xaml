@@ -22,6 +22,7 @@
                     </Grid.RowDefinitions>
                     <StackPanel Margin="0,0,0,7" Grid.Row="0">
                         <CheckBox Content="{DynamicResource LOCSEU_CheckGLUpdate}" IsChecked="{Binding Settings.CheckGreenLumaUpdate}" Margin="0,0,0,7"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_CheckGBUpdate}" VerticalAlignment="Center" IsChecked="{Binding Settings.CheckGoldbergUpdate}"/>
                         <Separator Margin="0,15,0,0"/>
                     </StackPanel>
                     <StackPanel Margin="0,7,0,7" Grid.Row="1">
@@ -120,6 +121,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Button Content="{DynamicResource LOCSEU_Import}" Command="{Binding ImportGoldberg}" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="{DynamicResource LOCSEU_Download}" Command="{Binding DownloadGoldbergButton}" VerticalAlignment="Center" Margin="5,0,0,0"/>
                         </Grid>
                         <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,0,0" Visibility="{Binding Settings.GoldbergNotExists, UpdateSourceTrigger=PropertyChanged, Converter={cv:BooleanToVisibilityConverter}}">
                             <ItemsControl ItemsSource="{Binding Settings.MissingGoldbergFiles}">
