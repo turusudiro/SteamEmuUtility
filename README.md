@@ -1,6 +1,6 @@
 # <img src="icon.png" width="28" height="28"> Steam Emu Utility
 
-## NOTE: for Goldberg Emu currently only gbe_fork by otavepto is supported.
+## NOTE: for Goldberg Emu currently only gbe_fork by otavepto or Detanup01 is supported.
 
 ## Overview
 **Steam Emu Utility** is a Playnite plugin designed for easy use with GreenLuma and/or Goldberg. This plugin aims to enable Goldberg without modifying the original game files and supports Steam Cloud Save (Not all games are supported).
