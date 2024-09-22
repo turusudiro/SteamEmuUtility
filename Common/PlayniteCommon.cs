@@ -100,13 +100,12 @@ namespace PlayniteCommon
         }
         private static bool RemovedFeature(Game game, GameFeature feature)
         {
-            if (game.FeatureIds.Contains(feature.Id))
+            if (game.Features != null && game.FeatureIds.Contains(feature.Id))
             {
                 game.FeatureIds.Remove(feature.Id);
                 return true;
             }
             return false;
         }
-
     }
 }
