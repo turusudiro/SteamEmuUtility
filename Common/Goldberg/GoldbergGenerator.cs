@@ -245,7 +245,10 @@ namespace GoldbergCommon
         public static void GenerateDLC(string pluginPath, GoldbergGame game, SteamService steam, GlobalProgressActionArgs progress, string apiKey)
         {
             progress.CancelToken.ThrowIfCancellationRequested();
-            DlcManager.GenerateDLC(game.Appid, steam, progress, apiKey, pluginPath);
+            if (!DlcManager.HasGameInfo(pluginPath, game.Appid))
+            {
+                DlcManager.GenerateDLC(game.Appid, steam, progress, apiKey, pluginPath);
+            }
             if (DlcManager.HasDLC(pluginPath, game.Appid))
             {
                 var dlcs = DlcManager.GetDLC(pluginPath, game.Appid);

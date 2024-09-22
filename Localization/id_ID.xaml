@@ -3,6 +3,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
+    <sys:String x:Key="LOCSEU_DLCUnlocker">Pembuka DLC</sys:String>
+    <sys:String x:Key="LOCSEU_NoDLCEnabled" xml:space="preserve">Tidak ada DLC yang diaktifkan. Silahkan centang setidaknya satu di Manajer DLC.
+Lanjutkan tanpa DLC?</sys:String>
+
     <sys:String x:Key="LOCSEU_ManageDLC">Kelola DLC</sys:String>
     <sys:String x:Key="LOCSEU_Refresh">Perbarui</sys:String>
     <sys:String x:Key="LOCSEU_Name">Nama</sys:String>

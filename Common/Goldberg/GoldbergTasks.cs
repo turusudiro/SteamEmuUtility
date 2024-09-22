@@ -98,25 +98,8 @@ namespace GoldbergCommon
 
             if (game.ConfigsEmu.UnlockOnlySelectedDLC && !game.ConfigsApp.UnlockAll)
             {
-                if (DlcManager.HasDLC(pluginPath, game.Appid))
-                {
-                    // remove all properties in app::dlcs section to clear the remaining dlcs and use the dlcs based on checked dlc in dlc manager
-                    ConfigsCommon.RemoveSection(game.ConfigsApp.IniPath, "app::dlcs");
-
-                    game.ConfigsApp.UnlockAll = false;
-                    var dlcs = DlcManager.GetDLC(pluginPath, game.Appid);
-                    var dict = new Dictionary<string, string>();
-                    foreach (var dlc in dlcs)
-                    {
-                        if (dlc.Enable)
-                        {
-                            dict.Add(dlc.Appid.ToString(), dlc.Name);
-                        }
-                    }
-                    game.ConfigsApp.DLC = dict;
-                }
-                // if there are no dlc try to generate it and try to unlock all available dlcs
-                else
+                // if there are no dlc info in dlc manager try to generate it and try to unlock all available dlcs
+                if (!DlcManager.HasGameInfo(pluginPath, game.Appid))
                 {
                     using (var steam = new SteamService())
                     {
@@ -138,6 +121,23 @@ namespace GoldbergCommon
                             DlcManager.GenerateDLC(game.Appid, steam, progress, apiKey, pluginPath);
                         }, new GlobalProgressOptions("Steam Emu Utility", false));
                     }
+                }
+                if (DlcManager.HasDLC(pluginPath, game.Appid))
+                {
+                    // remove all properties in app::dlcs section to clear the remaining dlcs and use the dlcs based on checked dlc in dlc manager
+                    ConfigsCommon.RemoveSection(game.ConfigsApp.IniPath, "app::dlcs");
+
+                    game.ConfigsApp.UnlockAll = false;
+                    var dlcs = DlcManager.GetDLC(pluginPath, game.Appid);
+                    var dict = new Dictionary<string, string>();
+                    foreach (var dlc in dlcs)
+                    {
+                        if (dlc.Enable)
+                        {
+                            dict.Add(dlc.Appid.ToString(), dlc.Name);
+                        }
+                    }
+                    game.ConfigsApp.DLC = dict;
                 }
             }
 

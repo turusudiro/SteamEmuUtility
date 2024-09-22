@@ -12,11 +12,30 @@ namespace DlcManagerCommon
 {
     public class DlcManager
     {
+        public static bool HasGameInfo(string pluginPath, string appid)
+        {
+            string file = Path.Combine(Path.Combine(pluginPath, "GamesInfo", $"{appid}.json"));
+            return FileSystem.FileExists(file);
+        }
         public static bool HasDLC(string pluginPath, string appid)
         {
             string file = Path.Combine(Path.Combine(pluginPath, "GamesInfo", $"{appid}.json"));
-
-            return FileSystem.FileExists(file);
+            if (Serialization.TryFromJsonFile(file, out ObservableCollection<DlcInfo> result) && result?.Count >= 1)
+            {
+                return true;
+            }
+            else if (Serialization.TryFromJsonFile(file, out dynamic dynamicdata))
+            {
+                try
+                {
+                    if (dynamicdata.empty)
+                    {
+                        return false;
+                    }
+                }
+                catch { return false; }
+            }
+            return true;
         }
         public static IEnumerable<DlcInfo> GetDLC(string pluginPath, string appid)
         {
@@ -83,7 +102,21 @@ namespace DlcManagerCommon
                 }
             }
 
-            FileSystem.WriteStringToFile(Path.Combine(pluginPath, "GamesInfo", $"{appid}.json"), Serialization.ToJson(dlclist, true));
+            string dlcPath = Path.Combine(pluginPath, "GamesInfo", $"{appid}.json");
+
+            if (dlclist.Any())
+            {
+                FileSystem.WriteStringToFile(dlcPath, Serialization.ToJson(dlclist, true));
+            }
+            else
+            {
+                var empty = new
+                {
+                    empty = string.Empty,
+                };
+
+                FileSystem.WriteStringToFile(dlcPath, Serialization.ToJson(empty, true));
+            }
         }
     }
 }

@@ -445,12 +445,14 @@ namespace SteamEmuUtility
             }
             if (greenLumaDLCUnlocking)
             {
-                if (!DlcManager.HasDLC(pluginPath, appid))
+                if (!DlcManager.HasGameInfo(pluginPath, appid))
                 {
                     using (var steam = new SteamService())
                     {
                         PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
                         {
+                            progress.Text = ResourceProvider.GetString("LOCSEU_GettingDlcInfo");
+
                             steam.action = callback =>
                             {
                                 if (callback is string text)
@@ -468,7 +470,23 @@ namespace SteamEmuUtility
                         }, new GlobalProgressOptions("Steam Emu Utility", true));
                     }
                 }
+                if (DlcManager.HasDLC(pluginPath, appid))
+                {
+                    var appidsDLC = DlcManager.GetDLCAppid(pluginPath, appid);
+                    if (!appidsDLC.Any())
+                    {
+                        if (PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOCSEU_NoDLCEnabled"),
+                            ResourceProvider.GetString("LOCSEU_DLCUnlocker"), MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.No)
+                        {
+                            args.CancelStartup = true;
+                            return;
+                        }
+                    }
+                    else
+                    {
                 appids.AddRange(DlcManager.GetDLCAppid(pluginPath, appid));
+            }
+                }
             }
 
             // abort if appids 0, since its useless to use greenluma with 0 appids

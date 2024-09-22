@@ -33,7 +33,10 @@ namespace SteamEmuUtility.ViewModels
 
             if (disposing)
             {
-                FileSystem.WriteStringToFile(dlcPath, Serialization.ToJson(DLCList, true));
+                if (DLCList.Any())
+                {
+                    FileSystem.WriteStringToFile(dlcPath, Serialization.ToJson(DLCList, true));
+                }
 
                 cancellationTokenSource.Cancel();
 
@@ -63,7 +66,7 @@ namespace SteamEmuUtility.ViewModels
 
         private const string steamItemAssetsUrl = "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/{0}";
         private CancellationTokenSource cancellationTokenSource;
-        public readonly SteamService steam;
+        private SteamService steam;
         private string dlcPath;
         private readonly Game game;
         private readonly IPlayniteAPI PlayniteApi;
@@ -267,18 +270,32 @@ namespace SteamEmuUtility.ViewModels
         {
             Task.Run(() =>
             {
-                if (FileSystem.FileExists(dlcPath) && Serialization.TryFromJsonFile(dlcPath, out ObservableCollection<DlcInfo> result) && result?.Count >= 1)
+                if (FileSystem.FileExists(dlcPath))
                 {
-                    result.ForEach(x => x.Image = EmptyImage);
-                    DLCList = result;
+                    if (Serialization.TryFromJsonFile(dlcPath, out ObservableCollection<DlcInfo> result) && result?.Count >= 1)
+                    {
+                        result.ForEach(x => x.Image = EmptyImage);
+                        DLCList = result;
 
-                    ProcessDLCAsync();
+                        ProcessDLCAsync();
+                        return;
+                    }
+                    else if (Serialization.TryFromJsonFile(dlcPath, out dynamic dynamicdata))
+                    {
+                        // use try-catch block if json is present but empty key is missing or json is modified
+                        try
+                        {
+                            if (dynamicdata.empty != null)
+                            {
+                                IsProgressBarVisible = false;
+                                return;
+                            }
+                        }
+                        catch { }
+                    }
                 }
-                else
-                {
-                    GetDLCList();
-                }
-            });
+                GetDLCList();
+            }, cancellationTokenSource.Token);
         }
 
         private void GetDLCList()
@@ -302,7 +319,19 @@ namespace SteamEmuUtility.ViewModels
 
             SteamUtilities.GetApp(DLCs, steam, CallbackHandler);
 
-            FileSystem.WriteStringToFile(dlcPath, Serialization.ToJson(DLCList, true));
+            if (DLCList.Any())
+            {
+                FileSystem.WriteStringToFile(dlcPath, Serialization.ToJson(DLCList, true));
+            }
+            else
+            {
+                var empty = new
+                {
+                    empty = string.Empty,
+                };
+
+                FileSystem.WriteStringToFile(dlcPath, Serialization.ToJson(empty, true));
+            }
 
             ProcessDLCAsync();
         }
@@ -323,6 +352,13 @@ namespace SteamEmuUtility.ViewModels
         {
             get => new RelayCommand(async () =>
             {
+                if (!steam.connected)
+                {
+                    steam.Dispose();
+                    
+                    steam = new SteamService(CallbackHandler);
+                }
+
                 IsProgressBarVisible = false;
 
                 cancellationTokenSource.Cancel();

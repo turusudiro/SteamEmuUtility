@@ -3,6 +3,10 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
 
+    <sys:String x:Key="LOCSEU_DLCUnlocker">DLC Unlocker</sys:String>
+    <sys:String x:Key="LOCSEU_NoDLCEnabled" xml:space="preserve">No DLCs are enabled. Please check at least one in the DLC Manager.
+Continue without any DLC?</sys:String>
+
     <sys:String x:Key="LOCSEU_ManageDLC">Manage DLC</sys:String>
     <sys:String x:Key="LOCSEU_Refresh">Refresh</sys:String>
     <sys:String x:Key="LOCSEU_Name">Name</sys:String>
