@@ -21,7 +21,7 @@ namespace SteamCommon
         private SteamClient steamClient;
         private SteamUser steamUser;
         private bool connecting = false;
-        private bool connected = false;
+        public bool connected = false;
         public void Dispose()
         {
             Dispose(true);
