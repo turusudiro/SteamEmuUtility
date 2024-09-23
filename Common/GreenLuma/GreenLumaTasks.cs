@@ -157,36 +157,52 @@ namespace GreenLumaCommon
         }
         /// <summary>
         /// Start DLLInjector.exe
-        /// <para>Start DLLInjector.exe process on Steam directory</para>
+        /// <para>Start DLLInjector.exe process</para>
         /// </summary>
-        /// <param name="args">game args</param>
-        /// <param name="maxAttempts">Attempts to run DLLInjector.exe if it fails</param>
-        /// <param name="delay">Delay the start <c>in Milliseconds</c> of DLLInjector.exe to make sure Steam process is killed </param>
-        private static bool StartInjector(string injectorPath, int maxAttempts, int delay, GreenLumaMode mode)
+        /// <param name="injectorPath">Path of the DLLInjector.exe</param>
+        /// <param name="mode">GreenLuma Mode to inject</param>
+        /// <param name="timeout">timeout to wait steam injected</param>
+        private static bool StartInjector(string injectorPath, GreenLumaMode mode, int timeout = 3)
         {
-            maxAttempts++;
-            string fileName = injectorPath;
-            Process process = ProcessUtilities.TryStartProcess(injectorPath, maxAttempts, delay);
+            bool injectorRunning = false;
 
             if (mode == GreenLumaMode.Stealth || mode == GreenLumaMode.Family)
             {
-                bool dllinjectorRunning = process.HasExited && process.ExitCode == 0;
-
-                return dllinjectorRunning ? true : false;
-            }
-            bool dllinjectorRunningAndError = ProcessUtilities.IsErrorDialog(process, process.ProcessName) && ProcessUtilities.IsProcessRunning("steam");
-            if (ProcessUtilities.IsProcessRunning(process.ProcessName))
-            {
-                if (dllinjectorRunningAndError)
-                {
-                    return false;
-                }
-                return true;
+                // Wait for DLLInjector to finish. If it exits successfully, return true.
+                // This behavior is only for using GreenLuma in StealthMode/FamilyMode (any folder).
+                // DLLInjector.exe will run steam.exe and shortly after, it will exit by itself,
+                // so assume it was successfully injected.
+                injectorRunning = ProcessUtilities.StartProcessWait(injectorPath, string.Empty, string.Empty, true) == 0;
             }
             else
             {
-                return false;
+                var process = ProcessUtilities.StartProcess(injectorPath);
+                bool dllinjectorRunningAndError = false;
+                // Wait for Steam to run using the DLL injector, because the default PlayController from the Steam library will launch steam.exe
+                // immediately after starting the DLLInjector process, which will cause a conflict with the behavior of this plugin.
+                // This behavior is only for NormalMode, as in NormalMode, DLLInjector.exe does not exit immediately.
+                for (int time = 0; time < timeout; time += 1)
+                {
+                    if (ProcessUtilities.IsProcessRunning("steam") && ProcessUtilities.IsProcessRunning(process.ProcessName))
+                    {
+                        // If DLLInjector.exe shows a dialog popup, assume an error occurred. Normally, DLLInjector running from this plugin 
+                        // will not show any dialog popup since this plugin is using NoQuestion mode.
+                        dllinjectorRunningAndError = ProcessUtilities.IsErrorDialog(process, process.ProcessName);
+                        if (dllinjectorRunningAndError)
+                        {
+                            injectorRunning = false;
+                        }
+                        else
+                        {
+                            injectorRunning = true;
+                        }
+                        break;
+                    }
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                }
             }
+
+            return injectorRunning;
         }
         public static void StartGreenLumaJob(IPlayniteAPI PlayniteApi, IEnumerable<string> appids, IEnumerable<FileInfo> greenlumaFiles)
         {
@@ -194,7 +210,6 @@ namespace GreenLumaCommon
 
             string pluginPath = plugin.GetPluginUserDataPath();
             string glPath = Path.Combine(pluginPath, "GreenLuma");
-
 
             SteamEmuUtilitySettings settings = plugin.LoadPluginSettings<SteamEmuUtilitySettings>();
 
@@ -233,7 +248,7 @@ namespace GreenLumaCommon
                             while (Steam.IsSteamRunning())
                             {
                                 Steam.KillSteam();
-                                Thread.Sleep(settings.MillisecondsToWait);
+                                Thread.Sleep(TimeSpan.FromSeconds(1));
                             }
                         }
                         else
@@ -255,7 +270,7 @@ namespace GreenLumaCommon
                             while (Steam.IsSteamRunning())
                             {
                                 Steam.KillSteam();
-                                Thread.Sleep(settings.MillisecondsToWait);
+                                Thread.Sleep(TimeSpan.FromSeconds(1));
                             }
                         }
                         else
@@ -274,7 +289,9 @@ namespace GreenLumaCommon
                         while (Steam.IsSteamRunning())
                         {
                             Steam.KillSteam();
-                            Thread.Sleep(settings.MillisecondsToWait);
+                            Thread.Sleep(TimeSpan.FromSeconds(1));
+
+
                         }
                     }
                     else
@@ -323,12 +340,8 @@ namespace GreenLumaCommon
                 return;
             }
             GreenLumaGenerator.CreateDLLInjectorIni(pluginPath, GreenLumaMode.Stealth, Steam.GetSteamExecutable(), argsList, dll, glPath);
-            if (settings.CleanAppCache)
-            {
-                CleanAppCache(steamDir);
-            }
 
-            if (!StartInjector(injectorPath, settings.MaxAttemptDLLInjector, settings.MillisecondsToWait, GreenLumaMode.Stealth))
+            if (!StartInjector(injectorPath, GreenLumaMode.Stealth))
             {
                 PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOCSEU_InjectorError"),
                     ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -339,6 +352,11 @@ namespace GreenLumaCommon
 
             // tell the lastrun to update its json file if all above executed without error, assuming steam is injected with configured appids
             UpdateLastRun(appids, GreenLumaMode.Stealth, pluginPath, steamProcessID);
+
+            if (settings.CleanAppCache)
+            {
+                CleanAppCache(steamDir);
+            }
         }
         public static void StartGreenLumaJob(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi, IEnumerable<string> appids, GreenLumaMode mode, IEnumerable<FileInfo> greenlumaFiles)
         {
@@ -399,7 +417,7 @@ namespace GreenLumaCommon
                             while (Steam.IsSteamRunning())
                             {
                                 Steam.KillSteam();
-                                Thread.Sleep(settings.MillisecondsToWait);
+                                Thread.Sleep(TimeSpan.FromSeconds(1));
                             }
                         }
                         else
@@ -422,7 +440,7 @@ namespace GreenLumaCommon
                             while (Steam.IsSteamRunning())
                             {
                                 Steam.KillSteam();
-                                Thread.Sleep(settings.MillisecondsToWait);
+                                Thread.Sleep(TimeSpan.FromSeconds(1));
                             }
                         }
                         else
@@ -442,7 +460,7 @@ namespace GreenLumaCommon
                         while (Steam.IsSteamRunning())
                         {
                             Steam.KillSteam();
-                            Thread.Sleep(settings.MillisecondsToWait);
+                            Thread.Sleep(TimeSpan.FromSeconds(1));
                         }
                     }
                     else
@@ -465,9 +483,11 @@ namespace GreenLumaCommon
 
             string steamDir = Steam.GetSteamDirectory();
 
-            var injectorFile = greenlumaFiles.FirstOrDefault(x => Regex.IsMatch(x.Name, InjectorRegex, RegexOptions.IgnoreCase));
+            FileInfo injectorFile = greenlumaFiles.FirstOrDefault(x => Regex.IsMatch(x.Name, InjectorRegex, RegexOptions.IgnoreCase));
 
             string injectorPath = injectorFile.FullName;
+
+            bool injectorRunning = false;
 
             if (mode == GreenLumaMode.Stealth || mode == GreenLumaMode.Family)
             {
@@ -502,7 +522,10 @@ namespace GreenLumaCommon
                     PlayniteApi.Dialogs.ShowErrorMessage(ex.InnerException.Message);
                     return;
                 }
+
                 GreenLumaGenerator.CreateDLLInjectorIni(pluginPath, mode, Steam.GetSteamExecutable(), argsList, dll, glPath);
+
+                injectorRunning = StartInjector(injectorPath, mode);
             }
             else if (mode == GreenLumaMode.Normal)
             {
@@ -594,14 +617,12 @@ namespace GreenLumaCommon
                         FileSystem.CopyFile(file.FullName, Path.Combine(steamDir, file.Name));
                     }
                 }
+
+                injectorRunning = StartInjector(injectorPath, mode, settings.GreenLumaNormalTimeout);
             }
 
-            if (settings.CleanAppCache)
-            {
-                CleanAppCache(steamDir);
-            }
 
-            if (!StartInjector(injectorPath, settings.MaxAttemptDLLInjector, settings.MillisecondsToWait, mode))
+            if (!injectorRunning)
             {
                 PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOCSEU_InjectorError"),
                     ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -613,6 +634,11 @@ namespace GreenLumaCommon
 
             // tell the lastrun to update its json file if all above executed without error, assuming steam is injected with configured appids
             UpdateLastRun(appids, mode, pluginPath, steamProcessID);
+
+            if (settings.CleanAppCache)
+            {
+                CleanAppCache(steamDir);
+            }
         }
         private static void UpdateLastRun(IEnumerable<string> appids, GreenLumaMode mode, string pluginPath, string processID)
         {

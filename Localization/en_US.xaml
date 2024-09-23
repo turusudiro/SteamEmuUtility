@@ -102,7 +102,7 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_GLSkipSteamUpdateFamily">Skip Steam Update on Family Mode</sys:String>
     <sys:String x:Key="LOCSEU_InjectAppOwnershipTickets">Inject AppOwnershipTickets if there available</sys:String>
     <sys:String x:Key="LOCSEU_InjectEncryptedAppTickets">Inject EncryptedAppTickets if there available</sys:String>
-    <sys:String x:Key="LOCSEU_GLDelay">Wait for the DLLInjector/Steam to start/exit, with a delay of {0} milliseconds</sys:String>
+    <sys:String x:Key="LOCSEU_GLTimeout">Set timeout {0} seconds for DLLInjector.exe</sys:String>
     <sys:String x:Key="LOCSEU_AttemptDLLInjector">Attempt to Restart DLLInjector if it fails</sys:String>
     <sys:String x:Key="LOCSEU_DontRestartDLLInjector">Do not Restart</sys:String>
     <sys:String x:Key="LOCSEU_RestartOnceDLLInjector">Restart once</sys:String>

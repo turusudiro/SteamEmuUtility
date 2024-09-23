@@ -102,7 +102,7 @@ pastikan Mode Pengembang diaktifkan.</sys:String>
     <sys:String x:Key="LOCSEU_InjectAppOwnershipTickets">Masukkan AppOwnershipTickets jika tersedia</sys:String>
     <sys:String x:Key="LOCSEU_GLSkipSteamUpdateFamily">Lewati Pembaruan Steam pada Mode Keluarga</sys:String>
     <sys:String x:Key="LOCSEU_InjectEncryptedAppTickets">Masukkan EncryptedAppTickets jika tersedia</sys:String>
-    <sys:String x:Key="LOCSEU_GLDelay">Tunggu hingga DLLInjector/Steam memulai/berakhir, dengan penundaan {0} milidetik</sys:String>
+    <sys:String x:Key="LOCSEU_GLTimeout">Tetapkan batas waktu {0} detik untuk DLLInjector.exe</sys:String>
     <sys:String x:Key="LOCSEU_AttemptDLLInjector">Coba Mulai Ulang DLLInjector jika gagal</sys:String>
     <sys:String x:Key="LOCSEU_DontRestartDLLInjector">Jangan mulai ulang</sys:String>
     <sys:String x:Key="LOCSEU_RestartOnceDLLInjector">Mulai ulang sekali</sys:String>

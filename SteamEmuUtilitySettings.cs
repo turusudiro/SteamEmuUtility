@@ -203,30 +203,20 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private int maxattemptdllinjector = 0;
-        public int MaxAttemptDLLInjector
+        private int greenLumaNormalTimeout = 3;
+        public int GreenLumaNormalTimeout
         {
-            get => maxattemptdllinjector;
+            get => greenLumaNormalTimeout;
             set
             {
-                maxattemptdllinjector = value;
-                OnPropertyChanged();
-            }
-        }
-        private int millisecondstowait = 1000;
-        public int MillisecondsToWait
-        {
-            get => millisecondstowait;
-            set
-            {
-                millisecondstowait = value;
-                OnPropertyChanged(nameof(MillisecondsToWaitText));
+                greenLumaNormalTimeout = value;
+                OnPropertyChanged(nameof(GreenLumaNormalTimeoutText));
             }
         }
         [DontSerialize]
-        public string MillisecondsToWaitText
+        public string GreenLumaNormalTimeoutText
         {
-            get { return string.Format(ResourceProvider.GetString("LOCSEU_GLDelay"), MillisecondsToWait); }
+            get { return string.Format(ResourceProvider.GetString("LOCSEU_GLTimeout"), GreenLumaNormalTimeout); }
         }
         private bool cleangreenlumastartup;
         public bool CleanGreenLumaStartup

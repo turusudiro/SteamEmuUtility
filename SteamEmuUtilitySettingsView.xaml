@@ -159,6 +159,8 @@
                     <Separator/>
                     <StackPanel Margin="5,10,5,0">
                         <TextBlock Text="{DynamicResource LOCSEU_NormalMode}" FontWeight="Bold" Margin="5,0,0,10"/>
+                        <TextBlock Text="{Binding Settings.GreenLumaNormalTimeoutText}" Margin="0,0,0,10"/>
+                        <Slider Value="{Binding Settings.GreenLumaNormalTimeout}" Minimum="3" Maximum="10" IsSnapToTickEnabled="True" TickFrequency="1" Width="140" HorizontalAlignment="Left" Margin="0,0,0,10"/>
                         <CheckBox Content="{DynamicResource LOCSEU_CheckGLFilesStartup}" IsChecked="{Binding Settings.CleanGreenLumaStartup}" Margin="0,0,0,5"/>
                         <CheckBox Content="{DynamicResource LOCSEU_CleanGLAfterGame}" IsChecked="{Binding Settings.CleanGreenLuma}" Margin="0,0,0,5"/>
                         <ComboBox Visibility="{Binding Settings.CleanGreenLuma, Converter={cv:BooleanToVisibilityConverter}}" SelectedIndex="{Binding Settings.CleanMode}" Margin="0,5,0,5">
@@ -177,14 +179,6 @@
                         </ComboBox>
                         <CheckBox Content="{DynamicResource LOCSEU_InjectAppOwnershipTickets}" IsChecked="{Binding Settings.InjectAppOwnership}" Margin="0,0,0,10"/>
                         <CheckBox Content="{DynamicResource LOCSEU_InjectEncryptedAppTickets}" IsChecked="{Binding Settings.InjectEncryptedApp}" Margin="0,0,0,10"/>
-                        <TextBlock Text="{Binding Settings.MillisecondsToWaitText}" Margin="0,0,0,10"/>
-                        <Slider Value="{Binding Settings.MillisecondsToWait}" Minimum="500" Maximum="3000" IsSnapToTickEnabled="True" TickFrequency="500" Width="140" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-                        <TextBlock Text="{DynamicResource LOCSEU_AttemptDLLInjector}" Margin="0,0,0,10"/>
-                        <ComboBox SelectedIndex="{Binding Settings.MaxAttemptDLLInjector}" HorizontalAlignment="Left" Margin="0,0,0,10">
-                            <ComboBoxItem Content="{DynamicResource LOCSEU_DontRestartDLLInjector}"/>
-                            <ComboBoxItem Content="{DynamicResource LOCSEU_RestartOnceDLLInjector}"/>
-                            <ComboBoxItem Content="{DynamicResource LOCSEU_RestartTwiceDLLInjector}"/>
-                        </ComboBox>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
