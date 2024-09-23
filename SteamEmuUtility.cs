@@ -484,8 +484,8 @@ namespace SteamEmuUtility
                     }
                     else
                     {
-                appids.AddRange(DlcManager.GetDLCAppid(pluginPath, appid));
-            }
+                        appids.AddRange(DlcManager.GetDLCAppid(pluginPath, appid));
+                    }
                 }
             }
 
@@ -642,7 +642,24 @@ namespace SteamEmuUtility
 
                 var dirGreenLumaOnSteam = FileSystem.GetDirectories(steamDir, GreenLumaDirectoriesRegex, RegexOptions.IgnoreCase);
 
-                var fileGreenLumaOnSteam = FileSystem.GetFiles(steamDir, GreenLumaFilesRegex, RegexOptions.IgnoreCase);
+                var fileGreenLumaOnSteam = FileSystem.GetFiles(steamDir, GreenLumaFilesRegex, RegexOptions.IgnoreCase).ToList();
+
+                FileInfo x64launcher = fileGreenLumaOnSteam.FirstOrDefault(x => Regex.IsMatch(x.Name, X64launcherRegex, RegexOptions.IgnoreCase));
+
+                bool x64launcherFromValve = false;
+
+                if (x64launcher.Exists)
+                {
+                    // check if x64launcher.exe is from steam
+                    var versionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(x64launcher.FullName);
+                    x64launcherFromValve = versionInfo.ProductName == "Steam";
+
+                    // remove x64launcher.exe item from fileGreenLumaOnSteam variable since its confirmed the file is originally from steam
+                    if (x64launcherFromValve)
+                    {
+                        fileGreenLumaOnSteam.Remove(x64launcher);
+                    }
+                }
 
                 if (!dirGreenLumaOnSteam.Any() && !fileGreenLumaOnSteam.Any())
                 {
