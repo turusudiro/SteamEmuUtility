@@ -155,7 +155,7 @@ namespace SteamEmuUtility
                     Action = (a) =>
                     {
                         int count = Goldberg.AddGoldbergFeature(steamGame, PlayniteApi);
-                        PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_AddGoldberg"), count, "Steam Emu Utility"));
+                        PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_AddGoldberg"), count), "Steam Emu Utility");
                     }
                 };
                 yield return new GameMenuItem
