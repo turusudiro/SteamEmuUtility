@@ -96,7 +96,6 @@ pastikan Mode Pengembang diaktifkan.</sys:String>
     <sys:String x:Key="LOCSEU_ManuallyCleanGL">Keluar dari Steam secara manual oleh pengguna</sys:String>
     <sys:String x:Key="LOCSEU_ManuallyCleanGLDescription">Bersihkan file setelah pengguna keluar dari Steam secara manual</sys:String>
     <sys:String x:Key="LOCSEU_RunSteamArgs">Jalankan Steam dengan argumen tambahan</sys:String>
-    <sys:String x:Key="LOCSEU_GLCleanAppCache">Bersihkan Steam AppCache saat memulai permainan</sys:String>
     <sys:String x:Key="LOCSEU_GLCleanApplistFolderNotEmpty">Bersihkan folder applist jika tidak kosong</sys:String>
     <sys:String x:Key="LOCSEU_GLSkipSteamUpdateStealth">Lewati Pembaruan Steam pada Mode Senyap</sys:String>
     <sys:String x:Key="LOCSEU_InjectAppOwnershipTickets">Masukkan AppOwnershipTickets jika tersedia</sys:String>

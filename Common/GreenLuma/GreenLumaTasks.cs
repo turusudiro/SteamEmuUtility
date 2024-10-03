@@ -135,27 +135,6 @@ namespace GreenLumaCommon
             }
         }
         /// <summary>
-        /// Clean Steam appcache
-        /// <para>Delete Steam appcache/appinfo.vdf and appcache/packageinfo.vdf if GreenLuma not working for some reason.</para>
-        /// </summary>
-        private static void CleanAppCache(string steamDir)
-        {
-            string appinfo = Path.Combine(steamDir, "appcache\\appinfo.vdf");
-            string packageinfo = Path.Combine(steamDir, "appcache\\packageinfo.vdf");
-            string[] appcache = new string[]
-            {
-                appinfo,
-                packageinfo
-            };
-            foreach (string file in appcache)
-            {
-                if (FileSystem.FileExists(file))
-                {
-                    FileSystem.DeleteFile(file, true);
-                }
-            }
-        }
-        /// <summary>
         /// Start DLLInjector.exe
         /// <para>Start DLLInjector.exe process</para>
         /// </summary>
@@ -352,11 +331,6 @@ namespace GreenLumaCommon
 
             // tell the lastrun to update its json file if all above executed without error, assuming steam is injected with configured appids
             UpdateLastRun(appids, GreenLumaMode.Stealth, pluginPath, steamProcessID);
-
-            if (settings.CleanAppCache)
-            {
-                CleanAppCache(steamDir);
-            }
         }
         public static void StartGreenLumaJob(OnGameStartingEventArgs args, IPlayniteAPI PlayniteApi, IEnumerable<string> appids, GreenLumaMode mode, IEnumerable<FileInfo> greenlumaFiles)
         {
@@ -634,11 +608,6 @@ namespace GreenLumaCommon
 
             // tell the lastrun to update its json file if all above executed without error, assuming steam is injected with configured appids
             UpdateLastRun(appids, mode, pluginPath, steamProcessID);
-
-            if (settings.CleanAppCache)
-            {
-                CleanAppCache(steamDir);
-            }
         }
         private static void UpdateLastRun(IEnumerable<string> appids, GreenLumaMode mode, string pluginPath, string processID)
         {

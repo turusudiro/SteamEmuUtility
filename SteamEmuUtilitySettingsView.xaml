@@ -143,7 +143,6 @@
                         <TextBlock Text="{DynamicResource LOCSEU_GeneralLabel}" FontWeight="Bold" Margin="5,0,0,10"/>
                         <CheckBox Content="{DynamicResource LOCSEU_RunSteamArgs}" IsChecked="{Binding Settings.EnableSteamArgs}" Margin="0,0,0,10"/>
                         <TextBox IsEnabled="{Binding Settings.EnableSteamArgs}" Text="{Binding Settings.SteamArgs}" Margin="0,0,0,10"/>
-                        <CheckBox Content="{DynamicResource LOCSEU_GLCleanAppCache}" IsChecked="{Binding Settings.CleanAppCache}" Margin="0,0,0,10"/>
                         <CheckBox Content="{DynamicResource LOCSEU_GLCleanApplistFolderNotEmpty}" IsChecked="{Binding Settings.CleanApplist}" Margin="0,0,0,10"/>
                     </StackPanel>
                     <Separator/>

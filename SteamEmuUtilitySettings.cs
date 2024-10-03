@@ -281,16 +281,6 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool cleanappcache;
-        public bool CleanAppCache
-        {
-            get => cleanappcache;
-            set
-            {
-                cleanappcache = value;
-                OnPropertyChanged();
-            }
-        }
         private IEnumerable<string> missinggoldbergfiles;
         [DontSerialize]
         public IEnumerable<string> MissingGoldbergFiles

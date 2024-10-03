@@ -96,7 +96,6 @@ make sure Developer Mode is enabled.</sys:String>
     <sys:String x:Key="LOCSEU_ManuallyCleanGL">Manually exit Steam by user</sys:String>
     <sys:String x:Key="LOCSEU_ManuallyCleanGLDescription">Clean files after user exit Steam manually</sys:String>
     <sys:String x:Key="LOCSEU_RunSteamArgs">Run Steam with additional argument</sys:String>
-    <sys:String x:Key="LOCSEU_GLCleanAppCache">Clean Steam AppCache on starting game</sys:String>
     <sys:String x:Key="LOCSEU_GLCleanApplistFolderNotEmpty">Clean applist folder if it's not empty</sys:String>
     <sys:String x:Key="LOCSEU_GLSkipSteamUpdateStealth">Skip Steam Update on Stealth Mode</sys:String>
     <sys:String x:Key="LOCSEU_GLSkipSteamUpdateFamily">Skip Steam Update on Family Mode</sys:String>
