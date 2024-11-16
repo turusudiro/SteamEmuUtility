@@ -134,6 +134,32 @@ namespace GreenLumaCommon
                 CleanTaskIsRunning = false;
             }
         }
+        public static bool CloseSteam(IPlayniteAPI PlayniteApi)
+        {
+            try
+            {
+                Steam.KillSteam();
+            }
+            catch
+            {
+                var steamProcesses = ProcessUtilities.GetProcesses("steam");
+
+                foreach (var steamProcess in steamProcesses)
+                {
+                    try
+                    {
+                        ProcessUtilities.StartProcess("cmd.exe", $"/c taskkill /PID {steamProcess.Id} /F", true);
+                    }
+                    catch (Exception ex)
+                    {
+                        PlayniteApi.Dialogs.ShowErrorMessage(ex.Message);
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
         /// <summary>
         /// Start DLLInjector.exe
         /// <para>Start DLLInjector.exe process</para>
@@ -145,42 +171,29 @@ namespace GreenLumaCommon
         {
             bool injectorRunning = false;
 
-            if (mode == GreenLumaMode.Stealth || mode == GreenLumaMode.Family)
+            var process = ProcessUtilities.StartProcess(injectorPath);
+            bool dllinjectorRunningAndError = false;
+            // Wait for Steam to run using the DLL injector, because the default PlayController from the Steam library will launch steam.exe
+            // immediately after starting the DLLInjector process, which will cause a conflict with the behavior of this plugin.
+            for (int time = 0; time < timeout; time += 1)
             {
-                // Wait for DLLInjector to finish. If it exits successfully, return true.
-                // This behavior is only for using GreenLuma in StealthMode/FamilyMode (any folder).
-                // DLLInjector.exe will run steam.exe and shortly after, it will exit by itself,
-                // so assume it was successfully injected.
-                injectorRunning = ProcessUtilities.StartProcessWait(injectorPath, string.Empty, string.Empty, true) == 0;
-            }
-            else
-            {
-                var process = ProcessUtilities.StartProcess(injectorPath);
-                bool dllinjectorRunningAndError = false;
-                // Wait for Steam to run using the DLL injector, because the default PlayController from the Steam library will launch steam.exe
-                // immediately after starting the DLLInjector process, which will cause a conflict with the behavior of this plugin.
-                // This behavior is only for NormalMode, as in NormalMode, DLLInjector.exe does not exit immediately.
-                for (int time = 0; time < timeout; time += 1)
+                if (ProcessUtilities.IsProcessRunning("steam") && ProcessUtilities.IsProcessRunning(process.ProcessName))
                 {
-                    if (ProcessUtilities.IsProcessRunning("steam") && ProcessUtilities.IsProcessRunning(process.ProcessName))
+                    // If DLLInjector.exe shows a dialog popup, assume an error occurred. Normally, DLLInjector running from this plugin 
+                    // will not show any dialog popup since this plugin is using NoQuestion mode.
+                    dllinjectorRunningAndError = ProcessUtilities.IsErrorDialog(process, process.ProcessName);
+                    if (dllinjectorRunningAndError)
                     {
-                        // If DLLInjector.exe shows a dialog popup, assume an error occurred. Normally, DLLInjector running from this plugin 
-                        // will not show any dialog popup since this plugin is using NoQuestion mode.
-                        dllinjectorRunningAndError = ProcessUtilities.IsErrorDialog(process, process.ProcessName);
-                        if (dllinjectorRunningAndError)
-                        {
-                            injectorRunning = false;
-                        }
-                        else
-                        {
-                            injectorRunning = true;
-                        }
-                        break;
+                        injectorRunning = false;
                     }
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    else
+                    {
+                        injectorRunning = true;
+                    }
+                    break;
                 }
+                Thread.Sleep(TimeSpan.FromSeconds(1));
             }
-
             return injectorRunning;
         }
         public static void StartGreenLumaJob(IPlayniteAPI PlayniteApi, IEnumerable<string> appids, IEnumerable<FileInfo> greenlumaFiles)
@@ -224,10 +237,9 @@ namespace GreenLumaCommon
                             ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                         {
                             CheckTask();
-                            while (Steam.IsSteamRunning())
+                            if (!CloseSteam(PlayniteApi))
                             {
-                                Steam.KillSteam();
-                                Thread.Sleep(TimeSpan.FromSeconds(1));
+                                return;
                             }
                         }
                         else
@@ -246,10 +258,9 @@ namespace GreenLumaCommon
                         ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                         {
                             CheckTask();
-                            while (Steam.IsSteamRunning())
+                            if (!CloseSteam(PlayniteApi))
                             {
-                                Steam.KillSteam();
-                                Thread.Sleep(TimeSpan.FromSeconds(1));
+                                return;
                             }
                         }
                         else
@@ -265,12 +276,9 @@ namespace GreenLumaCommon
                         ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     {
                         CheckTask();
-                        while (Steam.IsSteamRunning())
+                        if (!CloseSteam(PlayniteApi))
                         {
-                            Steam.KillSteam();
-                            Thread.Sleep(TimeSpan.FromSeconds(1));
-
-
+                            return;
                         }
                     }
                     else
@@ -388,10 +396,10 @@ namespace GreenLumaCommon
                             ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                         {
                             CheckTask();
-                            while (Steam.IsSteamRunning())
+                            if (!CloseSteam(PlayniteApi))
                             {
-                                Steam.KillSteam();
-                                Thread.Sleep(TimeSpan.FromSeconds(1));
+                                args.CancelStartup = true;
+                                return;
                             }
                         }
                         else
@@ -411,10 +419,10 @@ namespace GreenLumaCommon
                         ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                         {
                             CheckTask();
-                            while (Steam.IsSteamRunning())
+                            if (!CloseSteam(PlayniteApi))
                             {
-                                Steam.KillSteam();
-                                Thread.Sleep(TimeSpan.FromSeconds(1));
+                                args.CancelStartup = true;
+                                return;
                             }
                         }
                         else
@@ -431,10 +439,10 @@ namespace GreenLumaCommon
                         ResourceProvider.GetString("LOCSEU_Error"), MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                     {
                         CheckTask();
-                        while (Steam.IsSteamRunning())
+                        if (!CloseSteam(PlayniteApi))
                         {
-                            Steam.KillSteam();
-                            Thread.Sleep(TimeSpan.FromSeconds(1));
+                            args.CancelStartup = true;
+                            return;
                         }
                     }
                     else

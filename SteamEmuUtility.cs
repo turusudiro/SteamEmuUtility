@@ -583,10 +583,12 @@ namespace SteamEmuUtility
                         switch (settings.Settings.CleanMode)
                         {
                             case 0:
-                                Steam.KillSteam();
-                                await GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath(), steamDir, dirGreenLumaOnSteam, fileGreenLumaOnSteam);
-                                PlayniteApi.Notifications.Add(notificationMessageFinish);
-                                PlayniteApi.Notifications.Remove(notificationIdSteamRunning);
+                                if (GreenLumaTasks.CloseSteam(PlayniteApi))
+                                {
+                                    await GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath(), steamDir, dirGreenLumaOnSteam, fileGreenLumaOnSteam);
+                                    PlayniteApi.Notifications.Add(notificationMessageFinish);
+                                    PlayniteApi.Notifications.Remove(notificationIdSteamRunning);
+                                }
                                 break;
                             case 1:
                                 await GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath(), steamDir, dirGreenLumaOnSteam, fileGreenLumaOnSteam);
