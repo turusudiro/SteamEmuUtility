@@ -2,6 +2,7 @@
 using Playnite.SDK.Models;
 using PluginsCommon;
 using SteamCommon.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -127,18 +128,15 @@ namespace GoldbergCommon.Models
         {
             get
             {
-                if (string.IsNullOrEmpty(custombroadcastaddress))
+                string filepath = Path.Combine(gameSteamSettingsPath, "custom_broadcasts.txt");
+                string configsEmu = Path.Combine(gameSettingsPath, "configs.emu.ini");
+                if (FileSystem.FileExists(filepath))
                 {
-                    string filepath = Path.Combine(gameSteamSettingsPath, "custom_broadcasts.txt");
-                    string configsEmu = Path.Combine(gameSettingsPath, "configs.emu.ini");
-                    if (FileSystem.FileExists(filepath))
-                    {
-                        custombroadcastaddress = FileSystem.ReadStringFromFile(filepath);
-                    }
-                    else if (FileSystem.FileExists(configsEmu))
-                    {
-                        custombroadcastaddress = ConfigsCommon.GetValue(configsEmu, "Main", "Broadcasts");
-                    }
+                    custombroadcastaddress = FileSystem.ReadStringFromFile(filepath);
+                }
+                else if (FileSystem.FileExists(configsEmu))
+                {
+                    custombroadcastaddress = ConfigsCommon.GetValue(configsEmu, "Main", "Broadcasts");
                 }
                 return custombroadcastaddress;
             }
@@ -146,7 +144,17 @@ namespace GoldbergCommon.Models
             {
                 string filepath = Path.Combine(gameSteamSettingsPath, "custom_broadcasts.txt");
                 string configsEmu = Path.Combine(gameSettingsPath, "configs.emu.ini");
-                ConfigsCommon.SerializeConfigs(value, configsEmu, "Main", "Broadcasts");
+
+                string encodedValue;
+                if (value.Contains(Environment.NewLine))
+                {
+                    encodedValue = value.Replace(Environment.NewLine, "||");
+                }
+                else
+                {
+                    encodedValue = value;
+                }
+                ConfigsCommon.SerializeConfigs(encodedValue, configsEmu, "Main", "Broadcasts");
                 FileSystem.WriteStringToFileSafe(filepath, value);
                 custombroadcastaddress = value;
                 OnPropertyChanged();

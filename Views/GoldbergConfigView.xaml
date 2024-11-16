@@ -60,7 +60,11 @@
                     <TextBlock Text="{DynamicResource LOCSEU_NetworkingLabel}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,2,0,5"/>
                     <Separator Margin="0,5,0,5"/>
                     <CheckBox Content="{DynamicResource LOCSEU_CustomBroadcast}" ToolTip="{DynamicResource LOCSEU_CustomBroadcastTooltip}" Margin="0,2,0,2" IsChecked="{Binding CustomBroadcast}"/>
-                    <TextBox Text="{Binding CustomBroadcastAddress, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CustomBroadcast}" MaxHeight="20" Margin="0,2,0,2" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                    <ScrollViewer Margin="0,2,0,2">
+                        <TextBox Text="{Binding CustomBroadcastAddress, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CustomBroadcast}" 
+                            MaxHeight="35"  VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                            AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                    </ScrollViewer>
                     <CheckBox Content="{DynamicResource LOCSEU_DisableLANOnly}" ToolTip="{DynamicResource LOCSEU_DisableLANOnlyTooltip}" Margin="0,2,0,2" IsChecked="{Binding ConfigsMain.DisableLANOnly}"/>
                     <CheckBox Content="{DynamicResource LOCSEU_DisableNetworking}" ToolTip="{DynamicResource LOCSEU_DisableNetworkingTooltip}" Margin="0,2,0,2" IsChecked="{Binding ConfigsMain.DisableNetworking}"/>
                     <CheckBox Content="{DynamicResource LOCSEU_OfflineMode}" ToolTip="{DynamicResource LOCSEU_OfflineModeTooltip}" Margin="0,2,0,2" IsChecked="{Binding ConfigsMain.OfflineModeSteam}"/>

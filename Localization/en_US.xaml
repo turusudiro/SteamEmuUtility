@@ -163,7 +163,8 @@ for Goldberg and Achievement Watcher</sys:String>
     <sys:String x:Key="LOCSEU_OverlayHookDelayInSecTooltip">amount of time to wait before attempting to detect and hook the renderer (DirectX, OpenGL, etc...)</sys:String>
     <sys:String x:Key="LOCSEU_NetworkingLabel">Networking</sys:String>
     <sys:String x:Key="LOCSEU_CustomBroadcast">Custom Broadcast</sys:String>
-    <sys:String x:Key="LOCSEU_CustomBroadcastTooltip">Set custom ips (or domains) which the emulator will send broadcast packets to</sys:String>
+    <sys:String x:Key="LOCSEU_CustomBroadcastTooltip" xml:space="preserve">Set custom ips (or domains) which the emulator will send broadcast packets to
+Separate multiple IPs or domains by newlines</sys:String>
     <sys:String x:Key="LOCSEU_DisableLANOnly">Disable LAN Only</sys:String>
     <sys:String x:Key="LOCSEU_DisableLANOnlyTooltip">Prevent hooking OS networking APIs and allow any external requests</sys:String>
     <sys:String x:Key="LOCSEU_DisableNetworking">Disable Networking</sys:String>

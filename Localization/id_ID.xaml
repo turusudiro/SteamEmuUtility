@@ -163,7 +163,8 @@ Untuk Goldberg dan Achievement Watcher</sys:String>
     <sys:String x:Key="LOCSEU_OverlayHookDelayInSecTooltip">jumlah waktu untuk menunggu sebelum mencoba mendeteksi dan menghubungkan renderer (DirectX, OpenGL, dll...)</sys:String>
     <sys:String x:Key="LOCSEU_NetworkingLabel">Jaringan</sys:String>
     <sys:String x:Key="LOCSEU_CustomBroadcast">Broadcast Kustom</sys:String>
-    <sys:String x:Key="LOCSEU_CustomBroadcastTooltip">Atur ips khusus (atau domain) yang akan digunakan emulator untuk mengirim paket siaran</sys:String>
+    <sys:String x:Key="LOCSEU_CustomBroadcastTooltip" xml:space="preserve">Atur ips khusus (atau domain) yang akan digunakan emulator untuk mengirim paket siaran
+Pisahkan beberapa IP atau domain dengan baris baru</sys:String>
     <sys:String x:Key="LOCSEU_DisableLANOnly">Nonaktifkan LAN Saja</sys:String>
     <sys:String x:Key="LOCSEU_DisableLANOnlyTooltip">Mencegah menghubungkan API jaringan OS dan mengizinkan permintaan eksternal apa pun</sys:String>
     <sys:String x:Key="LOCSEU_DisableNetworking">Nonaktifkan Jaringan</sys:String>
