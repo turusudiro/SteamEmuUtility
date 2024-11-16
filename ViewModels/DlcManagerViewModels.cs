@@ -355,7 +355,7 @@ namespace SteamEmuUtility.ViewModels
                 if (!steam.connected)
                 {
                     steam.Dispose();
-                    
+
                     steam = new SteamService(CallbackHandler);
                 }
 
