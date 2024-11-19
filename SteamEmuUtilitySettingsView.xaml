@@ -235,7 +235,8 @@
                             <TextBlock Text="{DynamicResource LOCSEU_ListenPort}" Grid.Column="0" Grid.Row="3" Margin="0,0,5,10" VerticalAlignment="Center"/>
                             <TextBox Text="{Binding Settings.GoldbergListenPort}" Grid.Column="1" Grid.Row="3" Margin="5,0,0,10" VerticalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource LOCSEU_Broadcasts}" Grid.Column="0" Grid.Row="4" Margin="0,0,5,10" VerticalAlignment="Center"/>
-                            <TextBox Text="{Binding Settings.GoldbergCustomBroadcasts}" Grid.Column="1" Grid.Row="4" Margin="5,0,0,10" VerticalAlignment="Center" AcceptsReturn="True"/>
+                            <TextBox Text="{Binding Settings.GoldbergCustomBroadcasts}" Grid.Column="1" Grid.Row="4" Margin="5,0,0,10" VerticalAlignment="Center"
+                                     AcceptsReturn="True" VerticalScrollBarVisibility="Auto" MaxHeight="60"/>
                             <TextBlock Text="{DynamicResource LOCSEU_CountryIP}" Grid.Column="0" Grid.Row="5" Margin="0,0,5,10" VerticalAlignment="Center"/>
                             <TextBox Text="{Binding Settings.GoldbergCountryIP}" Grid.Column="1" Grid.Row="5" Margin="5,0,0,10" VerticalAlignment="Center"/>
                         </Grid>

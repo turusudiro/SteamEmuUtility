@@ -441,6 +441,13 @@ namespace SteamEmuUtility
         {
             string goldbergPath = Goldberg.GetGoldbergAppData();
             string goldbergSettingsPath = Path.Combine(goldbergPath, "settings");
+            string goldbergBroadcast = Path.Combine(goldbergSettingsPath, "custom_broadcasts.txt");
+
+            if (!string.IsNullOrEmpty(Settings.GoldbergCustomBroadcasts))
+            {
+                FileSystem.WriteStringToFileSafe(goldbergBroadcast, Settings.GoldbergCustomBroadcasts);
+
+            }
 
             ConfigsMain configsMain = new ConfigsMain(goldbergSettingsPath);
             configsMain.EnableAccountAvatar = Settings.GoldbergEnableAccountAvatar;
@@ -482,6 +489,12 @@ namespace SteamEmuUtility
         {
             string goldbergPath = Goldberg.GetGoldbergAppData();
             string goldbergSettingsPath = Path.Combine(goldbergPath, "settings");
+            string goldbergBroadcast = Path.Combine(goldbergSettingsPath, "custom_broadcasts.txt");
+
+            if (FileSystem.FileExists(goldbergBroadcast))
+            {
+                Settings.GoldbergCustomBroadcasts = FileSystem.ReadStringFromFile(goldbergBroadcast);
+            }
 
             ConfigsMain configsMain = new ConfigsMain(goldbergSettingsPath);
             Settings.GoldbergEnableAccountAvatar = configsMain.EnableAccountAvatar;
