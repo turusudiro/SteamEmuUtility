@@ -12,6 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows.Controls;
 using static GoldbergCommon.Goldberg;
 
 namespace GoldbergCommon
@@ -41,8 +43,18 @@ namespace GoldbergCommon
                 {
                     return;
                 }
-                PlayniteApi.Notifications.Add(new NotificationMessage(plugin.Id.ToString(), string.Format(ResourceProvider.GetString("LOCSEU_UpdateAvailable"), "Goldberg"),
-                    NotificationType.Info, () => Settings.DownloadGoldberg(pluginPath)));
+                string changelogJson = json.body;
+                string changelog = changelogJson.HtmlToPlainText();
+                PlayniteApi.Notifications.Add(new NotificationMessage(plugin.Id.ToString(), 
+                    string.Format(ResourceProvider.GetString("LOCSEU_UpdateAvailable"), "Goldberg"),
+                    NotificationType.Info, () =>
+                    {
+                        if (PlayniteApi.Dialogs.ShowMessage(changelog += $"{Environment.NewLine}{Environment.NewLine} {ResourceProvider.GetString("LOCSEU_Update")}?",
+                            "Goldberg", System.Windows.MessageBoxButton.YesNo) == System.Windows.MessageBoxResult.Yes)
+                            {
+                                Settings.DownloadGoldberg(pluginPath);
+                            }
+                    }));
             }
         }
         public static GoldbergGame ConvertGame(string pluginPath, Game game)

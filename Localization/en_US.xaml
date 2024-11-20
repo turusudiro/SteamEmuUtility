@@ -55,6 +55,7 @@ Continue without any DLC?</sys:String>
     <sys:String x:Key="LOCSEU_ConnectionUnavailable">Unable to generate info. Please check your internet connection</sys:String>
 
     <sys:String x:Key="LOCSEU_GoldbergErrorRequiredFiles">Required Goldberg file not found. Check your settings</sys:String>
+    <sys:String x:Key="LOCSEU_Update">Update</sys:String>
     <sys:String x:Key="LOCSEU_UpdateAvailable" xml:space="preserve">{0} : Update available.
 Click here to download the latest version.</sys:String>
     <sys:String x:Key="LOCSEU_DownloadInfo">Downloading info for {0}</sys:String>

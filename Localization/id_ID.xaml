@@ -55,6 +55,7 @@ Lanjutkan tanpa DLC?</sys:String>
     <sys:String x:Key="LOCSEU_ConnectionUnavailable">Tidak dapat membuat info. Silakan periksa koneksi internet Anda</sys:String>
 
     <sys:String x:Key="LOCSEU_GoldbergErrorRequiredFiles">File Goldberg yang diperlukan tidak ditemukan. Periksa pengaturan Anda</sys:String>
+    <sys:String x:Key="LOCSEU_Update">Perbarui</sys:String>
     <sys:String x:Key="LOCSEU_UpdateAvailable" xml:space="preserve">{0} : Pembaruan tersedia.
 Klik di sini untuk mengunduh versi terbaru.</sys:String>
     <sys:String x:Key="LOCSEU_DownloadInfo">Mengunduh info untuk {0}</sys:String>
