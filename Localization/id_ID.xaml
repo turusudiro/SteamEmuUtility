@@ -89,7 +89,6 @@ pastikan Mode Pengembang diaktifkan.</sys:String>
 
     <sys:String x:Key="LOCSEU_GreenLumaSettingsLabel">Pengaturan GreenLuma</sys:String>
     <sys:String x:Key="LOCSEU_MissingFiles">File yang hilang</sys:String>
-    <sys:String x:Key="LOCSEU_CheckGLUpdate">Periksa pembaruan GreenLuma pada saat memulai aplikasi</sys:String>
     <sys:String x:Key="LOCSEU_CheckGLFilesStartup">Periksa dan bersihkan file GreenLuma saat memulai aplikasi</sys:String>
     <sys:String x:Key="LOCSEU_CleanGLAfterGame">Bersihkan file GreenLuma setelah keluar dari game</sys:String>
     <sys:String x:Key="LOCSEU_ImmediatelyCleanGL">Segera</sys:String>

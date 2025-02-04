@@ -89,7 +89,6 @@ make sure Developer Mode is enabled.</sys:String>
 
     <sys:String x:Key="LOCSEU_GreenLumaSettingsLabel">GreenLuma Settings</sys:String>
     <sys:String x:Key="LOCSEU_MissingFiles">Missing Files</sys:String>
-    <sys:String x:Key="LOCSEU_CheckGLUpdate">Check GreenLuma update on application startup</sys:String>
     <sys:String x:Key="LOCSEU_CheckGLFilesStartup">Check and clean GreenLuma files on application startup</sys:String>
     <sys:String x:Key="LOCSEU_CleanGLAfterGame">Clean GreenLuma files after game exit</sys:String>
     <sys:String x:Key="LOCSEU_ImmediatelyCleanGL">Immediately</sys:String>

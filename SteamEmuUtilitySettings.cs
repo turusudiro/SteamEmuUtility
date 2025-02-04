@@ -133,16 +133,6 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool checkgreenlumaupdate;
-        public bool CheckGreenLumaUpdate
-        {
-            get => checkgreenlumaupdate;
-            set
-            {
-                checkgreenlumaupdate = value;
-                OnPropertyChanged();
-            }
-        }
         private bool cleanapplist = true;
         public bool CleanApplist
         {
@@ -446,7 +436,6 @@ namespace SteamEmuUtility
             if (!string.IsNullOrEmpty(Settings.GoldbergCustomBroadcasts))
             {
                 FileSystem.WriteStringToFileSafe(goldbergBroadcast, Settings.GoldbergCustomBroadcasts);
-
             }
 
             ConfigsMain configsMain = new ConfigsMain(goldbergSettingsPath);

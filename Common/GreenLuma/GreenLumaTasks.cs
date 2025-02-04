@@ -23,36 +23,7 @@ namespace GreenLumaCommon
     public class GreenLumaTasks
     {
         private static readonly ILogger logger = LogManager.GetLogger();
-        public static void CheckForUpdate(IPlayniteAPI PlayniteApi, SteamEmuUtility.SteamEmuUtility plugin)
-        {
-            string pluginPath = plugin.GetPluginUserDataPath();
-            string pluginGreenLumaPath = Path.Combine(pluginPath, "GreenLuma");
-
-            string rawString = HttpDownloader.DownloadString(Url);
-            if (rawString != null && Regex.IsMatch(rawString, @"<title>.*?GreenLuma \d{4} \d.*<\/title>"))
-            {
-                var match = Regex.Match(rawString, @"<title>.*?GreenLuma \d{4} \d.*<\/title>");
-                string result = Regex.Replace(Regex.Replace(match.Value, @"<.*?>", ""), @".*GreenLuma", "").Trim();
-                if (string.IsNullOrEmpty(result))
-                {
-                    return;
-                }
-                var versionInfo = new GreenLumaVersion() { Version = result.Split(' ')[1] };
-
-                var greenlumaVersion = Serialization.TryFromJsonFile(Path
-                    .Combine(pluginGreenLumaPath, "Version.json"), out GreenLumaVersion lumaVersion) ? lumaVersion.Version : "0.0.0";
-
-                if (versionInfo.Version == greenlumaVersion)
-                {
-                    return;
-                }
-                else
-                {
-                    PlayniteApi.Notifications.Add(new NotificationMessage(plugin.Id.ToString() + "GreenLuma", string.Format(ResourceProvider.GetString("LOCSEU_UpdateAvailable"), "GreenLuma"),
-                    NotificationType.Info, () => ProcessUtilities.StartUrl(Url)));
-                }
-            }
-        }
+        
         private static CancellationTokenSource cancellationTokenSource;
         private static bool CleanTaskIsRunning;
         /// <summary>
