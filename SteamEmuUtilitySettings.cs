@@ -193,20 +193,20 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private int greenLumaNormalTimeout = 3;
-        public int GreenLumaNormalTimeout
+        private int greenLumaTimeout = 3;
+        public int GreenLumaTimeout
         {
-            get => greenLumaNormalTimeout;
+            get => greenLumaTimeout;
             set
             {
-                greenLumaNormalTimeout = value;
-                OnPropertyChanged(nameof(GreenLumaNormalTimeoutText));
+                greenLumaTimeout = value;
+                OnPropertyChanged(nameof(GreenLumaTimeoutText));
             }
         }
         [DontSerialize]
-        public string GreenLumaNormalTimeoutText
+        public string GreenLumaTimeoutText
         {
-            get { return string.Format(ResourceProvider.GetString("LOCSEU_GLTimeout"), GreenLumaNormalTimeout); }
+            get { return string.Format(ResourceProvider.GetString("LOCSEU_GLTimeout"), GreenLumaTimeout); }
         }
         private bool cleangreenlumastartup;
         public bool CleanGreenLumaStartup

@@ -23,7 +23,7 @@ namespace GreenLumaCommon
     public class GreenLumaTasks
     {
         private static readonly ILogger logger = LogManager.GetLogger();
-        
+
         private static CancellationTokenSource cancellationTokenSource;
         private static bool CleanTaskIsRunning;
         /// <summary>
@@ -109,7 +109,7 @@ namespace GreenLumaCommon
         {
             try
             {
-                Steam.KillSteam();
+                Steam.ShutdownSteam();
             }
             catch
             {
@@ -163,7 +163,7 @@ namespace GreenLumaCommon
                     }
                     break;
                 }
-                Thread.Sleep(TimeSpan.FromSeconds(1));
+                Thread.Sleep(TimeSpan.FromSeconds(2));
             }
             return injectorRunning;
         }
@@ -426,7 +426,7 @@ namespace GreenLumaCommon
 
             var argsList = new List<string>()
             {
-                $"-applaunch {appid}"
+                $"-silent"
             };
 
             if (settings.EnableSteamArgs)
@@ -478,7 +478,7 @@ namespace GreenLumaCommon
 
                 GreenLumaGenerator.CreateDLLInjectorIni(pluginPath, mode, Steam.GetSteamExecutable(), argsList, dll, glPath);
 
-                injectorRunning = StartInjector(injectorPath, mode);
+                injectorRunning = StartInjector(injectorPath, mode, settings.GreenLumaTimeout);
             }
             else if (mode == GreenLumaMode.Normal)
             {
@@ -571,7 +571,7 @@ namespace GreenLumaCommon
                     }
                 }
 
-                injectorRunning = StartInjector(injectorPath, mode, settings.GreenLumaNormalTimeout);
+                injectorRunning = StartInjector(injectorPath, mode, settings.GreenLumaTimeout);
             }
 
 

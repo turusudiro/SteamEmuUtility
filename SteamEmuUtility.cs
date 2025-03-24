@@ -367,8 +367,6 @@ namespace SteamEmuUtility
             bool greenLumaStealth = PlayniteUtilities.HasFeature(game, StealthModeFeature);
             bool greenLumaFamily = PlayniteUtilities.HasFeature(game, FamilySharingModeFeatuere);
             bool greenLumaNormal = PlayniteUtilities.HasFeature(game, NormalModeFeature);
-            bool greenLumaGameUnlocking = PlayniteUtilities.HasFeature(game, GameUnlockingFeature);
-            bool greenLumaDLCUnlocking = PlayniteUtilities.HasFeature(game, DLCUnlockingFeature);
             bool hasGreenLumaFeature = greenLumaNormal || greenLumaStealth || greenLumaFamily;
 
             int glFeature = (greenLumaNormal ? 1 : 0) + (greenLumaStealth ? 1 : 0) + (greenLumaFamily ? 1 : 0);
@@ -398,14 +396,28 @@ namespace SteamEmuUtility
                 return;
             }
 
+            PlayniteApi.Dialogs.ActivateGlobalProgress(progress => InjectGreenLuma(progress, args), new GlobalProgressOptions("Steam Emu Utility", true));
+        }
+        private void InjectGreenLuma(GlobalProgressActionArgs globalProgressActionArgs, OnGameStartingEventArgs onGameStartingEventArgs)
+        {
+            Game game = onGameStartingEventArgs.Game;
+
+            bool greenLumaStealth = PlayniteUtilities.HasFeature(game, StealthModeFeature);
+            bool greenLumaFamily = PlayniteUtilities.HasFeature(game, FamilySharingModeFeatuere);
+            bool greenLumaNormal = PlayniteUtilities.HasFeature(game, NormalModeFeature);
+            bool greenLumaGameUnlocking = PlayniteUtilities.HasFeature(game, GameUnlockingFeature);
+            bool greenLumaDLCUnlocking = PlayniteUtilities.HasFeature(game, DLCUnlockingFeature);
 
             string pluginPath = GetPluginUserDataPath();
             string pluginGreenLumaPath = Path.Combine(pluginPath, "GreenLuma");
 
             string regexPattern = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex, FamilyRegex);
+            string regexPatternNormal = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex);
             IEnumerable<FileInfo> greenlumaFiles = FileSystem.GetFiles(pluginGreenLumaPath,
                                                                        regexPattern,
                                                                        RegexOptions.IgnoreCase);
+
+            globalProgressActionArgs.Text = string.Format(ResourceProvider.GetString("LOCSEU_Processing"), game.Name);
 
             // if greenluma files doesnt exists in plugin userdata path then return.
             if (greenLumaNormal)
@@ -413,7 +425,7 @@ namespace SteamEmuUtility
                 if (!GreenLumaFilesExists(greenlumaFiles, GreenLumaMode.Normal))
                 {
                     PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_GreenLumaErrorFileMissing"));
-                    args.CancelStartup = true;
+                    onGameStartingEventArgs.CancelStartup = true;
                     return;
                 }
             }
@@ -422,7 +434,7 @@ namespace SteamEmuUtility
                 if (!GreenLumaFilesExists(greenlumaFiles, GreenLumaMode.Stealth))
                 {
                     PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_GreenLumaErrorFileMissing"));
-                    args.CancelStartup = true;
+                    onGameStartingEventArgs.CancelStartup = true;
                     return;
                 }
             }
@@ -431,7 +443,7 @@ namespace SteamEmuUtility
                 if (!GreenLumaFilesExists(greenlumaFiles, GreenLumaMode.Family))
                 {
                     PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_GreenLumaErrorFileMissing"));
-                    args.CancelStartup = true;
+                    onGameStartingEventArgs.CancelStartup = true;
                     return;
                 }
             }
@@ -474,7 +486,7 @@ namespace SteamEmuUtility
                         if (PlayniteApi.Dialogs.ShowMessage(ResourceProvider.GetString("LOCSEU_NoDLCEnabled"),
                             ResourceProvider.GetString("LOCSEU_DLCUnlocker"), MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.No)
                         {
-                            args.CancelStartup = true;
+                            onGameStartingEventArgs.CancelStartup = true;
                             return;
                         }
                     }
@@ -493,15 +505,22 @@ namespace SteamEmuUtility
 
             if (greenLumaNormal)
             {
-                GreenLumaTasks.StartGreenLumaJob(args, PlayniteApi, appids, GreenLumaMode.Normal, greenlumaFiles);
+                greenlumaFiles = FileSystem.GetFiles(pluginGreenLumaPath, regexPatternNormal, RegexOptions.IgnoreCase);
+                GreenLumaTasks.StartGreenLumaJob(onGameStartingEventArgs, PlayniteApi, appids, GreenLumaMode.Normal, greenlumaFiles);
             }
             else if (greenLumaStealth)
             {
-                GreenLumaTasks.StartGreenLumaJob(args, PlayniteApi, appids, GreenLumaMode.Stealth, greenlumaFiles);
+                GreenLumaTasks.StartGreenLumaJob(onGameStartingEventArgs, PlayniteApi, appids, GreenLumaMode.Stealth, greenlumaFiles);
             }
             else if (greenLumaFamily)
             {
-                GreenLumaTasks.StartGreenLumaJob(args, PlayniteApi, appids, GreenLumaMode.Family, greenlumaFiles);
+                GreenLumaTasks.StartGreenLumaJob(onGameStartingEventArgs, PlayniteApi, appids, GreenLumaMode.Family, greenlumaFiles);
+            }
+            if (globalProgressActionArgs.CancelToken.IsCancellationRequested)
+            {
+                Steam.ShutdownSteam();
+                CommonGameShutdownLogic(game);
+                onGameStartingEventArgs.CancelStartup = true;
             }
         }
         private async void CommonGameShutdownLogic(Game game)
