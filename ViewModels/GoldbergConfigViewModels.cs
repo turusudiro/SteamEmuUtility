@@ -127,20 +127,6 @@ namespace SteamEmuUtility.ViewModels
 
             }, progressOptions);
         }
-        private void CallbackHandler(object obj)
-        {
-            if (progress != null)
-            {
-                if (obj is int count)
-                {
-                    progress.CurrentProgressValue = count;
-                }
-                else if (obj is string text)
-                {
-                    progress.Text = text;
-                }
-            }
-        }
         private bool IsCloudSaveEnabled(string appid)
         {
             string goldbergGameDataPath = Path.Combine(goldbergPath, appid);
@@ -202,7 +188,7 @@ namespace SteamEmuUtility.ViewModels
         {
             if (steam == null)
             {
-                steam = new SteamService(CallbackHandler);
+                steam = new SteamService();
             }
         }
         public RelayCommand<object> OpenSettingsPath

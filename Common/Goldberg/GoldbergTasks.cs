@@ -45,15 +45,15 @@ namespace GoldbergCommon
                 }
                 string changelogJson = json.body;
                 string changelog = changelogJson.HtmlToPlainText();
-                PlayniteApi.Notifications.Add(new NotificationMessage(plugin.Id.ToString(), 
+                PlayniteApi.Notifications.Add(new NotificationMessage(plugin.Id.ToString(),
                     string.Format(ResourceProvider.GetString("LOCSEU_UpdateAvailable"), "Goldberg"),
                     NotificationType.Info, () =>
                     {
                         if (PlayniteApi.Dialogs.ShowMessage(changelog += $"{Environment.NewLine}{Environment.NewLine} {ResourceProvider.GetString("LOCSEU_Update")}?",
                             "Goldberg", System.Windows.MessageBoxButton.YesNo) == System.Windows.MessageBoxResult.Yes)
-                            {
-                                Settings.DownloadGoldberg(pluginPath);
-                            }
+                        {
+                            Settings.DownloadGoldberg(pluginPath);
+                        }
                     }));
             }
         }
@@ -117,20 +117,17 @@ namespace GoldbergCommon
                     {
                         PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
                         {
-                            steam.action = callback =>
-                            {
-                                if (callback is string text)
-                                {
-                                    progress.Text = text;
-                                }
-                            };
+                            Action<string> progressUpdateHandler = (a) => progress.Text = a;
+                            steam.Callbacks.OnProgressUpdate += progressUpdateHandler;
 
                             progress.CancelToken.Register(() =>
                             {
+                                steam.Callbacks.OnProgressUpdate -= progressUpdateHandler;
                                 steam.Dispose();
                                 return;
                             });
                             DlcManager.GenerateDLC(game.Appid, steam, progress, apiKey, pluginPath);
+                            steam.Callbacks.OnProgressUpdate -= progressUpdateHandler;
                         }, new GlobalProgressOptions("Steam Emu Utility", false));
                     }
                 }

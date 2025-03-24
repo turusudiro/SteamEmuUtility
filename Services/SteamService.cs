@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using SteamCommon.Models;
 
 namespace SteamCommon
 {
     public class SteamService : IDisposable
     {
-        public Action<object> action;
+        public SteamCallback Callbacks { get; private set; }
+
         private Dictionary<uint, SteamApps.PICSProductInfoCallback.PICSProductInfo> PICSProductInfo;
         private bool isRunning = false;
         private bool disposed = false;
@@ -34,14 +36,33 @@ namespace SteamCommon
 
             if (disposing)
             {
-                steamClient.Disconnect();
+                if (Callbacks != null)
+                {
+                    Callbacks.OnProgressUpdate -= Callbacks.InvokeProgressUpdate;
+                    Callbacks.OnLoggedOn -= Callbacks.InvokeLoggedOn;
+                    Callbacks.OnAppCallback -= Callbacks.InvokeAppCallback;
+
+                    Callbacks = null;
+                }
+
+
+                if (steamClient != null)
+                {
+                    steamClient.Disconnect();
+                }
+
+                manager = null;
+                steamApps = null;
+                steamUser = null;
+                steamClient = null;
             }
 
             disposed = true;
         }
-        public SteamService(Action<object> action = null)
+        public SteamService()
         {
-            this.action = action;
+            Callbacks = new SteamCallback();
+
             steamClient = new SteamClient();
             steamApps = steamClient.GetHandler<SteamApps>();
             steamUser = steamClient.GetHandler<SteamUser>();
@@ -63,7 +84,7 @@ namespace SteamCommon
         {
             steamClient.Connect();
 
-            action?.Invoke(ResourceProvider.GetResource("LOCSEU_SteamConnecting"));
+            Callbacks.InvokeProgressUpdate(ResourceProvider.GetResource("LOCSEU_SteamConnecting").ToString());
             connecting = true;
 
             while (!connected)
@@ -84,7 +105,8 @@ namespace SteamCommon
             }
             steamUser.LogOnAnonymous(new SteamUser.AnonymousLogOnDetails());
 
-            action?.Invoke(ResourceProvider.GetResource("LOCSEU_SteamAnonymousLogging"));
+
+            Callbacks.InvokeProgressUpdate(ResourceProvider.GetResource("LOCSEU_SteamAnonymousLogging").ToString());
             while (!loggedOn)
             {
                 RunWaitCallbacks();
@@ -97,7 +119,7 @@ namespace SteamCommon
                 AnonymousLogin();
             }
 
-            action?.Invoke($"{ResourceProvider.GetString("LOCSEU_Downloading")} publisedfileid {publishedfileid}");
+            Callbacks.InvokeProgressUpdate($"{ResourceProvider.GetString("LOCSEU_Downloading")} publisedfileid {publishedfileid}");
             try
             {
                 PublishedFileID req = new PublishedFileID(publishedfileid);
@@ -201,6 +223,8 @@ namespace SteamCommon
             {
                 return;
             }
+            Callbacks.InvokeProgressUpdate(ResourceProvider.GetResource("LOCSEU_SteamLoggedOn").ToString());
+            Callbacks.InvokeLoggedOn(true);
             loggedOn = true;
         }
     }

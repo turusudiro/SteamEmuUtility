@@ -453,16 +453,12 @@ namespace SteamEmuUtility
                         {
                             progress.Text = ResourceProvider.GetString("LOCSEU_GettingDlcInfo");
 
-                            steam.action = callback =>
-                            {
-                                if (callback is string text)
-                                {
-                                    progress.Text = text;
-                                }
-                            };
+                            Action<string> progressUpdateHandler = (a) => progress.Text = a;
 
+                            steam.Callbacks.OnProgressUpdate += progressUpdateHandler;
                             progress.CancelToken.Register(() =>
                             {
+                                steam.Callbacks.OnProgressUpdate -= progressUpdateHandler;
                                 steam.Dispose();
                                 return;
                             });

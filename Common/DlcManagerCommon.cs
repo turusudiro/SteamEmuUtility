@@ -63,44 +63,45 @@ namespace DlcManagerCommon
                 return Enumerable.Empty<string>();
             }
         }
+
         public static void GenerateDLC(string appid, SteamService steam, GlobalProgressActionArgs progress, string apiKey, string pluginPath)
         {
             var dlc = SteamUtilities.GetDLC(appid, steam, apiKey: apiKey);
+            List<DlcInfo> dlclist = new List<DlcInfo>();
+
+            steam.Callbacks.OnAppCallback += onAppCallback;
 
             progress.IsIndeterminate = false;
             progress.ProgressMaxValue = dlc.Count();
             progress.CurrentProgressValue = 0;
 
-            List<DlcInfo> dlclist = new List<DlcInfo>();
+            SteamUtilities.GetApp(dlc, steam);
 
-            SteamUtilities.GetApp(dlc, steam, CallbackApp);
-
-            void CallbackApp(object obj)
+            void onAppCallback(App app)
             {
-                if (obj is App app)
+                progress.CurrentProgressValue++;
+
+                string name = !string.IsNullOrEmpty(app?.Name) ? app.Name : "Unknown App";
+
+                progress.Text = $"Processing {name}";
+                var newDlc = new DlcInfo
                 {
-                    progress.CurrentProgressValue++;
+                    Appid = app.Appid,
+                    Name = name,
+                    Enable = true
+                };
 
-                    string name = !string.IsNullOrEmpty(app?.Name) ? app.Name : "Unknown App";
-
-                    progress.Text = $"Processing {name}";
-                    var newDlc = new DlcInfo
-                    {
-                        Appid = app.Appid,
-                        Name = name,
-                        Enable = true
-                    };
-
-                    if (!string.IsNullOrEmpty(app?.SmallCapsuleImage?.English))
-                    {
-                        string filePath = Path.Combine(pluginPath, "GamesInfo", "Assets", appid, $"{app.Appid}.jpg");
-                        newDlc.ImageURL = app.SmallCapsuleImage?.English;
-                        newDlc.ImagePath = filePath;
-                    }
-
-                    dlclist.Add(newDlc);
+                if (!string.IsNullOrEmpty(app?.SmallCapsuleImage?.English))
+                {
+                    string filePath = Path.Combine(pluginPath, "GamesInfo", "Assets", appid, $"{app.Appid}.jpg");
+                    newDlc.ImageURL = app.SmallCapsuleImage?.English;
+                    newDlc.ImagePath = filePath;
                 }
+
+                dlclist.Add(newDlc);
             }
+
+            steam.Callbacks.OnAppCallback -= onAppCallback;
 
             string dlcPath = Path.Combine(pluginPath, "GamesInfo", $"{appid}.json");
 

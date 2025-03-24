@@ -47,13 +47,8 @@ namespace GoldbergCommon
             {
                 progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_Processing"), game.Name);
 
-                steam.action = callback =>
-                {
-                    if (callback is string text)
-                    {
-                        progress.Text = text;
-                    }
-                };
+                Action<string> progressUpdateHandler = (a) => progress.Text = a;
+                steam.Callbacks.OnProgressUpdate += progressUpdateHandler;
 
                 if (game.GenerateAllInfo)
                 {
@@ -69,19 +64,15 @@ namespace GoldbergCommon
                 {
                     CheckAppInfo(game, steam);
                 }
+                steam.Callbacks.OnProgressUpdate -= progressUpdateHandler;
             }, progressOptions);
 
             progressOptions.Cancelable = true;
 
             PlayniteApi.Dialogs.ActivateGlobalProgress(async (progress) =>
             {
-                steam.action = callback =>
-                {
-                    if (callback is string text)
-                    {
-                        progress.Text = text;
-                    }
-                };
+                Action<string> progressUpdateHandler = (a) => progress.Text = a;
+                steam.Callbacks.OnProgressUpdate += progressUpdateHandler;
 
                 if (game.GenerateAllInfo)
                 {
@@ -140,6 +131,7 @@ namespace GoldbergCommon
                 }
 
                 await Task.WhenAll(tasks);
+                steam.Callbacks.OnProgressUpdate -= progressUpdateHandler;
             }, progressOptions);
         }
 
@@ -173,7 +165,7 @@ namespace GoldbergCommon
             progress.Text = string.Format(ResourceProvider.GetString("LOCSEU_ConfiguringDepots"), game.Name);
             if (game.AppInfo.Depots.Any())
             {
-                FileSystem.WriteStringLinesToFile(Path.Combine(gameSteamSettingsPath, "depots.txt"), game.AppInfo.Depots.OrderBy(x => x).Select(x => x.ToString()));
+                FileSystem.WriteStringLinesToFile(Path.Combine(gameSteamSettingsPath, "depots.txt"), game.AppInfo.Depots.Keys.OrderBy(x => x).Select(x => x.ToString()));
             }
         }
 

@@ -50,7 +50,8 @@ namespace SteamEmuUtility.ViewModels
                     }
                     DLCList.Clear(); // Clear the DLCList
                 }
-
+                steam.Callbacks.OnAppCallback -= onAppCallback;
+                steam.Callbacks.OnProgressUpdate -= onProgressUpdate;
                 steam.Dispose();
 
                 cancellationTokenSource.Dispose();
@@ -83,7 +84,9 @@ namespace SteamEmuUtility.ViewModels
             this.apiKey = apiKey;
             this.pluginPath = pluginPath;
             dlcPath = Path.Combine(pluginPath, "GamesInfo", $"{game.GameId}.json");
-            steam = new SteamService(CallbackHandler);
+            steam = new SteamService();
+            steam.Callbacks.OnAppCallback += onAppCallback;
+            steam.Callbacks.OnProgressUpdate += onProgressUpdate;
             LoadDlcListAsync();
         }
 
@@ -231,41 +234,36 @@ namespace SteamEmuUtility.ViewModels
             IsProgressBarVisible = false;
             taskRunning = false;
         }
-
-        void CallbackHandler(object obj)
+        void onAppCallback(App app)
         {
-            if (obj is string text)
+            string name = !string.IsNullOrEmpty(app?.Name) ? app.Name : "Unknown App";
+            var newDlc = new DlcInfo
             {
-                ProgressText = text;
-            }
-            else if (obj is App app)
+                Appid = app.Appid,
+                Name = name,
+                Image = EmptyImage
+            };
+
+            PlayniteApi.MainView.UIDispatcher.Invoke(() =>
             {
-                string name = !string.IsNullOrEmpty(app?.Name) ? app.Name : "Unknown App";
-                var newDlc = new DlcInfo
+                lock (_dlcListLock)
                 {
-                    Appid = app.Appid,
-                    Name = name,
-                    Image = EmptyImage
-                };
-
-                PlayniteApi.MainView.UIDispatcher.Invoke(() =>
-                {
-                    lock (_dlcListLock)
-                    {
-                        DLCList.Add(newDlc);
-                        ProgressText = string.Format(ResourceProvider.GetString("LOCSEU_Adding"), name);
-                    }
-                });
-
-                if (!string.IsNullOrEmpty(app?.SmallCapsuleImage?.English))
-                {
-                    string filePath = Path.Combine(pluginPath, "GamesInfo", "Assets", game.GameId, $"{app.Appid}.jpg");
-                    newDlc.ImageURL = app.SmallCapsuleImage?.English;
-                    newDlc.ImagePath = filePath;
+                    DLCList.Add(newDlc);
+                    ProgressText = string.Format(ResourceProvider.GetString("LOCSEU_Adding"), name);
                 }
+            });
+
+            if (!string.IsNullOrEmpty(app?.SmallCapsuleImage?.English))
+            {
+                string filePath = Path.Combine(pluginPath, "GamesInfo", "Assets", game.GameId, $"{app.Appid}.jpg");
+                newDlc.ImageURL = app.SmallCapsuleImage?.English;
+                newDlc.ImagePath = filePath;
             }
         }
-
+        void onProgressUpdate(string text)
+        {
+            ProgressText = text;
+        }
         private void LoadDlcListAsync()
         {
             Task.Run(() =>
@@ -310,14 +308,14 @@ namespace SteamEmuUtility.ViewModels
 
             ProgressText = ResourceProvider.GetString("LOCSEU_GettingDlcList");
 
-            var DLCs = SteamUtilities.GetDLC(game.GameId, steam, CallbackHandler, apiKey: apiKey, pluginPath: pluginPath).ToList();
+            var DLCs = SteamUtilities.GetDLC(game.GameId, steam, apiKey: apiKey, pluginPath: pluginPath).ToList();
 
             TotalItems = DLCs.Count;
             CurrentProgress = 0;
 
             ProgressText = ResourceProvider.GetString("LOCSEU_GettingDlcInfo");
 
-            SteamUtilities.GetApp(DLCs, steam, CallbackHandler);
+            SteamUtilities.GetApp(DLCs, steam);
 
             if (DLCList.Any())
             {
@@ -354,9 +352,13 @@ namespace SteamEmuUtility.ViewModels
             {
                 if (!steam.connected)
                 {
+                    steam.Callbacks.OnAppCallback -= onAppCallback;
+                    steam.Callbacks.OnProgressUpdate -= onProgressUpdate;
                     steam.Dispose();
 
-                    steam = new SteamService(CallbackHandler);
+                    steam = new SteamService();
+                    steam.Callbacks.OnAppCallback += onAppCallback;
+                    steam.Callbacks.OnProgressUpdate += onProgressUpdate;
                 }
 
                 IsProgressBarVisible = false;
