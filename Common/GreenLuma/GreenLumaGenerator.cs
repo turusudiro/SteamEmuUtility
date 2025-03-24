@@ -102,6 +102,7 @@ namespace GreenLumaCommon
             if (mode == GreenLumaMode.Stealth || mode == GreenLumaMode.Family)
             {
                 data.Sections[section]["CommandLine"] = args;
+                data.Sections[section]["Dll"] = Path.Combine(glPath, dllPath);
                 data.Sections[section]["EnableMitigationsOnChildProcess"] = "0";
                 data.Sections[section]["UseFullPathsFromIni"] = "1";
                 data.Sections[section]["Exe"] = steamexePath;
