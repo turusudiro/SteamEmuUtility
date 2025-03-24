@@ -3,10 +3,27 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
+    <sys:String x:Key="LOCSEU_ACFGenerator">ACF Generator</sys:String>
+    <sys:String x:Key="LOCSEU_OpenAcfGenerator">Buka ACF Generator</sys:String>
+    <sys:String x:Key="LOCSEU_Add">Tambahkan</sys:String>
+    <sys:String x:Key="LOCSEU_Target">Target</sys:String>
+    <sys:String x:Key="LOCSEU_Open">Buka</sys:String>
+    <sys:String x:Key="LOCSEU_Search">Cari</sys:String>
+    <sys:String x:Key="LOCSEU_InstallDir">Folder Instalasi</sys:String>
+    <sys:String x:Key="LOCSEU_Status">Status</sys:String>
+    <sys:String x:Key="LOCSEU_Ready">Siap</sys:String>
+    <sys:String x:Key="LOCSEU_Invalid">Tidak Valid</sys:String>
+    <sys:String x:Key="LOCSEU_MissingInstallDir">Folder Instalasi Hilang</sys:String>
+    <sys:String x:Key="LOCSEU_ParsingToAcfKV">Mengurai Ke Acf KeyValue</sys:String>
+    <sys:String x:Key="LOCSEU_SavingACF">Menyimpan ACF</sys:String>
+    <sys:String x:Key="LOCSEU_SearchByName">Cari Berdasarkan Nama</sys:String>
+    <sys:String x:Key="LOCSEU_SearchingName">Mencari {0}</sys:String>
+    
     <sys:String x:Key="LOCSEU_DLCUnlocker">Pembuka DLC</sys:String>
     <sys:String x:Key="LOCSEU_NoDLCEnabled" xml:space="preserve">Tidak ada DLC yang diaktifkan. Silahkan centang setidaknya satu di Manajer DLC.
 Lanjutkan tanpa DLC?</sys:String>
 
+    <sys:String x:Key="LOCSEU_Apply">Terapkan</sys:String>
     <sys:String x:Key="LOCSEU_ManageDLC">Kelola DLC</sys:String>
     <sys:String x:Key="LOCSEU_Refresh">Perbarui</sys:String>
     <sys:String x:Key="LOCSEU_Name">Nama</sys:String>
@@ -196,6 +213,7 @@ SteamID di Goldberg harus sama dengan SteamID di Steam untuk penyimpanan yang in
 GUNAKAN DENGAN HATI-HATI</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoConfirmation" xml:space="preserve">Melanjutkan tindakan ini akan menggantikan konfigurasi yang ada jika ada.
 Apakah Anda yakin ingin melanjutkan?</sys:String>
+    <sys:String x:Key="LOCSEU_Generate">Buat</sys:String>
     <sys:String x:Key="LOCSEU_GenerateAllInfo">Buat Semua Info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateAllInfoTooltip">Buat semua info aplikasi/game yang tersedia</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoArchitecture">Generate info arsitektur</sys:String>

@@ -3,10 +3,27 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
 
+    <sys:String x:Key="LOCSEU_ACFGenerator">ACF Generator</sys:String>
+    <sys:String x:Key="LOCSEU_OpenAcfGenerator">Open ACF Generator</sys:String>
+    <sys:String x:Key="LOCSEU_Add">Add</sys:String>
+    <sys:String x:Key="LOCSEU_Target">Target</sys:String>
+    <sys:String x:Key="LOCSEU_Open">Open</sys:String>
+    <sys:String x:Key="LOCSEU_Search">Search</sys:String>
+    <sys:String x:Key="LOCSEU_InstallDir">Install Dir</sys:String>
+    <sys:String x:Key="LOCSEU_Status">Status</sys:String>
+    <sys:String x:Key="LOCSEU_Ready">Ready</sys:String>
+    <sys:String x:Key="LOCSEU_Invalid">Invalid</sys:String>
+    <sys:String x:Key="LOCSEU_MissingInstallDir">Missing Install Dir</sys:String>
+    <sys:String x:Key="LOCSEU_ParsingToAcfKV">Parsing To Acf KeyValue</sys:String>
+    <sys:String x:Key="LOCSEU_SavingACF">Saving ACF</sys:String>
+    <sys:String x:Key="LOCSEU_SearchByName">Search By Name</sys:String>
+    <sys:String x:Key="LOCSEU_SearchingName">Searching {0}</sys:String>
+
     <sys:String x:Key="LOCSEU_DLCUnlocker">DLC Unlocker</sys:String>
     <sys:String x:Key="LOCSEU_NoDLCEnabled" xml:space="preserve">No DLCs are enabled. Please check at least one in the DLC Manager.
 Continue without any DLC?</sys:String>
 
+    <sys:String x:Key="LOCSEU_Apply">Apply</sys:String>
     <sys:String x:Key="LOCSEU_ManageDLC">Manage DLC</sys:String>
     <sys:String x:Key="LOCSEU_Refresh">Refresh</sys:String>
     <sys:String x:Key="LOCSEU_Name">Name</sys:String>
@@ -196,6 +213,7 @@ The SteamID on Goldberg must match the SteamID on Steam for the save you want to
 USE IT WITH CAUTION</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoConfirmation" xml:space="preserve">Proceeding with this action will replace the existing configurations if they exist.
 Are you sure you want to continue?</sys:String>
+    <sys:String x:Key="LOCSEU_Generate">Generate</sys:String>
     <sys:String x:Key="LOCSEU_GenerateAllInfo">Generate all info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateAllInfoTooltip">Generate all available app/game info</sys:String>
     <sys:String x:Key="LOCSEU_GenerateInfoArchitecture">Generate architecture info</sys:String>
