@@ -1,0 +1,110 @@
+﻿<UserControl x:Class="SteamEmuUtility.Views.AcfGeneratorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SteamEmuUtility.Views"
+             xmlns:cv="clr-namespace:ConvertersCommon"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"/>
+        <Style x:Key="CenterDataGridHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+    <DockPanel Margin="10">
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,15,10,0">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Visibility="{Binding IsProgressBarVisible, Converter={cv:BooleanToVisibilityConverter}}">
+                <TextBlock Text="{Binding SteamText}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,5"></TextBlock>
+                <ProgressBar Height="10" Width="100" HorizontalAlignment="Left" IsIndeterminate="True" 
+                Value="{Binding ProgressPercentage}" Margin="0,0,0,5"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+                <Button Command="{Binding AddItem}"  Margin="0,0,10,0" Content="{DynamicResource LOCSEU_Add}"></Button>
+                <Button Command="{Binding Generate}" Content="{DynamicResource LOCSEU_Apply}"></Button>
+            </StackPanel>
+            
+        </DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <DataGrid ItemsSource="{Binding Games}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserResizeColumns="False" CanUserResizeRows="False" HeadersVisibility="Column"
+                      SelectionMode="Single" SelectionUnit="Cell" Padding="10">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="{DynamicResource LOCSEU_Target}" Width="2*" HeaderStyle="{StaticResource CenterDataGridHeader}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="5*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox Grid.Column="0" Margin="0,0,7,0" ItemsSource="{Binding DataContext.SteamLibraryFolders, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}" 
+                                    SelectedItem="{Binding SelectedTarget, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Button Command="{Binding DataContext.OpenDir, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding SelectedTarget}" Content="{DynamicResource LOCSEU_Open}" Grid.Column="1"/>
+                                </Grid>
+                               
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Appid" Width="1*" HeaderStyle="{StaticResource CenterDataGridHeader}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Text="{Binding AppID, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,5,0" Grid.Column="0" VerticalAlignment="Center"/>
+                                    <Button Command="{Binding DataContext.SearchAppid, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding}" Content="{DynamicResource LOCSEU_Search}" Grid.Column="1"/>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="{DynamicResource LOCSEU_InstallDir}" Width="1*" HeaderStyle="{StaticResource CenterDataGridHeader}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding InstallDir}" IsReadOnly="True"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="{DynamicResource LOCSEU_Status}" Width="*" HeaderStyle="{StaticResource CenterDataGridHeader}">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Status}" HorizontalAlignment="Center" Background="Transparent" IsReadOnly="True" VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="90">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="1" Command="{Binding DataContext.RefreshButton, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
+                                        CommandParameter="{Binding}" Content="⭮" FontSize="18" Background="Transparent"  Foreground="LimeGreen" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Button Command="{Binding DataContext.RemoveItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
+                                        CommandParameter="{Binding}" Content="✖" FontSize="10" Background="Transparent" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+           
+        </Grid>
+
+    </DockPanel>
+    
+</UserControl>
