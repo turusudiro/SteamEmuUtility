@@ -70,7 +70,24 @@ namespace SteamEmuUtility
                 FontSize = 20,
                 FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
             });
-
+            Application.Current.Resources.Add("SEU_Ticket", new TextBlock
+            {
+                Text = "\xf00f",
+                FontSize = 20,
+                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
+            });
+            Application.Current.Resources.Add("SEU_Unlock", new TextBlock
+            {
+                Text = "\xec8c",
+                FontSize = 20,
+                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
+            });
+            Application.Current.Resources.Add("SEU_Gear", new TextBlock
+            {
+                Text = "\xef3b",
+                FontSize = 20,
+                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
+            });
             Properties = new GenericPluginProperties
             {
                 HasSettings = true
@@ -101,8 +118,9 @@ namespace SteamEmuUtility
         {
             yield return new MainMenuItem
             {
+                Icon = "SEU_Unlock",
                 Description = ResourceProvider.GetString("LOCSEU_MenuUnlockAll"),
-                MenuSection = "Steam Emu Utility",
+                MenuSection = "@Steam Emu Utility",
                 Action = (a) =>
                 {
                     var SteamGame = PlayniteApi.Database.Games.Where(x => x.IsInstalled && Steam.IsGameSteamGame(x));
@@ -120,11 +138,22 @@ namespace SteamEmuUtility
             };
             yield return new MainMenuItem
             {
+                Icon = "SEU_Ticket",
                 Description = ResourceProvider.GetString("LOCSEU_LoadTickets"),
-                MenuSection = "Steam Emu Utility",
+                MenuSection = "@Steam Emu Utility",
                 Action = (a) =>
                 {
                     GreenLumaTasks.LoadTicket(PlayniteApi);
+                }
+            };
+            yield return new MainMenuItem
+            {
+                Icon = "SEU_Gear",
+                Description = ResourceProvider.GetString("LOCSEU_OpenAcfGenerator"),
+                MenuSection = "@Steam Emu Utility",
+                Action = (a) =>
+                {
+                    ShowAcfGenerator();
                 }
             };
         }
@@ -349,6 +378,25 @@ namespace SteamEmuUtility
             {
                 window.Width = 1100;
             }
+
+            window.ShowDialog();
+        }
+        void ShowAcfGenerator()
+        {
+            var window = PlayniteApi.Dialogs.CreateWindow(new WindowCreationOptions
+            {
+                ShowMinimizeButton = false
+            });
+            var viewModel = new AcfGeneratorViewModels(PlayniteApi);
+
+            window.Height = 440;
+            window.Width = 1000;
+            window.Title = ResourceProvider.GetString("LOCSEU_ACFGenerator");
+            window.Content = new AcfGeneratorView();
+            window.DataContext = viewModel;
+            window.Owner = PlayniteApi.Dialogs.GetCurrentAppWindow();
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            window.Closed += (sender, e) => viewModel.Dispose();
 
             window.ShowDialog();
         }
@@ -646,7 +694,7 @@ namespace SteamEmuUtility
                             GoldbergTasks.CheckForUpdate(PlayniteApi, settings, this);
                         }
                     }
-                    
+
                 });
             }
             if (settings.Settings.CleanGreenLumaStartup)
