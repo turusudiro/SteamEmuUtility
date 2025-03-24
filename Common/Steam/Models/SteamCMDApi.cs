@@ -70,6 +70,8 @@ namespace SteamCommon.Models
 
             public partial class ConfigInfo
             {
+                [SerializationPropertyName("installdir")]
+                public string InstallDir { get; set; }
                 [SerializationPropertyName("launch")]
                 public Dictionary<string, LaunchInfo> Launch { get; set; }
                 [SerializationPropertyName("steamcontrollerconfigdetails")]
@@ -93,8 +95,22 @@ namespace SteamCommon.Models
                         [SerializationPropertyName("oslist")]
                         public string oslist { get; set; }
                     }
+                    [SerializationPropertyName("manifests")]
+                    public Dictionary<string, ManifestsData> Manifests { get; set; } = new Dictionary<string, ManifestsData>();
+                    public class ManifestsData
+                    {
+                        [SerializationPropertyName("gid")]
+                        public string gid { get; set; }
+                        [SerializationPropertyName("size")]
+                        public string size { get; set; }
+                    }
+
+                    [SerializationPropertyName("depotfromapp")]
+                    public string depotfromapp { get; set; }
                     [SerializationPropertyName("dlcappid")]
                     public string dlcappid { get; set; }
+                    [SerializationPropertyName("sharedinstall")]
+                    public string sharedinstall { get; set; }
                 }
             }
 

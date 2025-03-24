@@ -1,10 +1,14 @@
 ﻿using Microsoft.Win32;
 using Playnite.SDK.Models;
+using PluginsCommon;
 using ProcessCommon;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using SteamKit2;
+using System.IO;
 
 namespace SteamCommon
 {
@@ -13,6 +17,53 @@ namespace SteamCommon
         private static Guid steamPluginId = Guid.Parse("cb91dfc9-b977-43bf-8e70-55f46e410fab");
         private const string defaultexe = @"C:\Program Files (x86)\Steam\steam.exe";
         private const string defaultdir = @"C:\Program Files (x86)\Steam";
+        /// <summary>
+        /// Get all Steam library folder paths from libraryfolders.vdf using SteamKit2.
+        /// </summary>
+        /// <returns>List of Steam library paths.</returns>
+        public static List<string> GetSteamLibraryFolders()
+        {
+            List<string> libraryPaths = new List<string>();
+
+            // Get Steam directory
+            string steamDir = GetSteamDirectory();
+            if (string.IsNullOrEmpty(steamDir))
+            {
+                return libraryPaths; // Return empty if Steam directory not found
+            }
+
+            // Path to libraryfolders.vdf
+            string vdfPath = Path.Combine(steamDir, "steamapps", "libraryfolders.vdf");
+            if (!FileSystem.FileExists(vdfPath))
+            {
+                return libraryPaths; // Return empty if file not found
+            }
+
+            try
+            {
+                // Load and parse the VDF file using SteamKit2
+                KeyValue root = new KeyValue();
+                root.ReadFileAsText(vdfPath);
+
+                foreach (var child in root.Children)
+                {
+                    if (int.TryParse(child.Name, out _)) // Steam library keys are numerical
+                    {
+                        string path = child["path"].Value;
+                        if (!string.IsNullOrEmpty(path))
+                        {
+                            libraryPaths.Add(path.Replace("\\\\", "\\")); // Normalize slashes
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing libraryfolders.vdf: {ex.Message}");
+            }
+
+            return libraryPaths;
+        }
         /// <summary>
         /// Get Steam executable path.
         /// </summary>
@@ -70,6 +121,23 @@ namespace SteamCommon
         {
             var steamProcesses = Process.GetProcessesByName("steam");
             return steamProcesses.Length > 0;
+        }
+        /// <summary>
+        /// Shutdown Steam respectfully.
+        /// </summary>
+        public static void ShutdownSteam()
+        {
+            ProcessUtilities.StartProcess(GetSteamExecutable(), "-shutdown");
+            bool Closed = false;
+            for (int i = 0; i < 8; i++)
+            {
+                Thread.Sleep(2000);
+                Closed = !IsSteamRunning();
+                if (Closed)
+                {
+                    break;
+                }
+            }
         }
         /// <summary>
         /// Kill Steam process.

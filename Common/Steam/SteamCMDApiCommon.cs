@@ -26,10 +26,11 @@ namespace SteamCommon
                     Name = string.Empty,
                     DLC = new List<uint>(),
                     SupportedLanguages = new List<string>(),
-                    Depots = new List<uint>(),
+                    Depots = new Dictionary<uint, Depots>(),
                     SteamControllerConfigDetails = new Dictionary<uint, Controller> { },
                     SteamControllerTouchConfigDetails = new Dictionary<uint, Controller> { },
                     Launch = new List<Launch>(),
+                    InstallSize = "0"
                 };
                 var dlc = new List<uint>();
 
@@ -47,21 +48,21 @@ namespace SteamCommon
                     app.ControllerSupport = string.IsNullOrEmpty(info.Common.ControllerSupport) ? false : true;
                 }
 
-                if (info.Config?.Launch != null)
+                if (info.Config != null)
                 {
+                    app.Installdir = !string.IsNullOrEmpty(info.Config.InstallDir) ? info.Config.InstallDir : string.Empty;
                     app.Launch = info.Config.Launch.Select(x => new Launch()
                     {
-                        Executable = string.IsNullOrEmpty(x.Value?.Executable) ? string.Empty : x.Value.Executable,
+                        Executable = x.Value?.Executable ?? string.Empty,
                         OSList = string.IsNullOrEmpty(x.Value?.Config?.OS_List) ? string.Empty : x.Value.Config.OS_List
                     }).ToList();
-
-                    app.SteamControllerConfigDetails = info.Config.SteamControllerConfigDetails == null ? null : info.Config.SteamControllerConfigDetails
+                    app.SteamControllerConfigDetails = info.Config?.SteamControllerConfigDetails == null ? null : info.Config.SteamControllerConfigDetails
                         .ToDictionary(x => uint.Parse(x.Key), x => new Controller()
                         {
                             ControllerType = x.Value.ControllerType,
                             EnabledBranches = x.Value.EnabledBranches
                         });
-                    app.SteamControllerTouchConfigDetails = info.Config.SteamControllerConfigDetails == null ? null : info.Config.SteamControllerTouchConfigDetails
+                    app.SteamControllerTouchConfigDetails = info.Config?.SteamControllerTouchConfigDetails?
                         .ToDictionary(x => uint.Parse(x.Key), x => new Controller()
                         {
                             ControllerType = x.Value.ControllerType,
@@ -115,7 +116,42 @@ namespace SteamCommon
                             app.BuildID = app.Branches.FirstOrDefault(x => x.Name.Equals("public")).BuildID;
                         }
                     }
-                    app.Depots = info.Depots.Depots == null ? null : info.Depots.Depots.Select(x => x.Key).ToList();
+                    long sizeTotal = 0;
+                    foreach (var item in info.Depots.Depots)
+                    {
+                        app.Depots.Add(item.Key, new Depots());
+                        if (int.TryParse(item.Value.dlcappid, out var dlcappid))
+                        {
+                            app.Depots[item.Key].DlcAppID = dlcappid;
+                        }
+                        if (int.TryParse(item.Value.sharedinstall, out var sharedinstall))
+                        {
+                            app.Depots[item.Key].SharedInstall = sharedinstall == 1;
+                        }
+                        if (int.TryParse(item.Value.depotfromapp, out var depotfromapp))
+                        {
+                            app.Depots[item.Key].DepotFromApp = depotfromapp;
+                        }
+                        if (item.Value.Manifests.Any() && (item.Value.Config == null || !item.Value.Config.oslist.Contains("linux") && !item.Value.Config.oslist.Contains("macos")))
+                        {
+                            if (item.Value.Manifests.ContainsKey("public"))
+                            {
+                                if (!string.IsNullOrEmpty(item.Value.Manifests["public"].gid))
+                                {
+                                    app.Depots[item.Key].Manifest = item.Value.Manifests["public"].gid;
+                                }
+                                if (!string.IsNullOrEmpty(item.Value.Manifests["public"].size))
+                                {
+                                    app.Depots[item.Key].Size = item.Value.Manifests["public"].size;
+                                    if (long.TryParse(app.Depots[item.Key].Size, out long value))
+                                    {
+                                        sizeTotal += value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    app.InstallSize = sizeTotal.ToString();
                     if (info.Depots.Depots != null && info.Depots.Depots.Values.Any(x => !string.IsNullOrEmpty(x.dlcappid)))
                     {
                         dlc.AddMissing(info.Depots.Depots.Values.Where(x => uint.TryParse(x.dlcappid, out uint _)).Select(x => uint.Parse(x.dlcappid)).ToList());

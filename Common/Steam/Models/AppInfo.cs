@@ -13,12 +13,14 @@ namespace SteamCommon.Models
         public List<Launch> Launch { get; set; }
         public string Name { get; set; }
         public List<uint> DLC { get; set; }
-        public List<uint> Depots { get; set; }
+        public Dictionary<uint, Depots> Depots { get; set; }
         public List<string> SupportedLanguages { get; set; }
         public Language SmallCapsuleImage { get; set; }
         public bool CloudSaveAvailable { get; set; }
         public bool CloudSaveConfigured { get; set; }
         public IEnumerable<Branches> Branches { get; set; }
+        public string Installdir { get; set; }
+        public string InstallSize { get; set; }
     }
     public partial class Branches
     {
@@ -32,6 +34,14 @@ namespace SteamCommon.Models
         public uint BuildID { get; set; }
         [SerializationPropertyName("time_updated")]
         public int TimeUpdated { get; set; }
+    }
+    public partial class Depots
+    {
+        public int DlcAppID { get; set; }
+        public int DepotFromApp { get; set; }
+        public string Manifest { get; set; }
+        public bool SharedInstall { get; set; }
+        public string Size { get; set; }
     }
 
     public partial class Language
