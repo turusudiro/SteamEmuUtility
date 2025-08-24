@@ -97,7 +97,7 @@ namespace SteamEmuUtility
         {
             Game game = args.Game;
 
-            bool isSteamGame = Steam.IsGameSteamGame(game);
+            bool isGameSteamGameOrHasGoldbergFeature = Steam.IsGameSteamGameOrHasGoldbergFeature(game);
 
             bool goldberg = PlayniteUtilities.HasFeature(game, Goldberg.GoldbergFeature);
             bool greenLumaStealth = PlayniteUtilities.HasFeature(game, StealthModeFeature);
@@ -105,7 +105,7 @@ namespace SteamEmuUtility
             bool greenLumaNormal = PlayniteUtilities.HasFeature(game, NormalModeFeature);
             bool hasGreenLumaFeature = greenLumaNormal || greenLumaStealth || greenLumaFamily;
 
-            if (isSteamGame && goldberg && !hasGreenLumaFeature)
+            if (isGameSteamGameOrHasGoldbergFeature && goldberg && !hasGreenLumaFeature)
             {
                 if (game.IncludeLibraryPluginAction && settings.Settings.GoldbergOverride)
                 {
@@ -162,6 +162,70 @@ namespace SteamEmuUtility
             var steamGame = args.Games.Where(x => x.IsInstalled && Steam.IsGameSteamGame(x));
             int steamGameCount = steamGame.Count();
 
+            var otherSteamLinkedGame = args.Games
+                .Where(x => x.IsInstalled && !Steam.IsGameSteamGame(x) && Steam.IsGameSteamLinked(x))
+                .Select(x =>
+                {
+                    x.GameId = Steam.GetGameSteamAppIdFromLink(x);
+                    return x;
+                })
+                .Where(x => x.GameId != string.Empty);
+            int otherSteamLinkedGameCount = otherSteamLinkedGame.Count();
+
+            // Doesn't allow mixing genuine + other steam games
+            if (otherSteamLinkedGameCount >= 1 && steamGameCount >= 1) yield break;
+            
+            if (otherSteamLinkedGameCount >= 1)
+            {
+                yield return new GameMenuItem
+                {
+                    Icon = "SEU_CheckIco",
+                    Description = ResourceProvider.GetString("LOCSEU_EnableGoldberg"),
+                    MenuSection = "Goldberg",
+                    Action = (a) =>
+                    {
+                        int count = Goldberg.AddGoldbergFeature(otherSteamLinkedGame, PlayniteApi);
+                        PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_AddGoldberg"), count), "Steam Emu Utility");
+                    }
+                };
+                yield return new GameMenuItem
+                {
+                    Icon = "SEU_DisallowIco",
+                    Description = ResourceProvider.GetString("LOCSEU_DisableGoldberg"),
+                    MenuSection = "Goldberg",
+                    Action = (a) =>
+                    {
+                        int count = Goldberg.RemoveGoldbergFeature(otherSteamLinkedGame, PlayniteApi);
+                        PlayniteApi.Dialogs.ShowMessage(string.Format(ResourceProvider.GetString("LOCSEU_RemoveGoldbergFeature"), count), "Steam Emu Utility");
+                    }
+                };
+                yield return new GameMenuItem
+                {
+                    Icon = "SEU_DeleteIco",
+                    Description = string.Format(ResourceProvider.GetString("LOCSEU_ResetAchievement"), otherSteamLinkedGameCount),
+                    MenuSection = "Goldberg",
+                    Action = (a) =>
+                    {
+                        GoldbergTasks.ResetAchievementFile(otherSteamLinkedGame, PlayniteApi);
+                    }
+                };
+                yield return new GameMenuItem
+                {
+                    Icon = "SEU_SettingIco",
+                    Description = string.Format(ResourceProvider.GetString("LOCSEU_OpenGoldbergGenerator"), otherSteamLinkedGameCount),
+                    MenuSection = "Goldberg",
+                    Action = (a) =>
+                    {
+                        if (otherSteamLinkedGameCount == 0)
+                        {
+                            PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_Error0SteamGame"));
+                            return;
+                        }
+                        ShowGoldbergConfig();
+                    }
+                };
+            }
+            
             if (steamGameCount == 1)
             {
                 yield return new GameMenuItem
@@ -404,9 +468,10 @@ namespace SteamEmuUtility
         {
             Game game = args.Game;
 
-            bool isSteamGame = Steam.IsGameSteamGame(game);
+            bool isSteamGameOrHasGoldberg = Steam.IsGameSteamGameOrHasGoldbergFeature(game);
 
-            if (!isSteamGame)
+            // Goldberg feature can apply to non-steam games, so we need to check if it has goldberg
+            if (!isSteamGameOrHasGoldberg)
             {
                 return;
             }
@@ -666,7 +731,7 @@ namespace SteamEmuUtility
         }
         public override void OnGameStartupCancelled(OnGameStartupCancelledEventArgs args)
         {
-            if (!Steam.IsGameSteamGame(args.Game))
+            if (!Steam.IsGameSteamGameOrHasGoldbergFeature(args.Game))
             {
                 return;
             }
@@ -674,7 +739,7 @@ namespace SteamEmuUtility
         }
         public override void OnGameStopped(OnGameStoppedEventArgs args)
         {
-            if (!Steam.IsGameSteamGame(args.Game))
+            if (!Steam.IsGameSteamGameOrHasGoldbergFeature(args.Game))
             {
                 return;
             }

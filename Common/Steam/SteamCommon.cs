@@ -9,12 +9,16 @@ using System.Linq;
 using System.Threading;
 using SteamKit2;
 using System.IO;
+using System.Text.RegularExpressions;
+using GoldbergCommon;
+using PlayniteCommon;
 
 namespace SteamCommon
 {
     public static class Steam
     {
         private static Guid steamPluginId = Guid.Parse("cb91dfc9-b977-43bf-8e70-55f46e410fab");
+        private static readonly Regex appIdPattern = new Regex(@"^https:\/\/(?:store\.steampowered\.com|steamcommunity\.com)\/app\/(\d+)", RegexOptions.IgnoreCase);
         private const string defaultexe = @"C:\Program Files (x86)\Steam\steam.exe";
         private const string defaultdir = @"C:\Program Files (x86)\Steam";
         /// <summary>
@@ -101,6 +105,35 @@ namespace SteamCommon
             }
         }
         /// <summary>
+        /// Extract app id from steam links.
+        /// </summary>
+        /// <param name="game">The game to extract app id for</param>
+        /// <returns>
+        ///  Steam's app id
+        /// </returns>
+        public static string GetGameSteamAppIdFromLink(Game game)
+        {
+            var match = game.Links.FirstOrDefault(l => appIdPattern.IsMatch(l.Url));
+            var appId = string.Empty;
+            if (match != null)
+            {
+                appId = appIdPattern.Match(match.Url).Groups[1].Value;
+            }
+            return appId;
+        }
+        /// <summary>
+        /// Checks if the game has Steam link to extract app id from.
+        /// </summary>
+        /// <param name="game">The game to check</param>
+        /// <returns>
+        /// <c>true</c> if the game has a valid steam link; otherwise <c>false</c>
+        /// </returns>
+        public static bool IsGameSteamLinked(Game game)
+        {
+            var appId = GetGameSteamAppIdFromLink(game);
+            return appId != string.Empty;
+        }
+        /// <summary>
         /// Checks if the game is Steam game.
         /// </summary>
         /// <param name="game">The game to check</param>
@@ -110,6 +143,17 @@ namespace SteamCommon
         public static bool IsGameSteamGame(Game game)
         {
             return game.PluginId == steamPluginId;
+        }
+        /// <summary>
+        /// Checks if the game is Steam game or has enabled goldberg feature.
+        /// </summary>
+        /// <param name="game">The game to check</param>
+        /// <returns>
+        /// <c>true</c> if the game is Steam game or has enabled goldberg feature; otherwise <c>false</c>
+        /// </returns>
+        public static bool IsGameSteamGameOrHasGoldbergFeature(Game game)
+        {
+            return game.PluginId == steamPluginId || PlayniteUtilities.HasFeature(game, Goldberg.GoldbergFeature);
         }
         /// <summary>
         /// Checks if Steam running.

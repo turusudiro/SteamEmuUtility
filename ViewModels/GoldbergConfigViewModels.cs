@@ -78,7 +78,7 @@ namespace SteamEmuUtility.ViewModels
             steamID = (string)ConfigsCommon.GetValue(Path.Combine(goldbergSettingsPath, "configs.user.ini"), "user::general", "account_steamid", 76561197960287930);
             steamID3 = Steam.GetUserSteamID3(steamID).ToString();
 
-            var selectedSteamGames = PlayniteApi.MainView.SelectedGames.Where(g => g.IsInstalled && Steam.IsGameSteamGame(g)).OrderBy(x => x.Name).ToList();
+            var selectedSteamGames = PlayniteApi.MainView.SelectedGames.Where(g => g.IsInstalled && (Steam.IsGameSteamGame(g) || Steam.IsGameSteamLinked(g))).OrderBy(x => x.Name).ToList();
             GoldbergGames = GoldbergTasks.ConvertGames(pluginPath, selectedSteamGames);
             ProcessGames(goldbergPath);
         }
