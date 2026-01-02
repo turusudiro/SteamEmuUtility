@@ -42,10 +42,11 @@ namespace GreenLumaCommon
         public const string GreenLumaDLL86Regex = @"GreenLuma\w+86\.dll";
         public const string GreenLumaDLL64Regex = @"GreenLuma\w+64\.dll";
         public const string InjectorRegex = @"injector*\.exe";
-        public const string X64launcherRegex = @"x64\w+\.exe";
-        public const string FamilyRegex = @"fam.*\.dll";
+        public const string X64launcherRegex = @"x86\w+\.exe";
+        public const string FamilyRegex = @"(fam|sf).*\.dll";
+        public const string DeleteSteamAppCacheRegex = @"DeleteSteamAppCache\.exe";
         public const string GreenLumaDirectoriesRegex = @"GreenLuma.*.files|applist|AppOwnershipTickets|EncryptedAppTickets";
-        public const string GreenLumaFilesRegex = @"GreenLuma.*.(dll|log|exe|txt)|applist*.\d\.txt|inject|ach[a-z]+\.wav|user32.\w*.dll|fam.*\.dll|x64\w+\.exe";
+        public const string GreenLumaFilesRegex = @"GreenLuma.*.(dll|log|exe|txt)|applist*.\d\.txt|inject|ach[a-z]+\.wav|user32(\w*)?\.dll|fam.*\.dll|x86\w+\.exe|DeleteSteamAppCache\.exe";
 
         private static readonly ILogger logger = LogManager.GetLogger();
         public static int AddNormalGameOnlyFeature(IEnumerable<Game> games, IPlayniteAPI playniteAPI)
@@ -293,6 +294,7 @@ namespace GreenLumaCommon
                 missingFiles.Add("Injector");
                 missingFiles.Add("X64launcher");
                 missingFiles.Add("Family DLL");
+                missingFiles.Add("Delete Steam App Cache");
 
                 return false;
             }
@@ -306,7 +308,8 @@ namespace GreenLumaCommon
                 GreenLumaDLL64Regex,
                 InjectorRegex,
                 X64launcherRegex,
-                FamilyRegex
+                FamilyRegex,
+                DeleteSteamAppCacheRegex
             };
 
             foreach (string pattern in glFilesRegex)
@@ -331,10 +334,13 @@ namespace GreenLumaCommon
                             missingFiles.Add("Injector");
                             break;
                         case X64launcherRegex:
-                            missingFiles.Add("X64launcher");
+                            missingFiles.Add("X86launcher");
                             break;
                         case FamilyRegex:
                             missingFiles.Add("Family DLL");
+                            break;
+                        case DeleteSteamAppCacheRegex:
+                            missingFiles.Add("Delete Steam App Cache");
                             break;
                     }
                 }
@@ -388,7 +394,7 @@ namespace GreenLumaCommon
                     return true;
 
                 case GreenLumaMode.Family:
-                    string[] patternsFamily = { InjectorRegex, FamilyRegex };
+                    string[] patternsFamily = { InjectorRegex, FamilyRegex, DeleteSteamAppCacheRegex };
 
                     foreach (string pattern in patternsFamily)
                     {
