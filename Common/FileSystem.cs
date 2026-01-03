@@ -615,28 +615,31 @@ namespace PluginsCommon
         public static IEnumerable<DirectoryInfo> GetDirectories(string path, string regexPattern, RegexOptions regexOptions = RegexOptions.None)
         {
             path = FixPathLength(path);
-            if (!DirectoryExists(path))
-            {
-                return Enumerable.Empty<DirectoryInfo>();
-            }
 
             Regex regex = new Regex(regexPattern, regexOptions);
-            return new DirectoryInfo(path).GetDirectories("*", SearchOption.AllDirectories)
+            try
+            {
+                return new DirectoryInfo(path).GetDirectories("*", SearchOption.AllDirectories)
             .Where(x => regex.IsMatch(x.Name));
+            }
+            catch { return Enumerable.Empty<DirectoryInfo>(); }
         }
 
 
         public static IEnumerable<FileInfo> GetFiles(string path, string regexPattern, RegexOptions regexOptions = RegexOptions.None)
         {
             path = FixPathLength(path);
-            if (!DirectoryExists(path))
+
+            Regex regex = new Regex(regexPattern, regexOptions);
+            try
+            {
+                return new DirectoryInfo(path).GetFiles("*", SearchOption.AllDirectories)
+            .Where(x => regex.IsMatch(x.Name));
+            }
+            catch
             {
                 return Enumerable.Empty<FileInfo>();
             }
-
-            Regex regex = new Regex(regexPattern, regexOptions);
-            return new DirectoryInfo(path).GetFiles("*", SearchOption.AllDirectories)
-            .Where(x => regex.IsMatch(x.Name));
         }
 
 
