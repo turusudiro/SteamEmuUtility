@@ -129,7 +129,7 @@ namespace SteamEmuUtility
                     string pluginPath = GetPluginUserDataPath();
                     string pluginGreenLumaPath = Path.Combine(pluginPath, "GreenLuma");
 
-                    string regexPattern = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex, FamilyRegex);
+                    string regexPattern = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex, FamilyRegex, DeleteSteamAppCacheRegex);
                     IEnumerable<FileInfo> greenlumaFiles = FileSystem.GetFiles(pluginGreenLumaPath,
                                                                                regexPattern,
                                                                                RegexOptions.IgnoreCase);
@@ -524,7 +524,7 @@ namespace SteamEmuUtility
             string pluginPath = GetPluginUserDataPath();
             string pluginGreenLumaPath = Path.Combine(pluginPath, "GreenLuma");
 
-            string regexPattern = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex, FamilyRegex);
+            string regexPattern = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex, FamilyRegex, DeleteSteamAppCacheRegex);
             string regexPatternNormal = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex);
             IEnumerable<FileInfo> greenlumaFiles = FileSystem.GetFiles(pluginGreenLumaPath,
                                                                        regexPattern,
@@ -670,7 +670,7 @@ namespace SteamEmuUtility
 
                         string pluginGreenLumaPath = Path.Combine(pluginPath, "GreenLuma");
 
-                        string regexPattern = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex, FamilyRegex);
+                        string regexPattern = string.Join("|", AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex, FamilyRegex, DeleteSteamAppCacheRegex);
                         IEnumerable<FileInfo> greenlumaFiles = FileSystem.GetFiles(pluginGreenLumaPath,
                                                                                    regexPattern,
                                                                                    RegexOptions.IgnoreCase);
@@ -684,11 +684,12 @@ namespace SteamEmuUtility
                 else if (hasGreenLumaFeature)
                 {
                     // since im using any folder method for Stealth Mode, it doesnt leave any greenlumafiles in steam folder so we dont have to clean any greenlumafiles.
-                    if (greenLumaStealth || greenLumaFamily)
+                    if (greenLumaStealth)
                     {
                         return;
                     }
-                    else if (greenLumaNormal && settings.Settings.CleanGreenLuma)
+                    // Family mode no longer supports any folder method so we have to clean
+                    else if ((greenLumaNormal && settings.Settings.CleanGreenLuma) || greenLumaFamily)
                     {
                         string notificationIdSteamRunning = Id.ToString() + "Clean GreenLuma with Steam running";
                         string notificationIdClean = Id.ToString() + "Clean GreenLuma";
@@ -708,7 +709,8 @@ namespace SteamEmuUtility
 
                         var fileGreenLumaOnSteam = FileSystem.GetFiles(steamDir, GreenLumaFilesRegex, RegexOptions.IgnoreCase);
 
-                        switch (settings.Settings.CleanMode)
+                        var cleanMode = greenLumaFamily ? 0 : settings.Settings.CleanMode;
+                        switch (cleanMode)
                         {
                             case 0:
                                 if (GreenLumaTasks.CloseSteam(PlayniteApi))

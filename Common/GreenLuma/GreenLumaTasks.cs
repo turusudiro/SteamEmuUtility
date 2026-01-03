@@ -66,6 +66,15 @@ namespace GreenLumaCommon
 
                 foreach (var file in fileGreenLumaOnSteam)
                 {
+                    if (Regex.IsMatch(file.Name, User32FamilyRegex, RegexOptions.IgnoreCase) ||
+                        Regex.IsMatch(file.Name, DeleteSteamAppCacheRegex, RegexOptions.IgnoreCase))
+                    {
+                        if (file.Exists)
+                        {
+                            file.Delete();
+                        }
+                        continue;
+                    }
                     if (Regex.IsMatch(file.Name, X64launcherRegex, RegexOptions.IgnoreCase))
                     {
                         var fileinfo = FileVersionInfo.GetVersionInfo(file.FullName);
@@ -442,16 +451,13 @@ namespace GreenLumaCommon
 
             bool injectorRunning = false;
 
-            if (mode == GreenLumaMode.Stealth || mode == GreenLumaMode.Family)
+            if (mode == GreenLumaMode.Stealth)
             {
                 string applistPath = Path.Combine(glPath, "applist");
 
-                bool skipUpdate = (mode == GreenLumaMode.Stealth && settings.SkipUpdateStealth) || (mode == GreenLumaMode.Family && settings.SkipUpdateFamily);
+                bool skipUpdate = settings.SkipUpdateStealth;
 
-                string dll = mode == GreenLumaMode.Stealth ?
-                    greenlumaFiles.FirstOrDefault(x => Regex.IsMatch(x.Name, GreenLumaDLL86Regex, RegexOptions.IgnoreCase)).Name
-                    :
-                    greenlumaFiles.FirstOrDefault(x => Regex.IsMatch(x.Name, FamilyRegex, RegexOptions.IgnoreCase)).Name;
+                string dll = greenlumaFiles.FirstOrDefault(x => Regex.IsMatch(x.Name, GreenLumaDLL86Regex, RegexOptions.IgnoreCase)).Name;
 
                 var dirGreenLumaOnSteam = FileSystem.GetDirectories(steamDir, GreenLumaDirectoriesRegex, RegexOptions.IgnoreCase);
 
@@ -479,6 +485,64 @@ namespace GreenLumaCommon
                 GreenLumaGenerator.CreateDLLInjectorIni(pluginPath, mode, Steam.GetSteamExecutable(), argsList, dll, glPath);
 
                 injectorRunning = StartInjector(injectorPath, mode, settings.GreenLumaTimeout);
+            }
+            else if (mode == GreenLumaMode.Family)
+            {
+                string applistPath = Path.Combine(glPath, "applist");
+
+                if (settings.SkipUpdateFamily)
+                {
+                    argsList.Add("-inhibitbootstrap");
+                }
+
+                var dirGreenLumaOnSteam = FileSystem.GetDirectories(steamDir, GreenLumaDirectoriesRegex, RegexOptions.IgnoreCase);
+
+                var fileGreenLumaOnSteam = FileSystem.GetFiles(steamDir, GreenLumaFilesRegex, RegexOptions.IgnoreCase);
+
+                if (dirGreenLumaOnSteam.Any() || fileGreenLumaOnSteam.Any())
+                {
+                    if (CloseSteam(PlayniteApi))
+                    {
+                        CleanAfterSteamExit(pluginPath, steamDir, dirGreenLumaOnSteam, fileGreenLumaOnSteam)
+                            .GetAwaiter()
+                            .GetResult();
+                    }
+                }
+
+                try
+                {
+                    GreenLumaGenerator.WriteAppList(appids, applistPath, settings.CleanApplist);
+                }
+                catch (Exception ex)
+                {
+                    args.CancelStartup = true;
+                    PlayniteApi.Dialogs.ShowErrorMessage(ex.InnerException.Message);
+                    return;
+                }
+
+                string steamApplistPath = Path.Combine(steamDir, "applist");
+                FileSystem.CreateDirectory(steamApplistPath);
+                foreach (FileInfo applistFile in new DirectoryInfo(applistPath).GetFiles("*.txt", SearchOption.TopDirectoryOnly))
+                {
+                    FileSystem.CopyFile(applistFile.FullName, Path.Combine(steamApplistPath, applistFile.Name), true);
+                }
+
+                FileInfo familyFile = greenlumaFiles.FirstOrDefault(x => Regex.IsMatch(x.Name, FamilyRegex, RegexOptions.IgnoreCase));
+                if (familyFile != null)
+                {
+                    FileSystem.CopyFile(familyFile.FullName, Path.Combine(steamDir, "user32.dll"), true);
+                }
+
+                FileInfo deleteCacheFile = greenlumaFiles.FirstOrDefault(x => Regex.IsMatch(x.Name, DeleteSteamAppCacheRegex, RegexOptions.IgnoreCase));
+                if (deleteCacheFile != null)
+                {
+                    string deleteCachePath = Path.Combine(steamDir, deleteCacheFile.Name);
+                    FileSystem.CopyFile(deleteCacheFile.FullName, deleteCachePath, true);
+                    ProcessUtilities.StartProcessWait(deleteCachePath, string.Empty, string.Empty, true);
+                }
+
+                string steamArgs = argsList.Any() ? string.Join(" ", argsList) : string.Empty;
+                injectorRunning = ProcessUtilities.StartProcess(Steam.GetSteamExecutable(), steamArgs) != null;
             }
             else if (mode == GreenLumaMode.Normal)
             {
