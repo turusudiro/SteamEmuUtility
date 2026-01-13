@@ -32,7 +32,7 @@ namespace GreenLumaCommon
             Family
         }
         public const string Url = @"https://cs.rin.ru/forum/viewtopic.php?f=29&t=103709";
-        public const string User32FamilyRegex = @"user32.\w*.dll";
+        public const string StealthRegex = @"user32.dll";
         public const string NormalModeFeature = "[SEU] Normal Mode";
         public const string StealthModeFeature = "[SEU] Stealth Mode";
         public const string FamilySharingModeFeatuere = "[SEU] Family Sharing Mode";
@@ -42,8 +42,8 @@ namespace GreenLumaCommon
         public const string GreenLumaDLL86Regex = @"GreenLuma\w+86\.dll";
         public const string GreenLumaDLL64Regex = @"GreenLuma\w+64\.dll";
         public const string InjectorRegex = @"injector*\.exe";
-        public const string X64launcherRegex = @"x86\w+\.exe";
-        public const string FamilyRegex = @"(fam|sf).*\.dll";
+        public const string X86launcherRegex = @"x86\w+\.exe";
+        public const string FamilyRegex = @"(fam|sf|user32\w+).*\.dll";
         public const string DeleteSteamAppCacheRegex = @"DeleteSteamAppCache\.exe";
         public const string GreenLumaDirectoriesRegex = @"GreenLuma.*.files|applist|AppOwnershipTickets|EncryptedAppTickets";
         public const string GreenLumaFilesRegex = @"GreenLuma.*.(dll|log|exe|txt)|applist*.\d\.txt|inject|ach[a-z]+\.wav|user32(\w*)?\.dll|fam.*\.dll|x86\w+\.exe|DeleteSteamAppCache\.exe";
@@ -307,7 +307,7 @@ namespace GreenLumaCommon
                 GreenLumaDLL86Regex,
                 GreenLumaDLL64Regex,
                 InjectorRegex,
-                X64launcherRegex,
+                X86launcherRegex,
                 FamilyRegex,
                 DeleteSteamAppCacheRegex
             };
@@ -333,7 +333,7 @@ namespace GreenLumaCommon
                         case InjectorRegex:
                             missingFiles.Add("Injector");
                             break;
-                        case X64launcherRegex:
+                        case X86launcherRegex:
                             missingFiles.Add("X86launcher");
                             break;
                         case FamilyRegex:
@@ -364,7 +364,7 @@ namespace GreenLumaCommon
             switch (mode)
             {
                 case GreenLumaMode.Normal:
-                    string[] patternsNormal = { AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X64launcherRegex };
+                    string[] patternsNormal = { AchievementRegex, GreenLumaDLL86Regex, GreenLumaDLL64Regex, InjectorRegex, X86launcherRegex };
 
                     foreach (string pattern in patternsNormal)
                     {
