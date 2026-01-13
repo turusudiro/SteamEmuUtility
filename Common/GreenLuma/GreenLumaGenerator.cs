@@ -99,6 +99,12 @@ namespace GreenLumaCommon
             data.Sections[section]["Use4GBPatch"] = "0";
             data.Sections[section]["FileToPatch_1"] = "";
 
+            data.Sections[section]["BootImage"] = "";
+            data.Sections[section]["BootImageWidth"] = "0";
+            data.Sections[section]["BootImageHeight"] = "0";
+            data.Sections[section]["BootImageXOffest"] = "0";
+            data.Sections[section]["BootImageYOffest"] = "0";
+
             if (mode == GreenLumaMode.Stealth || mode == GreenLumaMode.Family)
             {
                 data.Sections[section]["CommandLine"] = args;

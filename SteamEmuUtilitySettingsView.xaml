@@ -145,6 +145,9 @@
                         <CheckBox Content="{DynamicResource LOCSEU_GLCleanApplistFolderNotEmpty}" IsChecked="{Binding Settings.CleanApplist}" Margin="0,0,0,15"/>
                         <TextBlock Text="{Binding Settings.GreenLumaTimeoutText}" Margin="0,0,0,10"/>
                         <Slider Value="{Binding Settings.GreenLumaTimeout}" Minimum="3" Maximum="10" IsSnapToTickEnabled="True" TickFrequency="1" Width="140" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+                        <CheckBox Content="{DynamicResource LOCSEU_GLStealthFamilyAnyFolder}"
+                                  IsChecked="{Binding Settings.StealthFamilyAnyFolder}"
+                                  Margin="0,0,0,10" />
                     </StackPanel>
                     <Separator/>
                     <StackPanel Margin="5,10,5,0">

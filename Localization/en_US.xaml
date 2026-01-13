@@ -3,6 +3,7 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
 
+    <sys:String x:Key="LOCSEU_GLStealthFamilyAnyFolder">Use any folder method for Stealth/Family mode</sys:String>
     <sys:String x:Key="LOCSEU_ACFGenerator">ACF Generator</sys:String>
     <sys:String x:Key="LOCSEU_OpenAcfGenerator">Open ACF Generator</sys:String>
     <sys:String x:Key="LOCSEU_Add">Add</sys:String>

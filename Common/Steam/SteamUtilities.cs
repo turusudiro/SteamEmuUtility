@@ -1,11 +1,11 @@
 ﻿using Playnite.SDK;
 using SteamCommon.Models;
 using SteamKit2;
+using SteamStoreQuery;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using SteamStoreQuery;
 
 namespace SteamCommon
 {

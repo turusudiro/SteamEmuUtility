@@ -22,6 +22,16 @@ namespace SteamEmuUtility
 {
     public class SteamEmuUtilitySettings : ObservableObject
     {
+        private bool stealthFamilyAnyFolder;
+        public bool StealthFamilyAnyFolder
+        {
+            get => stealthFamilyAnyFolder;
+            set
+            {
+                stealthFamilyAnyFolder = value;
+                OnPropertyChanged();
+            }
+        }
         private BitmapImage _avatarimage;
         [DontSerialize]
         public BitmapImage AvatarImage

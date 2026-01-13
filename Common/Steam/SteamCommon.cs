@@ -1,17 +1,17 @@
-﻿using Microsoft.Win32;
+﻿using GoldbergCommon;
+using Microsoft.Win32;
 using Playnite.SDK.Models;
+using PlayniteCommon;
 using PluginsCommon;
 using ProcessCommon;
+using SteamKit2;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using SteamKit2;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
-using GoldbergCommon;
-using PlayniteCommon;
+using System.Threading;
 
 namespace SteamCommon
 {
