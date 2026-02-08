@@ -656,15 +656,15 @@ namespace SteamEmuUtility
             if (greenLumaNormal)
             {
                 greenlumaFiles = FileSystem.GetFiles(pluginGreenLumaPath, regexPatternNormal, RegexOptions.IgnoreCase);
-                GreenLumaTasks.StartGreenLumaJob(onGameStartingEventArgs, PlayniteApi, appids, GreenLumaMode.Normal, greenlumaFiles);
+                GreenLumaTasks.StartGreenLumaJob(onGameStartingEventArgs, PlayniteApi, this, settings.Settings, appids, GreenLumaMode.Normal, greenlumaFiles);
             }
             else if (greenLumaStealth)
             {
-                GreenLumaTasks.StartGreenLumaJob(onGameStartingEventArgs, PlayniteApi, appids, GreenLumaMode.Stealth, greenlumaFiles);
+                GreenLumaTasks.StartGreenLumaJob(onGameStartingEventArgs, PlayniteApi, this, settings.Settings, appids, GreenLumaMode.Stealth, greenlumaFiles);
             }
             else if (greenLumaFamily)
             {
-                GreenLumaTasks.StartGreenLumaJob(onGameStartingEventArgs, PlayniteApi, appids, GreenLumaMode.Family, greenlumaFiles);
+                GreenLumaTasks.StartGreenLumaJob(onGameStartingEventArgs, PlayniteApi, this, settings.Settings, appids, GreenLumaMode.Family, greenlumaFiles);
             }
             if (globalProgressActionArgs.CancelToken.IsCancellationRequested)
             {
@@ -715,46 +715,19 @@ namespace SteamEmuUtility
                     return;
                 }
 
-                var dirGreenLumaOnSteam = FileSystem.GetDirectories(steamDir, GreenLumaDirectoriesRegex, RegexOptions.IgnoreCase);
-
-                var fileGreenLumaOnSteam = FileSystem.GetFiles(steamDir, GreenLumaFilesRegex, RegexOptions.IgnoreCase).ToList();
-
-                FileInfo x64launcher = fileGreenLumaOnSteam.FirstOrDefault(x => Regex.IsMatch(x.Name, X86launcherRegex, RegexOptions.IgnoreCase));
-
-                bool x64launcherFromValve = false;
-
-                if (x64launcher != null && x64launcher.Exists)
-                {
-                    // check if x64launcher.exe is from steam
-                    var versionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(x64launcher.FullName);
-                    x64launcherFromValve = versionInfo.ProductName == "Steam";
-
-                    // remove x64launcher.exe item from fileGreenLumaOnSteam variable since its confirmed the file is originally from steam
-                    if (x64launcherFromValve)
-                    {
-                        fileGreenLumaOnSteam.Remove(x64launcher);
-                    }
-                }
-
-                if (!dirGreenLumaOnSteam.Any() && !fileGreenLumaOnSteam.Any())
-                {
-                    return;
-                }
+                string notificationIdSteamRunning = Id.ToString() + "Clean GreenLuma Startup";
 
                 if (Steam.IsSteamRunning())
                 {
-                    string notificationIdSteamRunning = Id.ToString() + "Clean GreenLuma with Steam running";
                     PlayniteApi.Notifications.Add(new NotificationMessage(notificationIdSteamRunning, ResourceProvider.GetString("LOCSEU_SteamIsRunningNotification"),
                     NotificationType.Info));
-                    GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath(), steamDir, dirGreenLumaOnSteam, fileGreenLumaOnSteam)
-                        .ContinueWith(t => { PlayniteApi.Notifications.Remove(notificationIdSteamRunning); });
+                    cleanGLTask = CleanGLAfterSteamExitTask();
                 }
                 else
                 {
-                    string notificationIdSteamRunning = Id.ToString() + "Clean GreenLuma with Steam running";
-                    GreenLumaTasks.CleanAfterSteamExit(GetPluginUserDataPath(), steamDir, dirGreenLumaOnSteam, fileGreenLumaOnSteam)
-                        .ContinueWith(t => { PlayniteApi.Notifications.Remove(notificationIdSteamRunning); });
+                    cleanGLTask = CleanGLAfterSteamExitTask();
                 }
+                cleanGLTask.ContinueWith(t => { PlayniteApi.Notifications.Remove(notificationIdSteamRunning); });
             }
         }
         public override ISettings GetSettings(bool firstRunSettings)
@@ -854,7 +827,7 @@ namespace SteamEmuUtility
                         CloseSteam();
                     }
 
-                    cleanGLTask = CleanGLAfterExitTask();
+                    cleanGLTask = CleanGLAfterSteamExitTask();
 
                     await cleanGLTask;
                     PlayniteApi.Notifications.Add(notificationMessageFinish);
@@ -863,68 +836,23 @@ namespace SteamEmuUtility
 
             }
         }
-        async Task CleanGLAfterExitTask()
+        async Task CleanGLAfterSteamExitTask()
         {
             while (Steam.IsSteamRunning())
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
-            CleanGreenLuma();
-            cleanGLTask = null;
-        }
-        void CleanGreenLuma()
-        {
             try
             {
-                string steamDir = Steam.GetSteamDirectory();
-                foreach (var dir in FileSystem.GetDirectories(steamDir, GreenLumaDirectoriesRegex, RegexOptions.IgnoreCase))
-                {
-                    if (dir.Exists)
-                    {
-                        dir.Delete(true);
-                    }
-                }
-
-                var fileGreenLumaOnSteam = FileSystem.GetFiles(steamDir, GreenLumaFilesRegex, RegexOptions.IgnoreCase);
-
-                var fileGreenLumaOnSteamBin = FileSystem.GetFiles(Path.Combine(steamDir, "bin"), X86launcherRegex, RegexOptions.IgnoreCase);
-
-                fileGreenLumaOnSteam = fileGreenLumaOnSteam.Union(fileGreenLumaOnSteamBin);
-                foreach (var file in fileGreenLumaOnSteam)
-                {
-                    if (Regex.IsMatch(file.Name, StealthRegex, RegexOptions.IgnoreCase) ||
-                        Regex.IsMatch(file.Name, DeleteSteamAppCacheRegex, RegexOptions.IgnoreCase))
-                    {
-                        if (file.Exists)
-                        {
-                            file.Delete();
-                        }
-                        continue;
-                    }
-                    if (Regex.IsMatch(file.Name, X86launcherRegex, RegexOptions.IgnoreCase))
-                    {
-                        var fileinfo = FileVersionInfo.GetVersionInfo(file.FullName);
-                        bool fromValve = fileinfo.ProductName == "Steam" ? true : false;
-                        if (fromValve)
-                        {
-                            continue;
-                        }
-
-                        FileInfo x64backup = FileSystem.GetFiles(Path.Combine(GetPluginUserDataPath(), "Backup"),
-                            X86launcherRegex, RegexOptions.IgnoreCase).FirstOrDefault();
-
-                        FileSystem.CopyFile(x64backup.FullName, file.FullName);
-                        continue;
-                    }
-                    if (file.Exists)
-                    {
-                        file.Delete();
-                    }
-                }
+                GreenLumaTasks.CleanGreenLuma(Steam.GetSteamDirectory(), Path.Combine(GetPluginUserDataPath(), "Backup"));
             }
             catch (Exception ex)
             {
                 logger.Error(ex.Message);
+            }
+            finally
+            {
+                cleanGLTask = null;
             }
         }
         void CloseSteam()
@@ -935,7 +863,7 @@ namespace SteamEmuUtility
             {
                 try
                 {
-                    ProcessUtilities.StartProcess("cmd.exe", $"/c taskkill /PID {steamProcess.Id} /F", true);
+                    ProcessUtilities.StartProcessHidden("cmd.exe", $"/c taskkill /PID {steamProcess.Id} /F");
                 }
                 catch (Exception ex)
                 {
