@@ -22,7 +22,7 @@ namespace SteamEmuUtility
 {
     public class SteamEmuUtilitySettings : ObservableObject
     {
-        private bool stealthFamilyAnyFolder;
+        private bool stealthFamilyAnyFolder = false;
         public bool StealthFamilyAnyFolder
         {
             get => stealthFamilyAnyFolder;
@@ -44,7 +44,7 @@ namespace SteamEmuUtility
             }
         }
 
-        private bool _goldbergenableaccountavatar;
+        private bool _goldbergenableaccountavatar = false;
         [DontSerialize]
         public bool GoldbergEnableAccountAvatar
         {
@@ -56,7 +56,7 @@ namespace SteamEmuUtility
             }
         }
 
-        private string _goldbergaccountname;
+        private string _goldbergaccountname = string.Empty;
         [DontSerialize]
         public string GoldbergAccountName
         {
@@ -68,7 +68,7 @@ namespace SteamEmuUtility
             }
         }
 
-        private string _goldberglanguage;
+        private string _goldberglanguage = string.Empty;
         [DontSerialize]
         public string GoldbergLanguage
         {
@@ -79,7 +79,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private string _goldberglistenport;
+        private string _goldberglistenport = string.Empty;
         [DontSerialize]
         public string GoldbergListenPort
         {
@@ -90,7 +90,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private string _goldbergcustombroadcasts;
+        private string _goldbergcustombroadcasts = string.Empty;
         [DontSerialize]
         public string GoldbergCustomBroadcasts
         {
@@ -101,7 +101,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private string _goldbergusersteamid;
+        private string _goldbergusersteamid = string.Empty;
         [DontSerialize]
         public string GoldbergUserSteamID
         {
@@ -112,7 +112,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private string _goldbergcountryip;
+        private string _goldbergcountryip = string.Empty;
         [DontSerialize]
         public string GoldbergCountryIP
         {
@@ -123,7 +123,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool goldbergoverride;
+        private bool goldbergoverride = false;
         public bool GoldbergOverride
         {
             get => goldbergoverride;
@@ -163,7 +163,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private string steamwebapi;
+        private string steamwebapi = string.Empty;
         public string SteamWebApi
         {
             get => steamwebapi;
@@ -173,7 +173,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private string steamargs;
+        private string steamargs = string.Empty;
         public string SteamArgs
         {
             get => steamargs;
@@ -183,7 +183,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool enablesteamargs;
+        private bool enablesteamargs = false;
         public bool EnableSteamArgs
         {
             get => enablesteamargs;
@@ -193,7 +193,7 @@ namespace SteamEmuUtility
                 OnPropertyChanged();
             }
         }
-        private bool opensteamafterexit;
+        private bool opensteamafterexit = false;
         public bool OpenSteamAfterExit
         {
             get => opensteamafterexit;
@@ -706,14 +706,15 @@ namespace SteamEmuUtility
         }
         void ExtractGreenLumaFiles(string archivePath, string destinationFolder)
         {
-            ExtractGreenLumaFiles(archivePath, destinationFolder, null);
+            ExtractGreenLumaFiles(archivePath, destinationFolder, "cs.rin.ru");
         }
         void ExtractGreenLumaFiles(string archivePath, string destinationFolder, string password)
         {
             SevenZipBase.SetLibraryPath(Path.Combine(SevenZipLib, Environment.Is64BitProcess ? "x64" : "x86", "7z.dll"));
             using (var extractor = new SevenZipExtractor(archivePath, password))
             {
-                var files = extractor.ArchiveFileData.Where(x => Regex.IsMatch(x.FileName, GreenLuma.GreenLumaFilesRegex, RegexOptions.IgnoreCase));
+                string regex = @"^(?!.*server).*";
+                var files = extractor.ArchiveFileData.Where(x => Regex.IsMatch(x.FileName, regex, RegexOptions.IgnoreCase) && !x.IsDirectory);
 
                 if (!FileSystem.IsDirectoryEmpty(destinationFolder))
                 {
