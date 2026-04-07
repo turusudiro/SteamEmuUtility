@@ -169,8 +169,9 @@ namespace SteamEmuUtility
                 .Where(x => x.IsInstalled && !Steam.IsGameSteamGame(x) && Steam.IsGameSteamLinked(x))
                 .Select(x =>
                 {
-                    x.GameId = Steam.GetGameSteamAppIdFromLink(x);
-                    return x;
+                    var clone = Serialization.GetClone(x);
+                    clone.GameId = Steam.GetGameSteamAppIdFromLink(x);
+                    return clone;
                 })
                 .Where(x => x.GameId != string.Empty);
             int otherSteamLinkedGameCount = otherSteamLinkedGame.Count();
