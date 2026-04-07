@@ -41,9 +41,9 @@ namespace DlcManagerCommon
         {
             string file = Path.Combine(Path.Combine(pluginPath, "GamesInfo", $"{appid}.json"));
 
-            if (Serialization.TryFromJsonFile(file, out ObservableCollection<DlcInfo> json))
+            if (Serialization.TryFromJsonFile(file, out List<DlcInfo> json))
             {
-                return json.Where(dlc => dlc.Enable.Equals(true));
+                return json;
             }
             else
             {

@@ -2,6 +2,7 @@
 using GoldbergCommon;
 using GreenLumaCommon;
 using Playnite.SDK;
+using Playnite.SDK.Data;
 using Playnite.SDK.Events;
 using Playnite.SDK.Models;
 using Playnite.SDK.Plugins;
@@ -11,10 +12,11 @@ using ProcessCommon;
 using SteamCommon;
 using SteamEmuUtility.Controller;
 using SteamEmuUtility.ViewModels;
+using SteamEmuUtility.ViewModels.Goldberg;
 using SteamEmuUtility.Views;
+using SteamEmuUtility.Views.Goldberg;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -22,7 +24,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using static GreenLumaCommon.GreenLuma;
 
 namespace SteamEmuUtility
@@ -37,60 +38,18 @@ namespace SteamEmuUtility
 
         public SteamEmuUtility(IPlayniteAPI api) : base(api)
         {
+            const string uriString = "pack://application:,,,/SteamEmuUtility;component/Resources.xaml";
+            bool alreadyLoaded = Application.Current.Resources.MergedDictionaries
+                .Any(d => d.Source?.OriginalString == uriString);
+
+            if (!alreadyLoaded)
+            {
+                Application.Current.Resources.MergedDictionaries.Add(
+                    new ResourceDictionary { Source = new Uri(uriString, UriKind.Absolute) });
+            }
+
             settings = new SteamEmuUtilitySettingsViewModel(this);
 
-            Application.Current.Resources.Add("SEU_SteamIco", new TextBlock
-            {
-                Text = "\xed71",
-                FontSize = 20,
-                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
-            });
-
-            Application.Current.Resources.Add("SEU_DeleteIco", new TextBlock
-            {
-                Text = "\xec53",
-                FontSize = 20,
-                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
-            });
-
-            Application.Current.Resources.Add("SEU_SettingIco", new TextBlock
-            {
-                Text = "\xefe2",
-                FontSize = 20,
-                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
-            });
-
-            Application.Current.Resources.Add("SEU_CheckIco", new TextBlock
-            {
-                Text = "\xeed7",
-                FontSize = 20,
-                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
-            });
-
-            Application.Current.Resources.Add("SEU_DisallowIco", new TextBlock
-            {
-                Text = "\xefa9",
-                FontSize = 20,
-                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
-            });
-            Application.Current.Resources.Add("SEU_Ticket", new TextBlock
-            {
-                Text = "\xf00f",
-                FontSize = 20,
-                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
-            });
-            Application.Current.Resources.Add("SEU_Unlock", new TextBlock
-            {
-                Text = "\xec8c",
-                FontSize = 20,
-                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
-            });
-            Application.Current.Resources.Add("SEU_Gear", new TextBlock
-            {
-                Text = "\xef3b",
-                FontSize = 20,
-                FontFamily = ResourceProvider.GetResource("FontIcoFont") as FontFamily
-            });
             Properties = new GenericPluginProperties
             {
                 HasSettings = true
@@ -225,9 +184,22 @@ namespace SteamEmuUtility
                             PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_Error0SteamGame"));
                             return;
                         }
-                        ShowGoldbergConfig();
+                        ShowGoldbergConfig(otherSteamLinkedGame);
                     }
                 };
+                if (otherSteamLinkedGameCount == 1)
+                {
+                    yield return new GameMenuItem
+                    {
+                        Icon = "SEU_ModIcon",
+                        Description = ResourceProvider.GetString("LOCSEU_GBOpenModManager"),
+                        MenuSection = "Goldberg",
+                        Action = (a) =>
+                        {
+                            ShowGoldbergModManager(otherSteamLinkedGame.FirstOrDefault());
+                        }
+                    };
+                }
             }
 
             if (steamGameCount == 1)
@@ -288,9 +260,22 @@ namespace SteamEmuUtility
                             PlayniteApi.Dialogs.ShowErrorMessage(ResourceProvider.GetString("LOCSEU_Error0SteamGame"));
                             return;
                         }
-                        ShowGoldbergConfig();
+                        ShowGoldbergConfig(steamGame);
                     }
                 };
+                if (steamGameCount == 1)
+                {
+                    yield return new GameMenuItem
+                    {
+                        Icon = "SEU_ModIcon",
+                        Description = ResourceProvider.GetString("LOCSEU_GBOpenModManager"),
+                        MenuSection = "Goldberg",
+                        Action = (a) =>
+                        {
+                            ShowGoldbergModManager(steamGame.FirstOrDefault());
+                        }
+                    };
+                }
                 yield return new GameMenuItem
                 {
                     Icon = "SEU_CheckIco",
@@ -424,14 +409,14 @@ namespace SteamEmuUtility
 
             window.ShowDialog();
         }
-        void ShowGoldbergConfig()
+        void ShowGoldbergConfig(IEnumerable<Game> games)
         {
             var window = PlayniteApi.Dialogs.CreateWindow(new WindowCreationOptions
             {
                 ShowMinimizeButton = false
             });
 
-            var viewModel = new GoldbergConfigViewModel(PlayniteApi, settings.Settings, GetPluginUserDataPath());
+            var viewModel = new GoldbergConfigViewModel(this, settings.Settings, games);
 
             window.Height = 440;
             window.Width = 780;
@@ -447,6 +432,26 @@ namespace SteamEmuUtility
                 window.Width = 1100;
             }
 
+            window.ShowDialog();
+        }
+        void ShowGoldbergModManager(Game game)
+        {
+            var window = PlayniteApi.Dialogs.CreateWindow(new WindowCreationOptions
+            {
+                ShowMinimizeButton = false
+            });
+
+            var viewModel = new GoldbergModManagerViewModels(this, game)
+            {
+                RequestClose = () => window.Close()
+            };
+            window.Height = 440;
+            window.Width = 750;
+            window.Title = ResourceProvider.GetString("LOCSEU_GBModManager");
+            window.Content = new GoldbergModManagerView();
+            window.DataContext = viewModel;
+            window.Owner = PlayniteApi.Dialogs.GetCurrentAppWindow();
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             window.ShowDialog();
         }
         void ShowAcfGenerator()

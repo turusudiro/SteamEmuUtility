@@ -1,7 +1,20 @@
-<?xml version="1.0"?>
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
-                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<?xml version="1.0" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="LOCSEU_GBCreateSymlink">Buat Symlink</sys:String>
+    <sys:String x:Key="LOCSEU_GBScanInstalledWorkshop">Pindai Workshop Terinstal</sys:String>
+    <sys:String x:Key="LOCSEU_GBRefreshError">Pastikan setidaknya ada 1 mod di mods.json</sys:String>
+    <sys:String x:Key="LOCSEU_GBRefreshEnabledWorkshop">Segarkan {0} workshop yang aktif?</sys:String>
+    <sys:String x:Key="LOCSEU_GBRefreshWorkshopMetadata">Segarkan Metadata Workshop</sys:String>
+    <sys:String x:Key="LOCSEU_GBUsingModsJson" xml:space="preserve">menggunakan mods.json
+Mod yang tidak terdaftar di mods.json akan diabaikan.</sys:String>
+    <sys:String x:Key="LOCSEU_GBOpenModsDir">Buka Direktori Mod</sys:String>
+    <sys:String x:Key="LOCSEU_GBScannerNoWorkshop">Tidak ada workshop terinstal yang ditemukan!</sys:String>
+    <sys:String x:Key="LOCSEU_GBModManager">Pengelola Mod Goldberg</sys:String>
+    <sys:String x:Key="LOCSEU_GBOpenModManager">Buka Pengelola Mod Goldberg</sys:String>
 
     <sys:String x:Key="LOCSEU_GLStealthFamilyAnyFolder">Gunakan metode folder dari mana saja untuk mode Stealth/Family</sys:String>
     <sys:String x:Key="LOCSEU_ACFGenerator">ACF Generator</sys:String>
@@ -19,7 +32,7 @@
     <sys:String x:Key="LOCSEU_SavingACF">Menyimpan ACF</sys:String>
     <sys:String x:Key="LOCSEU_SearchByName">Cari Berdasarkan Nama</sys:String>
     <sys:String x:Key="LOCSEU_SearchingName">Mencari {0}</sys:String>
-    
+
     <sys:String x:Key="LOCSEU_DLCUnlocker">Pembuka DLC</sys:String>
     <sys:String x:Key="LOCSEU_NoDLCEnabled" xml:space="preserve">Tidak ada DLC yang diaktifkan. Silahkan centang setidaknya satu di Manajer DLC.
 Lanjutkan tanpa DLC?</sys:String>
@@ -94,7 +107,6 @@ Klik di sini untuk mengunduh versi terbaru.</sys:String>
 pastikan Mode Pengembang diaktifkan.</sys:String>
 
     <sys:String x:Key="LOCSEU_GeneralLabel">Umum</sys:String>
-    <sys:String x:Key="LOCSEU_Import">Impor</sys:String>
     <sys:String x:Key="LOCSEU_Download">Unduh</sys:String>
     <sys:String x:Key="LOCSEU_Downloading">Mengunduh</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaErrorFeature">Fitur GreenLuma tidak valid untuk permainan ini, pastikan untuk memilih salah satu</sys:String>

@@ -38,7 +38,10 @@
       <HintPath>packages\ini-parser.2.5.2\lib\net20\INIFileParser.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.Xaml.Behaviors.Wpf.1.1.122\lib\net462\Microsoft.Xaml.Behaviors.dll</HintPath>
+      <HintPath>packages\Microsoft.Xaml.Behaviors.Wpf.1.1.39\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Playnite.SDK, Version=6.15.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\PlayniteSDK.6.15.0\lib\net462\Playnite.SDK.dll</HintPath>
@@ -75,6 +78,7 @@
     <Compile Include="Common\Acf\Models\AppidFinder.cs" />
     <Compile Include="Common\Acf\Models\Acf.cs" />
     <Compile Include="Common\Converters.cs" />
+    <Compile Include="Common\Goldberg\Models\GoldbergMod.cs" />
     <Compile Include="Common\ImageCommon.cs" />
     <Compile Include="Common\Extensions\ProcessExtensions.cs" />
     <Compile Include="Common\Extensions\StringExtensions.cs" />
@@ -89,6 +93,7 @@
     <Compile Include="Common\GreenLuma\GreenLumaGenerator.cs" />
     <Compile Include="Common\GreenLuma\GreenLumaTasks.cs" />
     <Compile Include="Common\DlcManagerCommon.cs" />
+    <Compile Include="Common\Serialization\FilterEmptyStringsResolver.cs" />
     <Compile Include="Common\Steam\IStoreServiceCommon.cs" />
     <Compile Include="Common\Native\Fileapi.cs" />
     <Compile Include="Common\Native\Kernel32.cs" />
@@ -98,6 +103,7 @@
     <Compile Include="Common\Native\Windef.cs" />
     <Compile Include="Common\Native\winuser.cs" />
     <Compile Include="Common\Paths.cs" />
+    <Compile Include="Common\Steam\Models\AppWorkshop.cs" />
     <Compile Include="Common\Steam\Models\DlcInfo.cs" />
     <Compile Include="Common\Steam\Models\SteamCallback.cs" />
     <Compile Include="Common\Steam\Models\SteamCMDApi.cs" />
@@ -113,6 +119,12 @@
     <Compile Include="Common\Steam\Models\AppInfo.cs" />
     <Compile Include="Common\Steam\Models\AppList.cs" />
     <Compile Include="Common\Web\InternetConnectionChecker.cs" />
+    <Compile Include="Controls\IconText.xaml.cs">
+      <DependentUpon>IconText.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PropertyRow.xaml.cs">
+      <DependentUpon>PropertyRow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PlayController\GoldbergController.cs" />
     <Compile Include="Common\Goldberg\ParseController.cs" />
     <Compile Include="Services\SteamService.cs" />
@@ -124,19 +136,32 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\AcfGeneratorAppidFinderViewModels.cs" />
     <Compile Include="ViewModels\AcfGeneratorViewModels.cs" />
-    <Compile Include="ViewModels\GoldbergConfigViewModels.cs" />
+    <Compile Include="ViewModels\Goldberg\Dialogs\WorkshopImportDialogViewModel.cs" />
+    <Compile Include="ViewModels\Goldberg\GoldbergConfigViewModels.cs" />
     <Compile Include="ViewModels\DlcManagerViewModels.cs" />
+    <Compile Include="ViewModels\Goldberg\Dialogs\GoldbergModEditorDialogViewModel.cs" />
+    <Compile Include="ViewModels\Goldberg\GoldbergModManagerViewModels.cs" />
+    <Compile Include="ViewModels\Goldberg\GoldbergModViewModel.cs" />
     <Compile Include="Views\AcfGeneratorAppidFinderView.xaml.cs">
       <DependentUpon>AcfGeneratorAppidFinderView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\AcfGeneratorView.xaml.cs">
       <DependentUpon>AcfGeneratorView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\GoldbergConfigView.xaml.cs">
+    <Compile Include="Views\Goldberg\Dialogs\WorkshopImportDialogView.xaml.cs">
+      <DependentUpon>WorkshopImportDialogView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Goldberg\GoldbergConfigView.xaml.cs">
       <DependentUpon>GoldbergConfigView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DlcManagerView.xaml.cs">
       <DependentUpon>DlcManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Goldberg\Dialogs\GoldbergModEditorDialogView.xaml.cs">
+      <DependentUpon>GoldbergModEditorDialogView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Goldberg\GoldbergModManagerView.xaml.cs">
+      <DependentUpon>GoldbergModManagerView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +176,18 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Include="Controls\IconText.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\PropertyRow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="SteamEmuUtilitySettingsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -163,11 +200,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\GoldbergConfigView.xaml">
+    <Page Include="Views\Goldberg\Dialogs\WorkshopImportDialogView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Goldberg\GoldbergConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DlcManagerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Goldberg\Dialogs\GoldbergModEditorDialogView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Goldberg\GoldbergModManagerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -188,12 +237,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Release (
-if "$(ConfigurationName)" == "Release" (
-    "%25LocalAppData%25\Playnite\Toolbox.exe" pack "$(ProjectDir)bin\Debug" "$(ProjectDir)bin\Release"
-)
-
-)</PostBuildEvent>
+    <PlayniteToolboxPath Condition="'$(PlayniteToolboxPath)' == ''">%25LocalAppData%25\Playnite\Toolbox.exe</PlayniteToolboxPath>
+    <PostBuildEvent>
+		  if "$(ConfigurationName)" == "Release" (
+		  "$(PlayniteToolboxPath)" pack "$(ProjectDir)bin\Debug" "$(ProjectDir)bin\Release"
+		  )
+	  </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>if $(ConfigurationName) == Debug (

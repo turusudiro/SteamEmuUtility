@@ -1,11 +1,11 @@
-﻿using System;
+﻿using AcfGenerator.Models;
+using Playnite.SDK;
+using SteamCommon;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using AcfGenerator.Models;
-using Playnite.SDK;
-using SteamCommon;
 
 namespace SteamEmuUtility.ViewModels
 {

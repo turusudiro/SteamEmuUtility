@@ -612,6 +612,18 @@ namespace PluginsCommon
         }
 
 
+        public static IEnumerable<DirectoryInfo> GetDirectories(string path, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+        {
+            path = FixPathLength(path);
+
+            try
+            {
+                return new DirectoryInfo(path).GetDirectories("*", searchOption);
+            }
+            catch { return Enumerable.Empty<DirectoryInfo>(); }
+        }
+
+
         public static IEnumerable<DirectoryInfo> GetDirectories(string path, string regexPattern, RegexOptions regexOptions = RegexOptions.None, SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             path = FixPathLength(path);

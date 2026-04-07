@@ -1,0 +1,135 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style
+        x:Key="SEU_ButtonStyle"
+        BasedOn="{StaticResource {x:Type Button}}"
+        TargetType="Button">
+        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="Margin" Value="5" />
+    </Style>
+    <Style x:Key="SEU_FolderOpenIconStyle" TargetType="TextBlock">
+        <Setter Property="Text" Value="&#xef35;" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontIcoFont}" />
+    </Style>
+    <Style
+        x:Key="SEU_CheckCircleStyle"
+        BasedOn="{StaticResource BaseTextBlockStyle}"
+        TargetType="TextBlock">
+        <Setter Property="Text" Value="&#xeed7;" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontIcoFont}" />
+    </Style>
+    <Style
+        x:Key="SEU_CloseCircleStyle"
+        BasedOn="{StaticResource BaseTextBlockStyle}"
+        TargetType="TextBlock">
+        <Setter Property="Text" Value="&#xeedd;" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontIcoFont}" />
+    </Style>
+    <Style x:Key="SEU_DeleteIconStyle" TargetType="TextBlock">
+        <Setter Property="Text" Value="&#xec53;" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontIcoFont}" />
+    </Style>
+    <Style x:Key="SEU_MinusIconStyle" TargetType="TextBlock">
+        <Setter Property="Text" Value="&#xef99;" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontIcoFont}" />
+    </Style>
+    <Style x:Key="SEU_PlusIconStyle" TargetType="TextBlock">
+        <Setter Property="Text" Value="&#xefc1;" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontIcoFont}" />
+    </Style>
+    <Style x:Key="SEU_RefreshIconStyle" TargetType="TextBlock">
+        <Setter Property="Text" Value="&#xefd1;" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontIcoFont}" />
+    </Style>
+
+    <TextBlock
+        x:Key="SEU_PlusIcon"
+        x:Shared="False"
+        FontFamily="{DynamicResource FontIcoFont}"
+        FontSize="20"
+        Text="&#xefc1;" />
+    <TextBlock
+        x:Key="SEU_ModIcon"
+        x:Shared="False"
+        FontFamily="{DynamicResource FontIcoFont}"
+        FontSize="20"
+        Text="&#xe9c4;" />
+    <TextBlock
+        x:Key="SEU_SteamIco"
+        x:Shared="False"
+        FontFamily="{DynamicResource FontIcoFont}"
+        FontSize="20"
+        Text="&#xed71;" />
+    <TextBlock
+        x:Key="SEU_DeleteIco"
+        x:Shared="False"
+        FontFamily="{DynamicResource FontIcoFont}"
+        FontSize="20"
+        Text="&#xec53;" />
+    <TextBlock
+        x:Key="SEU_SettingIco"
+        x:Shared="False"
+        FontFamily="{DynamicResource FontIcoFont}"
+        FontSize="20"
+        Text="&#xefe2;" />
+    <TextBlock
+        x:Key="SEU_CheckIco"
+        x:Shared="False"
+        FontFamily="{DynamicResource FontIcoFont}"
+        FontSize="20"
+        Text="&#xeed7;" />
+    <TextBlock
+        x:Key="SEU_DisallowIco"
+        x:Shared="False"
+        FontFamily="{DynamicResource FontIcoFont}"
+        FontSize="20"
+        Text="&#xefa9;" />
+    <TextBlock
+        x:Key="SEU_Ticket"
+        x:Shared="False"
+        FontFamily="{DynamicResource FontIcoFont}"
+        FontSize="20"
+        Text="&#xf00f;" />
+    <TextBlock
+        x:Key="SEU_Unlock"
+        x:Shared="False"
+        FontFamily="{DynamicResource FontIcoFont}"
+        FontSize="20"
+        Text="&#xec8c;" />
+    <TextBlock
+        x:Key="SEU_Gear"
+        x:Shared="False"
+        FontFamily="{DynamicResource FontIcoFont}"
+        FontSize="20"
+        Text="&#xef3b;" />
+
+    <Style x:Key="NoSelectionDataGridCell" TargetType="{x:Type DataGridCell}">
+        <Setter Property="Background" Value="{x:Null}" />
+        <Setter Property="BorderBrush" Value="{x:Null}" />
+        <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource Self}, Path=Foreground}" />
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{x:Null}" />
+                <Setter Property="BorderBrush" Value="{x:Null}" />
+                <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource Self}, Path=Foreground}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="NoSelectionDataGridRow" TargetType="{x:Type DataGridRow}">
+        <Setter Property="Background" Value="{x:Null}" />
+        <Setter Property="BorderBrush" Value="{x:Null}" />
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{x:Null}" />
+                <Setter Property="BorderBrush" Value="{x:Null}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

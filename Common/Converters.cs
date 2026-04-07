@@ -9,18 +9,19 @@ namespace ConvertersCommon
 {
     public class BooleanToVisibilityConverter : MarkupExtension, IValueConverter
     {
-        private static BooleanToVisibilityConverter _instance;
+        private static readonly BooleanToVisibilityConverter _instance = new BooleanToVisibilityConverter();
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
-            return _instance ?? (_instance = new BooleanToVisibilityConverter());
+            return _instance;
         }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool boolValue)
             {
-                return boolValue ? Visibility.Visible : Visibility.Collapsed;
+                bool invert = parameter != null && System.Convert.ToBoolean(parameter);
+                return (boolValue ^ invert) ? Visibility.Visible : Visibility.Collapsed;
             }
             return Visibility.Collapsed;
         }

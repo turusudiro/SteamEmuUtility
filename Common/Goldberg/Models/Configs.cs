@@ -1,6 +1,10 @@
 ﻿using GoldbergCommon.Configs;
+using IniParser;
+using PluginsCommon;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 
 namespace GoldbergCommon.Models
@@ -171,10 +175,40 @@ namespace GoldbergCommon.Models
         {
             set
             {
+                var parser = new FileIniDataParser();
+                parser.Parser.Configuration.CommentString = "#";
+                parser.Parser.Configuration.AssigmentSpacer = "";
+                if (!FileSystem.FileExists(IniPath))
+                {
+                    FileSystem.CreateFile(IniPath, true);
+                }
+                var data = parser.ReadFile(IniPath);
+                if (!data.Sections.ContainsSection("app::dlcs"))
+                {
+                    data.Sections.AddSection("app::dlcs");
+                }
+
+                var dlcs = data.Sections["app::dlcs"].Where(x => int.TryParse(x.KeyName, out var res)).Select(x => x.KeyName).ToList();
+
+                if (dlcs.Count == 0 && value.Count == 0)
+                {
+                    return;
+                }
+
+                foreach (var dlc in dlcs)
+                {
+                    data.Sections["app::dlcs"].RemoveKey(dlc);
+                }
                 foreach (var dlc in value)
                 {
-                    ConfigsCommon.SerializeConfigs(dlc.Value, IniPath, "app::dlcs", dlc.Key);
+                    data.Sections["app::dlcs"][dlc.Key] = dlc.Value;
+                    //ConfigsCommon.SerializeConfigs(dlc.Value, IniPath, "app::dlcs", dlc.Key);
                 }
+                try
+                {
+                    parser.WriteFile(IniPath, data, new UTF8Encoding());
+                }
+                catch { }
             }
         }
     }

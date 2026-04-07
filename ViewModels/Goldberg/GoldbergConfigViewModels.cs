@@ -3,6 +3,7 @@ using GoldbergCommon.Configs;
 using GoldbergCommon.Models;
 using Playnite.SDK;
 using Playnite.SDK.Data;
+using Playnite.SDK.Models;
 using PluginsCommon;
 using SteamCommon;
 using SteamCommon.Models;
@@ -11,9 +12,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using static GoldbergCommon.Goldberg;
 
 
-namespace SteamEmuUtility.ViewModels
+namespace SteamEmuUtility.ViewModels.Goldberg
 {
     class GoldbergConfigViewModel : ObservableObject, IDisposable
     {
@@ -66,20 +68,19 @@ namespace SteamEmuUtility.ViewModels
                 OnPropertyChanged();
             }
         }
-        public GoldbergConfigViewModel(IPlayniteAPI api, SteamEmuUtilitySettings settings, string pluginPath)
+        public GoldbergConfigViewModel(SteamEmuUtility plugin, SteamEmuUtilitySettings settings, IEnumerable<Game> games)
         {
-            PlayniteApi = api;
+            PlayniteApi = plugin.PlayniteApi;
             this.settings = settings;
-            this.pluginPath = pluginPath;
-            goldbergPath = Goldberg.GetGoldbergAppData();
+            this.pluginPath = plugin.GetPluginUserDataPath();
+            goldbergPath = GetGoldbergAppData();
             string goldbergSettingsPath = Path.Combine(goldbergPath, "settings");
 
             steamDir = Steam.GetSteamDirectory();
             steamID = (string)ConfigsCommon.GetValue(Path.Combine(goldbergSettingsPath, "configs.user.ini"), "user::general", "account_steamid", 76561197960287930);
             steamID3 = Steam.GetUserSteamID3(steamID).ToString();
 
-            var selectedSteamGames = PlayniteApi.MainView.SelectedGames.Where(g => g.IsInstalled && (Steam.IsGameSteamGame(g) || Steam.IsGameSteamLinked(g))).OrderBy(x => x.Name).ToList();
-            GoldbergGames = GoldbergTasks.ConvertGames(pluginPath, selectedSteamGames);
+            GoldbergGames = GoldbergTasks.ConvertGames(pluginPath, games);
             ProcessGames(goldbergPath);
         }
         private void ProcessGames(string goldbergPath)
@@ -212,7 +213,7 @@ namespace SteamEmuUtility.ViewModels
                 progressOptions.IsIndeterminate = true;
                 PlayniteApi.Dialogs.ActivateGlobalProgress((progress) =>
                 {
-                    string goldbergPath = Goldberg.GetGoldbergAppData();
+                    string goldbergPath = GetGoldbergAppData();
                     string steamDir = Steam.GetSteamDirectory();
                     string gamesteamSettingsDir = Path.Combine(pluginPath, "GamesInfo", game.Appid);
                     string goldbergGameDataPath = Path.Combine(goldbergPath, game.Appid);
@@ -273,6 +274,14 @@ namespace SteamEmuUtility.ViewModels
                     }
                 }, progressOptions);
             });
+        }
+        public RelayCommand<GoldbergGame> OpenModsConfig
+        {
+            get => new RelayCommand<GoldbergGame>(OpenMods);
+        }
+        void OpenMods(GoldbergGame game)
+        {
+            System.Diagnostics.Debugger.Break();
         }
     }
 }

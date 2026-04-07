@@ -247,7 +247,7 @@ namespace GoldbergCommon
                 var dict = new Dictionary<string, string>();
                 foreach (var dlc in dlcs)
                 {
-                    if (dlc.Enable)
+                    if (!game.ConfigsEmu.UnlockOnlySelectedDLC || dlc.Enable)
                     {
                         dict.Add(dlc.Appid.ToString(), dlc.Name);
                     }

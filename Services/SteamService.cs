@@ -1,11 +1,11 @@
 ﻿using Playnite.SDK;
+using SteamCommon.Models;
 using SteamKit2;
 using SteamKit2.Unified.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using SteamCommon.Models;
 
 namespace SteamCommon
 {

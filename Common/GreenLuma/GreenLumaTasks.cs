@@ -13,7 +13,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using static GreenLumaCommon.GreenLuma;
 
@@ -247,7 +246,7 @@ namespace GreenLumaCommon
             bool skipUpdate = settings.SkipUpdateStealth;
 
             string dll = greenlumaFiles.FirstOrDefault(x => Regex.IsMatch(x.Name, GreenLumaDLL64Regex, RegexOptions.IgnoreCase)).Name;
-            
+
             if (skipUpdate)
             {
                 argsList.Add("-inhibitbootstrap");

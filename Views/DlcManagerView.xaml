@@ -30,7 +30,7 @@
 
             <DataGrid.Columns>
                 <!-- Enable Column -->
-                <DataGridTemplateColumn Header="Enable" Width="1*">
+                <DataGridTemplateColumn Header="{DynamicResource LOCSEU_Enable}" Width="1*">
                     <DataGridTemplateColumn.HeaderStyle>
                         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                             <Setter Property="HorizontalContentAlignment" Value="Center"/>

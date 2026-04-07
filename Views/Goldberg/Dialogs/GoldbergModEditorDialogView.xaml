@@ -1,0 +1,97 @@
+﻿<UserControl x:Class="SteamEmuUtility.Views.Goldberg.Dialogs.GoldbergModEditorDialogView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:SteamEmuUtility.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SteamEmuUtility.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:SteamEmuUtility.ViewModels"
+    d:DataContext="{d:DesignInstance vm:GoldbergModEditorDialogViewModel,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <Style BasedOn="{StaticResource BaseTextBlockStyle}" TargetType="TextBlock" />
+    </UserControl.Resources>
+    <Grid Margin="20,10" Grid.IsSharedSizeScope="True">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ScrollViewer Margin="0,0,0,10">
+            <StackPanel>
+                <controls:PropertyRow Label="ID" Value="{Binding Mod.ID}" />
+                <controls:PropertyRow Label="Title" Value="{Binding Mod.Title}" />
+                <controls:PropertyRow Label="Description" Value="{Binding Mod.Description}" />
+                <controls:PropertyRow
+                    Label="Steam ID Owner"
+                    ValueType="ULong"
+                    Value="{Binding Mod.SteamIDOwner}" />
+                <controls:PropertyRow
+                    Label="Time Created"
+                    ValueType="Integer"
+                    Value="{Binding Mod.TimeCreated}" />
+                <controls:PropertyRow
+                    Label="Time Updated"
+                    ValueType="Integer"
+                    Value="{Binding Mod.TimeUpdated}" />
+                <controls:PropertyRow
+                    Label="Time Added"
+                    ValueType="Integer"
+                    Value="{Binding Mod.TimeAdded}" />
+                <controls:PropertyRow Label="Tags" Value="{Binding Mod.Tags}" />
+                <controls:PropertyRow Label="Primary File Name" Value="{Binding Mod.PrimaryFileName}" />
+                <controls:PropertyRow
+                    Label="Primary File Size"
+                    ValueType="Integer"
+                    Value="{Binding Mod.PrimaryFileSize}" />
+                <controls:PropertyRow Label="Preview File Name" Value="{Binding Mod.PreviewFileName}" />
+                <controls:PropertyRow
+                    Label="Preview File Size"
+                    ValueType="Integer"
+                    Value="{Binding Mod.PreviewFileSize}" />
+                <controls:PropertyRow
+                    Label="Total Files Sizes"
+                    ValueType="Integer"
+                    Value="{Binding Mod.TotalFilesSizes}" />
+                <controls:PropertyRow Label="Min Game Branch" Value="{Binding Mod.MinGameBranch}" />
+                <controls:PropertyRow Label="Max Game Branch" Value="{Binding Mod.MaxGameBranch}" />
+                <controls:PropertyRow Label="Workshop Item URL" Value="{Binding Mod.WorkshopItemURL}" />
+                <controls:PropertyRow
+                    Label="Upvotes"
+                    ValueType="Integer"
+                    Value="{Binding Mod.Upvotes}" />
+                <controls:PropertyRow
+                    Label="Downvotes"
+                    ValueType="Integer"
+                    Value="{Binding Mod.Downvotes}" />
+                <controls:PropertyRow
+                    Label="Num Children"
+                    ValueType="Integer"
+                    Value="{Binding Mod.NumChildren}" />
+                <controls:PropertyRow Label="Path" Value="{Binding Mod.Path}" />
+                <controls:PropertyRow Label="Preview URL" Value="{Binding Mod.PreviewURL}" />
+                <controls:PropertyRow
+                    Label="Score"
+                    ValueType="Double"
+                    Value="{Binding Mod.Score}" />
+                <controls:PropertyRow Label="Metadata" Value="{Binding Mod.Metadata}" />
+            </StackPanel>
+        </ScrollViewer>
+        <StackPanel
+            Grid.Row="1"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+
+            <Button
+                Command="{Binding ApplyCommand}"
+                Content="{DynamicResource LOCSaveLabel}"
+                Style="{StaticResource BottomButton}" />
+            <Button
+                Command="{Binding Cancel}"
+                Content="{DynamicResource LOCCancelLabel}"
+                Style="{StaticResource BottomButton}" />
+        </StackPanel>
+    </Grid>
+</UserControl>

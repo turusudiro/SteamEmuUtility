@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
-using AcfGenerator.Models;
+﻿using AcfGenerator.Models;
 using Playnite.SDK;
 using PluginsCommon;
 using ProcessCommon;
@@ -13,6 +6,13 @@ using SteamCommon;
 using SteamCommon.Models;
 using SteamEmuUtility.Views;
 using SteamKit2;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace SteamEmuUtility.ViewModels
 {

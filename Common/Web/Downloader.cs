@@ -47,6 +47,48 @@ namespace DownloaderCommon
         {
         }
 
+        public string DownloadStringPost(string url, Dictionary<string, string> formData, Action<int> onProgress = null, CancellationToken ct = default)
+        {
+            logger.Debug($"Downloading string content from {url} using POST.");
+
+            using (var webClient = new WebClient { Encoding = Encoding.UTF8 })
+            {
+                webClient.Headers.Add("User-Agent", playniteUserAgent);
+                webClient.Headers.Add(HttpRequestHeader.ContentType, "application/x-www-form-urlencoded");
+
+                using (ct.Register(() => webClient.CancelAsync()))
+                {
+                    if (onProgress != null)
+                    {
+                        webClient.UploadProgressChanged += (sender, e) => onProgress(e.ProgressPercentage);
+                    }
+
+                    var postData = string.Join("&", formData.Select(kv =>
+                        $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}"));
+
+                    var tcs = new TaskCompletionSource<string>();
+
+                    webClient.UploadStringCompleted += (sender, e) =>
+                    {
+                        if (e.Cancelled) tcs.TrySetCanceled(ct);
+                        else if (e.Error != null) tcs.TrySetException(e.Error);
+                        else tcs.TrySetResult(e.Result);
+                    };
+
+                    webClient.UploadStringAsync(new Uri(url), "POST", postData);
+
+                    try
+                    {
+                        return tcs.Task.GetAwaiter().GetResult();
+                    }
+                    catch (Exception) when (ct.IsCancellationRequested)
+                    {
+                        throw new OperationCanceledException(ct);
+                    }
+                }
+            }
+        }
+
         public string DownloadString(IEnumerable<string> mirrors)
         {
             logger.Debug($"Downloading string content from multiple mirrors.");

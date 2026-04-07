@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace SteamEmuUtility.Views
+namespace SteamEmuUtility.Views.Goldberg
 {
     /// <summary>
     /// Interaction logic for GoldbergConfigView.xaml

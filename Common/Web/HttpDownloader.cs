@@ -14,6 +14,11 @@ namespace DownloaderCommon
         private static readonly HttpClient httpClient = new HttpClient();
         private static readonly Downloader downloader = new Downloader();
 
+        public static string DownloadStringPost(string url, Dictionary<string, string> formData, Action<int> onProgress = null, CancellationToken ct = default)
+        {
+            return downloader.DownloadStringPost(url, formData, onProgress, ct);
+        }
+
         public static string DownloadString(IEnumerable<string> mirrors)
         {
             return downloader.DownloadString(mirrors);

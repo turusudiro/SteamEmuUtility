@@ -1,7 +1,19 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
-                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
+    <sys:String x:Key="LOCSEU_GBCreateSymlink">Create Symlink</sys:String>
+    <sys:String x:Key="LOCSEU_GBScanInstalledWorkshop">Scan Installed Workshop</sys:String>
+    <sys:String x:Key="LOCSEU_GBRefreshWorkshopError">Make sure there are atleast 1 mod in mods.json</sys:String>
+    <sys:String x:Key="LOCSEU_GBRefreshEnabledWorkshop">Refresh Enabled {0} workshop?</sys:String>
+    <sys:String x:Key="LOCSEU_GBRefreshWorkshopMetadata">Refresh Workshop Metadata</sys:String>
+    <sys:String x:Key="LOCSEU_GBUsingModsJson" xml:space="preserve">using mods.json
+        Mods not listed in mods.json will be ignored.</sys:String>
+    <sys:String x:Key="LOCSEU_GBOpenModsDir">Open Mods Directory</sys:String>
+    <sys:String x:Key="LOCSEU_GBScannerNoWorkshop">No installed workshop found!</sys:String>
+    <sys:String x:Key="LOCSEU_GBModManager">Goldberg Mod Manager</sys:String>
+    <sys:String x:Key="LOCSEU_GBOpenModManager">Open Goldberg Mod Manager</sys:String>
 
     <sys:String x:Key="LOCSEU_GLStealthFamilyAnyFolder">Use any folder method for Stealth/Family mode</sys:String>
     <sys:String x:Key="LOCSEU_ACFGenerator">ACF Generator</sys:String>
@@ -94,7 +106,6 @@ Click here to download the latest version.</sys:String>
 make sure Developer Mode is enabled.</sys:String>
 
     <sys:String x:Key="LOCSEU_GeneralLabel">General</sys:String>
-    <sys:String x:Key="LOCSEU_Import">Import</sys:String>
     <sys:String x:Key="LOCSEU_Download">Download</sys:String>
     <sys:String x:Key="LOCSEU_Downloading">Downloading</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaErrorFeature">Invalid GreenLuma features for this game, please make sure to choose one</sys:String>
