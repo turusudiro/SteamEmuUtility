@@ -33,7 +33,7 @@ namespace SteamEmuUtility.Controller
             this.pluginPath = pluginPath;
             pluginGoldbergPath = Path.Combine(pluginPath, "Goldberg");
             this.game = GoldbergTasks.ConvertGame(pluginPath, game);
-            coldClientExecutable32 = Path.Combine(pluginPath, "Goldberg", "steamclient_loader_x32.exe");
+            coldClientExecutable32 = Path.Combine(pluginPath, "Goldberg", "steamclient_loader_x86.exe");
             coldClientExecutable64 = Path.Combine(pluginPath, "Goldberg", "steamclient_loader_x64.exe");
         }
         public override void Dispose()
