@@ -26,9 +26,9 @@ namespace GoldbergCommon
             var ColdClientFiles = new List<string>
             {
             $"{path}\\steamclient.dll",
-            $"{path}\\extra_dlls\\steamclient_extra_x32.dll",
+            $"{path}\\extra_dlls\\steamclient_extra_x86.dll",
             $"{path}\\extra_dlls\\steamclient_extra_x64.dll",
-            $"{path}\\steamclient_loader_x32.exe",
+            $"{path}\\steamclient_loader_x86.exe",
             $"{path}\\steamclient_loader_x64.exe",
             $"{path}\\steamclient64.dll",
             };
