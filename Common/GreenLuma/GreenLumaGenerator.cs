@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using static GreenLumaCommon.GreenLuma;
 
 namespace GreenLumaCommon
@@ -133,44 +134,60 @@ namespace GreenLumaCommon
         /// <param name="destinationPath">Destination path</param>
         /// /// <param name="overwrite">Delete existing applist</param>
         /// <returns></returns>
-        public static bool WriteAppList(IEnumerable<string> appids, string destinationPath, bool overwrite = false)
+        public static void WriteAppList(IEnumerable<string> appids, string applistIniFile, string destinationPath, bool overwrite = false)
         {
-            int count = 0;
+            var regex = new Regex(@"(?<appid>\d+)\s=");
+            var oldAppids = new List<string>();
+            foreach (var line in File.ReadAllLines(applistIniFile))
+            {
+                var match = regex.Match(line);
+                if (match.Success)
+                {
+                    string appid = match.Groups["appid"].Value;
+                    oldAppids.Add(appid);
+                }
+            }
 
-            if (overwrite)
+            var parser = new FileIniDataParser();
+            parser.Parser.Configuration.CommentString = "#";
+
+            Dictionary<string, string> existsAppIds = new Dictionary<string, string>();
+            var applistIniTargetPath = Path.Combine(destinationPath, "AppList.ini");
+            if (!overwrite && FileSystem.FileExists(applistIniTargetPath))
             {
-                if (!FileSystem.IsDirectoryEmpty(destinationPath))
+                var existsApplistIniData = parser.ReadFile(applistIniTargetPath);
+                existsApplistIniData["AppList"].RemoveKey("NumAppIDs");
+                foreach (var key in existsApplistIniData.Sections["AppList"])
                 {
-                    FileSystem.DeleteDirectory(destinationPath);
+                    oldAppids.Remove(key.KeyName);
+                    existsAppIds[key.KeyName] = key.Value;
                 }
             }
-            else
+            else if (FileSystem.DirectoryExists(destinationPath))
             {
-                if (FileSystem.DirectoryExists(destinationPath))
-                {
-                    var applist = new DirectoryInfo(destinationPath).GetFiles("*.txt", SearchOption.TopDirectoryOnly);
-                    var appidsToRemove = appids.ToList();
-                    if (applist != null && applist.Count() > 0)
-                    {
-                        foreach (var file in applist)
-                        {
-                            string content = file.OpenText().ReadToEnd();
-                            if (!string.IsNullOrWhiteSpace(content))
-                            {
-                                appidsToRemove.RemoveAll(x => x.Contains(content));
-                            }
-                        }
-                        count = applist.Count();
-                        appids = appidsToRemove;
-                    }
-                }
+                FileSystem.DeleteDirectory(destinationPath);
             }
+            FileSystem.CreateDirectory(destinationPath);
+
+            var applistIniData = parser.ReadFile(applistIniFile);
+            applistIniData["AppList"].RemoveAllKeys();
+
+            foreach (var exist in existsAppIds)
+            {
+                applistIniData["AppList"][exist.Key] = exist.Value;
+            }
+
+            int count = 0;
             foreach (var appid in appids)
             {
-                FileSystem.WriteStringToFile(Path.Combine(destinationPath, $"{count}.txt"), appid);
+                if (count >= oldAppids.Count) break;
+                applistIniData["AppList"][oldAppids[count]] = appid.ToString();
                 count++;
             }
-            return true;
+            var total = applistIniData["AppList"].Count;
+            applistIniData["AppList"]["NumAppIDs"] = total.ToString();
+
+            parser.WriteFile(applistIniTargetPath, applistIniData, new UTF8Encoding(false));
         }
         public static void GenerateDLC(Game game, SteamService steam, GlobalProgressActionArgs progress, string apiKey, string pluginPath)
         {

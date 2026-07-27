@@ -39,6 +39,7 @@ namespace GreenLumaCommon
         public const string GameUnlockingFeature = "[SEU] Game Unlocking";
         public const string DLCUnlockingFeature = "[SEU] DLC Unlocking";
         public const string AchievementRegex = @"ach[a-z]+\.wav";
+        public const string AppListIniRegex = @"AppList\.ini";
         public const string GreenLumaDLL86Regex = @"GreenLuma\w+86\.dll";
         public const string GreenLumaDLL64Regex = @"GreenLuma\w+64\.dll";
         public const string InjectorRegex = @"injector*\.exe";
@@ -289,6 +290,7 @@ namespace GreenLumaCommon
             if (!FileSystem.DirectoryExists(path))
             {
                 missingFiles.Add("Achievement");
+                missingFiles.Add("AppList.ini");
                 missingFiles.Add("GreenLuma DLL x86");
                 missingFiles.Add("GreenLuma DLL x64");
                 missingFiles.Add("Injector");
@@ -304,6 +306,7 @@ namespace GreenLumaCommon
             List<string> glFilesRegex = new List<string>()
             {
                 AchievementRegex,
+                AppListIniRegex,
                 GreenLumaDLL86Regex,
                 GreenLumaDLL64Regex,
                 InjectorRegex,
@@ -323,6 +326,9 @@ namespace GreenLumaCommon
                     {
                         case AchievementRegex:
                             missingFiles.Add("Achievement");
+                            break;
+                        case AppListIniRegex:
+                            missingFiles.Add("AppList.ini");
                             break;
                         case GreenLumaDLL86Regex:
                             missingFiles.Add("GreenLuma DLL x86");

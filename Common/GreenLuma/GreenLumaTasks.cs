@@ -145,6 +145,7 @@ namespace GreenLumaCommon
 
             string pluginPath = plugin.GetPluginUserDataPath();
             string glPath = Path.Combine(pluginPath, "GreenLuma");
+            var appListIniPath = Path.Combine(glPath, "AppList.ini");
 
             SteamEmuUtilitySettings settings = plugin.LoadPluginSettings<SteamEmuUtilitySettings>();
 
@@ -253,7 +254,7 @@ namespace GreenLumaCommon
             }
             try
             {
-                GreenLumaGenerator.WriteAppList(appids, applistPath, settings.CleanApplist);
+                GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
             }
             catch (Exception ex)
             {
@@ -280,6 +281,7 @@ namespace GreenLumaCommon
 
             string pluginPath = plugin.GetPluginUserDataPath();
             string glPath = Path.Combine(pluginPath, "GreenLuma");
+            var appListIniPath = Path.Combine(glPath, "AppList.ini");
 
             bool isSteamRunning = Steam.IsSteamRunning();
 
@@ -421,7 +423,7 @@ namespace GreenLumaCommon
 
                         injectorRunning = StartInjector(injectorPath, mode, settings.GreenLumaTimeout);
 
-                        GreenLumaGenerator.WriteAppList(appids, applistPath, settings.CleanApplist);
+                        GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
                     }
                     catch (Exception ex)
                     {
@@ -434,7 +436,7 @@ namespace GreenLumaCommon
                 {
                     applistPath = Path.Combine(steamDir, "applist");
 
-                    GreenLumaGenerator.WriteAppList(appids, applistPath, settings.CleanApplist);
+                    GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
 
                     var dll = mode == GreenLumaMode.Stealth ?
                     greenlumaFiles.FirstOrDefault(x => Regex.IsMatch(x.Name, StealthRegex, RegexOptions.IgnoreCase))
@@ -505,7 +507,7 @@ namespace GreenLumaCommon
 
                 try
                 {
-                    GreenLumaGenerator.WriteAppList(appids, applistPath, settings.CleanApplist);
+                    GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
                 }
                 catch (Exception ex)
                 {
