@@ -106,6 +106,7 @@ Click here to download the latest version.</sys:String>
 make sure Developer Mode is enabled.</sys:String>
 
     <sys:String x:Key="LOCSEU_GeneralLabel">General</sys:String>
+    <sys:String x:Key="LOCSEU_Import">Import</sys:String>
     <sys:String x:Key="LOCSEU_Download">Download</sys:String>
     <sys:String x:Key="LOCSEU_Downloading">Downloading</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaErrorFeature">Invalid GreenLuma features for this game, please make sure to choose one</sys:String>

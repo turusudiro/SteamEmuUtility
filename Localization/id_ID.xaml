@@ -107,6 +107,7 @@ Klik di sini untuk mengunduh versi terbaru.</sys:String>
 pastikan Mode Pengembang diaktifkan.</sys:String>
 
     <sys:String x:Key="LOCSEU_GeneralLabel">Umum</sys:String>
+    <sys:String x:Key="LOCSEU_Import">Impor</sys:String>
     <sys:String x:Key="LOCSEU_Download">Unduh</sys:String>
     <sys:String x:Key="LOCSEU_Downloading">Mengunduh</sys:String>
     <sys:String x:Key="LOCSEU_GreenLumaErrorFeature">Fitur GreenLuma tidak valid untuk permainan ini, pastikan untuk memilih salah satu</sys:String>
