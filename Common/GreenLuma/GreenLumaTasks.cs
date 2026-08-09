@@ -115,28 +115,28 @@ namespace GreenLumaCommon
             bool injectorRunning = false;
 
             var process = ProcessUtilities.StartProcess(injectorPath);
-            bool dllinjectorRunningAndError = false;
             // Wait for Steam to run using the DLL injector, because the default PlayController from the Steam library will launch steam.exe
             // immediately after starting the DLLInjector process, which will cause a conflict with the behavior of this plugin.
-            for (int time = 0; time < timeout; time += 1)
+            if (mode == GreenLumaMode.Stealth)
             {
-                if (ProcessUtilities.IsProcessRunning("steam") && ProcessUtilities.IsProcessRunning(process.ProcessName))
-                {
-                    // If DLLInjector.exe shows a dialog popup, assume an error occurred. Normally, DLLInjector running from this plugin 
-                    // will not show any dialog popup since this plugin is using NoQuestion mode.
-                    dllinjectorRunningAndError = ProcessUtilities.IsErrorDialog(process, process.ProcessName);
-                    if (dllinjectorRunningAndError)
-                    {
-                        injectorRunning = false;
-                    }
-                    else
-                    {
-                        injectorRunning = true;
-                    }
-                    break;
-                }
-                Thread.Sleep(TimeSpan.FromSeconds(2));
+                process.WaitForExit();
+                injectorRunning = true;
             }
+            else
+            {
+                for (int time = 0; time < timeout; time += 1)
+                {
+                    if (ProcessUtilities.IsProcessRunning("steam") && ProcessUtilities.IsProcessRunning(process.ProcessName))
+                    {
+                        // If DLLInjector.exe shows a dialog popup, assume an error occurred. Normally, DLLInjector running from this plugin 
+                        // will not show any dialog popup since this plugin is using NoQuestion mode.
+                        injectorRunning = !ProcessUtilities.IsErrorDialog(process, process.ProcessName);
+                        break;
+                    }
+                    Thread.Sleep(TimeSpan.FromSeconds(2));
+                }
+            }
+            
             return injectorRunning;
         }
         public static void StartGreenLumaJob(IPlayniteAPI PlayniteApi, IEnumerable<string> appids, IEnumerable<FileInfo> greenlumaFiles)
