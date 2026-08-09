@@ -51,73 +51,41 @@ namespace GreenLumaCommon
             // Dll to inject
             data.Sections[section]["Dll"] = dllPath;
 
+            // Export to call in dll
+            data.Sections[section]["Export"] = "Init";
+
+            // Check if call to export returned positive value, debugbreak if not
+            data.Sections[section]["CheckReturnValue"] = "0";
+
+            // Terminate the process when an error is sent from the injected dll
+            data.Sections[section]["TerminateOnError"] = "1";
+
             // Wait for started exe to close before exiting the DllInjector process.
             data.Sections[section]["WaitForProcessTermination"] = "1";
 
-            // Set a fake parent process
-            // EnableMitigationsOnChildProcess must be disabled for this.
+            // Set fake parent process
             data.Sections[section]["EnableFakeParentProcess"] = "0";
             data.Sections[section]["FakeParentProcess"] = "explorer.exe";
 
-            // Enable security mitigations on child process.
-            data.Sections[section]["EnableMitigationsOnChildProcess"] = "0";
-
-            data.Sections[section]["DEP"] = "1";
-            data.Sections[section]["SEHOP"] = "1";
-            data.Sections[section]["HeapTerminate"] = "1";
-            data.Sections[section]["ForceRelocateImages"] = "1";
-            data.Sections[section]["BottomUpASLR"] = "1";
-            data.Sections[section]["HighEntropyASLR"] = "1";
-            data.Sections[section]["RelocationsRequired"] = "1";
-            data.Sections[section]["StrictHandleChecks"] = "0";
-            data.Sections[section]["Win32kSystemCallDisable"] = "0";
-            data.Sections[section]["ExtensionPointDisable"] = "1";
-            data.Sections[section]["CFG"] = "1";
-            data.Sections[section]["CFGExportSuppression"] = "1";
-            data.Sections[section]["StrictCFG"] = "1";
-            data.Sections[section]["DynamicCodeDisable"] = "0";
-            data.Sections[section]["DynamicCodeAllowOptOut"] = "0";
-            data.Sections[section]["BlockNonMicrosoftBinaries"] = "0";
-            data.Sections[section]["FontDisable"] = "1";
-            data.Sections[section]["NoRemoteImages"] = "1";
-            data.Sections[section]["NoLowLabelImages"] = "1";
-            data.Sections[section]["PreferSystem32"] = "0";
-            data.Sections[section]["RestrictIndirectBranchPrediction"] = "1";
-            data.Sections[section]["SpeculativeStoreBypassDisable"] = "0";
-            data.Sections[section]["ShadowStack"] = "0";
-            data.Sections[section]["ContextIPValidation"] = "0";
-            data.Sections[section]["BlockNonCETEHCONT"] = "0";
-            data.Sections[section]["BlockFSCTL"] = "0";
-
             // Number to files to create
-            data.Sections[section]["CreateFiles"] = "1";
+            data.Sections[section]["CreateFiles"] = "0";
 
             // Name of the file(s) to create
-            data.Sections[section]["FileToCreate_1"] = "NoQuestion.bin";
+            data.Sections[section]["FileToCreate_1"] = "";
             data.Sections[section]["FileToCreate_2"] = "";
 
-            // Patch an x86 exe to enable IMAGE_FILE_LARGE_ADDRESS_AWARE
-            data.Sections[section]["Use4GBPatch"] = "0";
-            data.Sections[section]["FileToPatch_1"] = "";
-
             data.Sections[section]["BootImage"] = "";
-            data.Sections[section]["BootImageWidth"] = "0";
-            data.Sections[section]["BootImageHeight"] = "0";
-            data.Sections[section]["BootImageXOffest"] = "0";
-            data.Sections[section]["BootImageYOffest"] = "0";
 
             if (mode == GreenLumaMode.Stealth || mode == GreenLumaMode.Family)
             {
                 data.Sections[section]["CommandLine"] = args;
                 data.Sections[section]["Dll"] = Path.Combine(glPath, dllPath);
-                data.Sections[section]["EnableMitigationsOnChildProcess"] = "0";
                 data.Sections[section]["UseFullPathsFromIni"] = "1";
                 data.Sections[section]["Exe"] = steamexePath;
                 data.Sections[section]["WaitForProcessTermination"] = "0";
                 data.Sections[section]["EnableFakeParentProcess"] = "1";
-                data.Sections[section]["CreateFiles"] = "2";
+                data.Sections[section]["CreateFiles"] = "1";
                 data.Sections[section]["FileToCreate_1"] = "StealthMode.bin";
-                data.Sections[section]["FileToCreate_2"] = "NoQuestion.bin";
             }
             else
             {
