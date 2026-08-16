@@ -254,7 +254,7 @@ namespace GreenLumaCommon
             }
             try
             {
-                GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
+                appids = GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
             }
             catch (Exception ex)
             {
@@ -423,7 +423,7 @@ namespace GreenLumaCommon
 
                         injectorRunning = StartInjector(injectorPath, mode, settings.GreenLumaTimeout);
 
-                        GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
+                        appids = GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
                     }
                     catch (Exception ex)
                     {
@@ -436,7 +436,7 @@ namespace GreenLumaCommon
                 {
                     applistPath = Path.Combine(steamDir, "applist");
 
-                    GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
+                    appids = GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
 
                     var dll = mode == GreenLumaMode.Stealth ?
                     greenlumaFiles.FirstOrDefault(x => Regex.IsMatch(x.Name, StealthRegex, RegexOptions.IgnoreCase))
@@ -507,7 +507,7 @@ namespace GreenLumaCommon
 
                 try
                 {
-                    GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
+                    appids = GreenLumaGenerator.WriteAppList(appids, appListIniPath, applistPath, settings.CleanApplist);
                 }
                 catch (Exception ex)
                 {

@@ -276,12 +276,7 @@ namespace GreenLumaCommon
         {
             var appidSet = new HashSet<string>(appids);
 
-            var applistSet = applist.ToHashSet();
-            if (applistSet != null && applistSet.SetEquals(appidSet))
-            {
-                return true;
-            }
-            return false;
+            return appidSet.IsSubsetOf(applist);
         }
         public static bool GreenLumaFilesExists(string path, out List<string> missingFiles)
         {
