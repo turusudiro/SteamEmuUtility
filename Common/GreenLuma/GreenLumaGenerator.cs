@@ -95,14 +95,13 @@ namespace GreenLumaCommon
             parser.WriteFile(path, data, new UTF8Encoding());
         }
         /// <summary>
-        /// Create txt files with GreenLuma appids style like "0.txt", "1.txt". and more.
+        /// Create AppList.ini files GreenLuma
         /// </summary>
-        /// <para>Create txt files in applist Steam directory like "0.txt", "1.txt". and more.</para>
         /// <param name="appids">List appids to write into applist</param>
         /// <param name="destinationPath">Destination path</param>
         /// /// <param name="overwrite">Delete existing applist</param>
-        /// <returns></returns>
-        public static void WriteAppList(IEnumerable<string> appids, string applistIniFile, string destinationPath, bool overwrite = false)
+        /// <returns>Written appids</returns>
+        public static IEnumerable<string> WriteAppList(IEnumerable<string> appids, string applistIniFile, string destinationPath, bool overwrite = false)
         {
             var regex = new Regex(@"(?<appid>\d+)\s=");
             var oldAppids = new List<string>();
@@ -119,16 +118,15 @@ namespace GreenLumaCommon
             var parser = new FileIniDataParser();
             parser.Parser.Configuration.CommentString = "#";
 
+            HashSet<string> appidsSet = new HashSet<string>(appids);
             Dictionary<string, string> existsAppIds = new Dictionary<string, string>();
             var applistIniTargetPath = Path.Combine(destinationPath, "AppList.ini");
             if (!overwrite && FileSystem.FileExists(applistIniTargetPath))
             {
                 var existsApplistIniData = parser.ReadFile(applistIniTargetPath);
-                existsApplistIniData["AppList"].RemoveKey("NumAppIDs");
                 foreach (var key in existsApplistIniData.Sections["AppList"])
                 {
-                    oldAppids.Remove(key.KeyName);
-                    existsAppIds[key.KeyName] = key.Value;
+                    appidsSet.Add(key.Value);
                 }
             }
             else if (FileSystem.DirectoryExists(destinationPath))
@@ -146,16 +144,16 @@ namespace GreenLumaCommon
             }
 
             int count = 0;
-            foreach (var appid in appids)
+            foreach (var appid in appidsSet)
             {
-                if (count >= oldAppids.Count) break;
+                if (count > oldAppids.Count) break;
                 applistIniData["AppList"][oldAppids[count]] = appid.ToString();
                 count++;
             }
-            var total = applistIniData["AppList"].Count;
-            applistIniData["AppList"]["NumAppIDs"] = total.ToString();
 
             parser.WriteFile(applistIniTargetPath, applistIniData, new UTF8Encoding(false));
+
+            return appidsSet;
         }
         public static void GenerateDLC(Game game, SteamService steam, GlobalProgressActionArgs progress, string apiKey, string pluginPath)
         {
